@@ -2,6 +2,19 @@ version: '2.1'
 
 services:
 
+  bash:
+    user: '1000:1000'
+    image: smartweb/php:7.1-cli-dev
+    entrypoint: 'bash'
+    working_dir: '/var/www/html'
+    environment:
+      XDEBUG_CONFIG: idekey=PHPSTORM remote_host=192.168.1.167 remote_enable=1
+      PHP_IDE_CONFIG: serverName=docker-codecept
+    volumes:
+      - .:/var/www/html
+    networks:
+      - webapps
+
   php-fpm:
     image: smartweb/php:7.1-fpm-dev
     volumes:
@@ -15,6 +28,9 @@ services:
 
   nats:
     image: nats
+    ports:
+      - "4222:4222"
+      - "8222:8222"
     volumes:
       - .:/var/www/html
     networks:
