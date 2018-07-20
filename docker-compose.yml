@@ -1,0 +1,31 @@
+version: '2.1'
+
+services:
+
+  php-fpm:
+    image: smartweb/php:7.1-fpm-dev
+    volumes:
+      - .:/var/www/html
+      - ./setup/local/php-ext.ini:/usr/local/etc/php/conf.d/php-ext.ini
+      - ./setup/local/xdebug.ini:/usr/local/etc/php/conf.d/xdebug-ext.ini
+    networks:
+      webapps:
+        aliases:
+          - php-app
+
+  nats:
+    image: nats
+    volumes:
+      - .:/var/www/html
+    networks:
+      webapps:
+
+  nats-streaming:
+    image: nats-streaming
+    volumes:
+      - .:/var/www/html
+    networks:
+      webapps:
+
+networks:
+    webapps:

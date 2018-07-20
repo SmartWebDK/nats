@@ -1,0 +1,31 @@
+{
+    "name": "smartweb/nats-test-one",
+    "description": "Test of using NATS messaging protocol with PHP client implementations.",
+    "authors": [
+        {
+            "name": "Nicolai Agersbæk",
+            "email": "na@smartweb.dk"
+        }
+    ],
+    "type": "project",
+    "require": {
+        "php": ">=7.0",
+        "repejota/nats": "^0.8.7"
+    },
+    "require-dev": {
+        "roave/security-advisories": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "SmartWeb\\NATS\\": "src/"
+        }
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "platform": {
+            "php": "7.0.30",
+            "ext-bcmath": "2.6.3"
+        }
+    }
+}
