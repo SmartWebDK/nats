@@ -13,5 +13,4 @@ $client = new \Nats\Connection();
 
 $service = new \SmartWeb\NATS\Service($client);
 
-$service->boot();
 $service->run();

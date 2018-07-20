@@ -2,7 +2,7 @@
 declare(strict_types = 1);
 
 
-namespace SmartWeb\NATS;
+namespace SmartWeb\Nats;
 
 /**
  * Interface ServiceInterface

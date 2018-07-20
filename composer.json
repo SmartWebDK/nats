@@ -17,7 +17,7 @@
     },
     "autoload": {
         "psr-4": {
-            "SmartWeb\\NATS\\": "src/"
+            "SmartWeb\\Nats\\": "src/"
         }
     },
     "config": {

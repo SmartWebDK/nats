@@ -2,7 +2,7 @@
 declare(strict_types = 1);
 
 
-namespace SmartWeb\NATS;
+namespace SmartWeb\Nats;
 
 use Nats\Connection;
 
@@ -37,32 +37,37 @@ class Service implements ServiceInterface
         $this->connection->connect();
         
         // Publish Subscribe
-        
-        // Simple Subscriber.
-        $this->connection->subscribe(
-            'foo',
-            function ($message) {
-                printf("Data: %s\r\n", $message->getBody());
-            }
-        );
-        
-        // Simple Publisher.
-        $this->connection->publish('foo', 'Marty McFly');
-        
-        // Wait for 1 message.
-        $this->connection->wait(1);
+        $this->runPublishSubscribeExample();
         
         // Request Response
+        $this->runRequestResponseExample();
         
-        // Responding to requests.
-        $sid = $this->connection->subscribe(
+        $this->connection->close();
+        
+    }
+    
+    private function runRequestResponseExample()
+    {
+        $this->subscribe();
+        $this->request();
+        $this->connection->wait(1);
+    }
+    
+    /**
+     * @return string
+     */
+    private function subscribe() : string
+    {
+        return $this->connection->subscribe(
             'sayhello',
             function ($message) {
                 $message->reply('Reply: Hello, ' . $message->getBody() . ' !!!');
             }
         );
-        
-        // Request.
+    }
+    
+    private function request()
+    {
         $this->connection->request(
             'sayhello',
             'Marty McFly',
@@ -70,10 +75,34 @@ class Service implements ServiceInterface
                 echo $message->getBody();
             }
         );
+    }
+    
+    /**
+     * @throws \Nats\Exception
+     */
+    private function runPublishSubscribeExample()
+    {
+        $this->runSubscriberTest();
+        $this->runPublisherTest();
         
-        // Wait for 1 message.
         $this->connection->wait(1);
-        
-        $this->connection->close();
+    }
+    
+    private function runSubscriberTest()
+    {
+        $this->connection->subscribe(
+            'foo',
+            function ($message) {
+                printf("Data: %s\r\n", $message->getBody());
+            }
+        );
+    }
+    
+    /**
+     * @throws \Nats\Exception
+     */
+    private function runPublisherTest()
+    {
+        $this->connection->publish('foo', 'Marty McFly');
     }
 }
