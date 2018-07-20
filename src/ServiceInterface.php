@@ -11,11 +11,6 @@ interface ServiceInterface
 {
     
     /**
-     * Boot the service.
-     */
-    public function boot();
-    
-    /**
      * Run the service.
      */
     public function run();

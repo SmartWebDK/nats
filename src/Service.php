@@ -5,7 +5,6 @@ declare(strict_types = 1);
 namespace SmartWeb\NATS;
 
 use Nats\Connection;
-use Nats\ConnectionOptions;
 
 /**
  * Class Service
@@ -16,19 +15,16 @@ class Service implements ServiceInterface
     /**
      * @var Connection
      */
-    private $client;
+    private $connection;
     
     /**
-     * @inheritDoc
+     * Service constructor.
+     *
+     * @param Connection $connection
      */
-    public function boot()
+    public function __construct(Connection $connection)
     {
-        $options = new ConnectionOptions(
-            [
-                'port' => 4222,
-            ]
-        );
-        $this->client = new Connection();
+        $this->connection = $connection;
     }
     
     /**
@@ -38,12 +34,12 @@ class Service implements ServiceInterface
      */
     public function run()
     {
-        $this->client->connect();
+        $this->connection->connect();
         
         // Publish Subscribe
         
         // Simple Subscriber.
-        $this->client->subscribe(
+        $this->connection->subscribe(
             'foo',
             function ($message) {
                 printf("Data: %s\r\n", $message->getBody());
@@ -51,15 +47,15 @@ class Service implements ServiceInterface
         );
         
         // Simple Publisher.
-        $this->client->publish('foo', 'Marty McFly');
+        $this->connection->publish('foo', 'Marty McFly');
         
         // Wait for 1 message.
-        $this->client->wait(1);
+        $this->connection->wait(1);
         
         // Request Response
         
         // Responding to requests.
-        $sid = $this->client->subscribe(
+        $sid = $this->connection->subscribe(
             'sayhello',
             function ($message) {
                 $message->reply('Reply: Hello, ' . $message->getBody() . ' !!!');
@@ -67,7 +63,7 @@ class Service implements ServiceInterface
         );
         
         // Request.
-        $this->client->request(
+        $this->connection->request(
             'sayhello',
             'Marty McFly',
             function ($message) {
@@ -76,8 +72,8 @@ class Service implements ServiceInterface
         );
         
         // Wait for 1 message.
-        $this->client->wait(1);
+        $this->connection->wait(1);
         
-        $this->client->close();
+        $this->connection->close();
     }
 }
