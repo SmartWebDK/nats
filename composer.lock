@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6b88eddfe5ee3dff5f2b639d8f937acc",
-    "content-hash": "fcd8e030162c6b1c77ca4050e19a1103",
+    "hash": "78db62dbd8e7a27a48c506cff1069af4",
+    "content-hash": "b93d9b754c2c0571351d12232f2da600",
     "packages": [
         {
             "name": "ircmaxell/random-lib",
@@ -169,6 +169,45 @@
             ],
             "description": "A nats.io client in PHP",
             "time": "2018-06-09 15:32:07"
+        },
+        {
+            "name": "smartweb/cloud-events",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nicolai-agersbaek/cloud-events.git",
+                "reference": "57cf53720b3b2e6e93a40ef36acd87bfb203212c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nicolai-agersbaek/cloud-events/zipball/57cf53720b3b2e6e93a40ef36acd87bfb203212c",
+                "reference": "57cf53720b3b2e6e93a40ef36acd87bfb203212c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "require-dev": {
+                "roave/security-advisories": "dev-master"
+            },
+            "type": "project",
+            "autoload": {
+                "psr-4": {
+                    "SmartWeb\\CloudEvents\\": "src/"
+                }
+            },
+            "authors": [
+                {
+                    "name": "Nicolai Agersbæk",
+                    "email": "na@smartweb.dk"
+                }
+            ],
+            "description": "An implementation of the CloudEvents specification.",
+            "support": {
+                "source": "https://github.com/nicolai-agersbaek/cloud-events/tree/master",
+                "issues": "https://github.com/nicolai-agersbaek/cloud-events/issues"
+            },
+            "time": "2018-07-23 09:56:25"
         }
     ],
     "packages-dev": [
@@ -346,16 +385,17 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "smartweb/cloud-events": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.0"
+        "php": ">=7.1"
     },
     "platform-dev": [],
     "platform-overrides": {
-        "php": "7.0.30",
+        "php": "7.1",
         "ext-bcmath": "2.6.3"
     }
 }

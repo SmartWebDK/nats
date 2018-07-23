@@ -11,6 +11,10 @@ $options = new \Nats\ConnectionOptions(
 );
 $client = new \Nats\Connection();
 
-$service = new \SmartWeb\NATS\Service($client);
+$client->connect();
 
-$service->run();
+$client->publish('foo', 'Marty McFly');
+$client->publish('foo', 'Marty McFly');
+$client->publish('foo', 'Marty McFly');
+
+$client->close();

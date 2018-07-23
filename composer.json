@@ -7,10 +7,17 @@
             "email": "na@smartweb.dk"
         }
     ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/nicolai-agersbaek/cloud-events"
+        }
+    ],
     "type": "project",
     "require": {
-        "php": ">=7.0",
-        "repejota/nats": "^0.8.7"
+        "php": ">=7.1",
+        "repejota/nats": "^0.8.7",
+        "smartweb/cloud-events": "dev-master"
     },
     "require-dev": {
         "roave/security-advisories": "dev-master"
@@ -24,7 +31,7 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "platform": {
-            "php": "7.0.30",
+            "php": "7.1",
             "ext-bcmath": "2.6.3"
         }
     }

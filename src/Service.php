@@ -15,7 +15,7 @@ class Service implements ServiceInterface
     /**
      * @var Connection
      */
-    private $connection;
+    protected $connection;
     
     /**
      * Service constructor.
