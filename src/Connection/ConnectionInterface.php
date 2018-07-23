@@ -9,7 +9,7 @@ use SmartWeb\Nats\Message\MessageInterface;
 /**
  * Interface ConnectionInterface
  *
- * @api
+ * @internal
  */
 interface ConnectionInterface
 {

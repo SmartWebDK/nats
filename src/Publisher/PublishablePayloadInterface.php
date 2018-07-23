@@ -2,7 +2,7 @@
 declare(strict_types = 1);
 
 
-namespace SmartWeb\Nats;
+namespace SmartWeb\Nats\Publisher;
 
 use SmartWeb\CloudEvents\Context\ContextInterface;
 use SmartWeb\Nats\Message\MessageInterface;

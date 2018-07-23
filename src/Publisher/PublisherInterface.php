@@ -2,7 +2,7 @@
 declare(strict_types = 1);
 
 
-namespace SmartWeb\Nats;
+namespace SmartWeb\Nats\Publisher;
 
 /**
  * Interface PublisherInterface
