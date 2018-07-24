@@ -4,6 +4,8 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Publisher;
 
+use SmartWeb\Nats\Message\MessageType;
+
 /**
  * Class PublishableMessage
  */
@@ -37,6 +39,14 @@ class PublishableMessage implements PublishableMessageInterface
         $this->subject = $subject;
         $this->context = $context;
         $this->inbox = $inbox;
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function getType() : MessageType
+    {
+        return MessageType::PUB();
     }
     
     /**

@@ -11,7 +11,7 @@ class Message implements MessageInterface
 {
     
     /**
-     * @var string
+     * @var MessageType
      */
     private $type;
     
@@ -23,10 +23,10 @@ class Message implements MessageInterface
     /**
      * Message constructor.
      *
-     * @param string $type
-     * @param string $content
+     * @param MessageType $type
+     * @param string      $content
      */
-    public function __construct(string $type, string $content)
+    public function __construct(MessageType $type, string $content)
     {
         $this->type = $type;
         $this->content = $content;
@@ -35,7 +35,7 @@ class Message implements MessageInterface
     /**
      * @inheritDoc
      */
-    public function getType() : string
+    public function getType() : MessageType
     {
         return $this->type;
     }

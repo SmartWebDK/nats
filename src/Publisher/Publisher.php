@@ -58,7 +58,7 @@ class Publisher implements PublisherInterface
     private function createMessage(PublishableMessageInterface $message) : MessageInterface
     {
         return new Message(
-            PublishableMessageInterface::MESSAGE_TYPE,
+            $message->getType(),
             $this->createMessageContent($message)
         );
     }

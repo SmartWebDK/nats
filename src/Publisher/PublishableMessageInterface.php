@@ -4,12 +4,14 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Publisher;
 
+use SmartWeb\Nats\Message\MessageTypeAwareInterface;
+
 /**
  * Interface PublishableMessageInterface
  *
  * @api
  */
-interface PublishableMessageInterface
+interface PublishableMessageInterface extends MessageTypeAwareInterface
 {
     
     /**

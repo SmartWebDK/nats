@@ -9,15 +9,8 @@ namespace SmartWeb\Nats\Message;
  *
  * @api
  */
-interface MessageInterface
+interface MessageInterface extends MessageTypeAwareInterface
 {
-    
-    /**
-     * Get the type of the message.
-     *
-     * @return string
-     */
-    public function getType() : string;
     
     /**
      * The string representation of the content of this message.
