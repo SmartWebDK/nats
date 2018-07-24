@@ -10,8 +10,7 @@ use NatsStreaming\SubscriptionOptions;
 use NatsStreaming\TrackedNatsRequest;
 use SmartWeb\Nats\Channel\ChannelGroupInterface;
 use SmartWeb\Nats\Channel\ChannelInterface;
-use SmartWeb\Nats\Encoding\DecoderInterface;
-use SmartWeb\Nats\Encoding\EncoderInterface;
+use SmartWeb\Nats\Encoding\SerializerInterface;
 use SmartWeb\Nats\Payload\PayloadInterface;
 use SmartWeb\Nats\SubscriberInterface;
 
@@ -29,27 +28,20 @@ class StreamingConnectionAdapter implements ConnectionAdapterInterface
     private $connection;
     
     /**
-     * @var EncoderInterface
+     * @var SerializerInterface
      */
-    private $encoder;
-    
-    /**
-     * @var DecoderInterface
-     */
-    private $decoder;
+    private $serializer;
     
     /**
      * StreamingConnectionAdapter constructor.
      *
-     * @param Connection       $connection
-     * @param EncoderInterface $encoder
-     * @param DecoderInterface $decoder
+     * @param Connection          $connection
+     * @param SerializerInterface $serializer
      */
-    public function __construct(Connection $connection, EncoderInterface $encoder, DecoderInterface $decoder)
+    public function __construct(Connection $connection, SerializerInterface $serializer)
     {
         $this->connection = $connection;
-        $this->encoder = $encoder;
-        $this->decoder = $decoder;
+        $this->serializer = $serializer;
     }
     
     /**
@@ -57,7 +49,7 @@ class StreamingConnectionAdapter implements ConnectionAdapterInterface
      */
     public function publish(ChannelInterface $channel, PayloadInterface $payload) : TrackedNatsRequest
     {
-        return $this->connection->publish($channel->getName(), $this->encoder->encode($payload));
+        return $this->connection->publish($channel->getName(), $this->serializer->serialize($payload));
     }
     
     /**
@@ -79,7 +71,7 @@ class StreamingConnectionAdapter implements ConnectionAdapterInterface
     private function getSubscriberCallback(SubscriberInterface $subscriber) : callable
     {
         return function (string $payload) use ($subscriber): void {
-            $subscriber->handle($this->decoder->decode($payload));
+            $subscriber->handle($this->serializer->deserialize($payload));
         };
     }
 }
