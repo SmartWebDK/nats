@@ -15,9 +15,10 @@
     ],
     "type": "project",
     "require": {
-        "php": ">=7.1",
+        "php": ">=7.1.19",
         "repejota/nats": "^0.8.7",
-        "smartweb/cloud-events": "dev-master"
+        "smartweb/cloud-events": "dev-master",
+        "symfony/serializer": "^4.0"
     },
     "require-dev": {
         "roave/security-advisories": "dev-master"
@@ -31,8 +32,7 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "platform": {
-            "php": "7.1",
-            "ext-bcmath": "2.6.3"
+            "php": "7.1.19"
         }
     }
 }
