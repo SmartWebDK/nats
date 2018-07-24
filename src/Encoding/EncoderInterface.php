@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Encoding;
 
-use SmartWeb\Nats\PayloadInterface;
+use SmartWeb\Nats\Payload\PayloadInterface;
 
 /**
  * Interface EncoderInterface

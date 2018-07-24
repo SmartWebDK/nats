@@ -12,7 +12,7 @@ use SmartWeb\Nats\Channel\ChannelGroupInterface;
 use SmartWeb\Nats\Channel\ChannelInterface;
 use SmartWeb\Nats\Encoding\DecoderInterface;
 use SmartWeb\Nats\Encoding\EncoderInterface;
-use SmartWeb\Nats\PayloadInterface;
+use SmartWeb\Nats\Payload\PayloadInterface;
 use SmartWeb\Nats\SubscriberInterface;
 
 /**
