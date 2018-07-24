@@ -1,10 +1,12 @@
 <?php
 declare(strict_types = 1);
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../../../vendor/autoload.php';
 
 $options = new \NatsStreaming\ConnectionOptions();
-$options->setClientID('test');
+
+$clientID = mt_rand();
+$options->setClientID($clientID);
 $options->setClusterID('test-cluster');
 
 $connection = new \NatsStreaming\Connection($options);
