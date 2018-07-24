@@ -280,12 +280,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/nicolai-agersbaek/cloud-events.git",
-                "reference": "57cf53720b3b2e6e93a40ef36acd87bfb203212c"
+                "reference": "79800c8b7006cf7a7057bf8e30b3195695389804"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nicolai-agersbaek/cloud-events/zipball/57cf53720b3b2e6e93a40ef36acd87bfb203212c",
-                "reference": "57cf53720b3b2e6e93a40ef36acd87bfb203212c",
+                "url": "https://api.github.com/repos/nicolai-agersbaek/cloud-events/zipball/79800c8b7006cf7a7057bf8e30b3195695389804",
+                "reference": "79800c8b7006cf7a7057bf8e30b3195695389804",
                 "shasum": ""
             },
             "require": {
@@ -311,7 +311,7 @@
                 "source": "https://github.com/nicolai-agersbaek/cloud-events/tree/master",
                 "issues": "https://github.com/nicolai-agersbaek/cloud-events/issues"
             },
-            "time": "2018-07-23 09:56:25"
+            "time": "2018-07-24 15:35:35"
         },
         {
             "name": "symfony/polyfill-ctype",
