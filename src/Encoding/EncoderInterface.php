@@ -8,6 +8,8 @@ use SmartWeb\Nats\PayloadInterface;
 
 /**
  * Interface EncoderInterface
+ *
+ * @api
  */
 interface EncoderInterface
 {
