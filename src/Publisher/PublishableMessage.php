@@ -4,8 +4,6 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Publisher;
 
-use SmartWeb\CloudEvents\Context\ContextInterface;
-
 /**
  * Class PublishableMessage
  */
@@ -18,7 +16,7 @@ class PublishableMessage implements PublishableMessageInterface
     private $subject;
     
     /**
-     * @var ContextInterface
+     * @var array
      */
     private $context;
     
@@ -30,11 +28,11 @@ class PublishableMessage implements PublishableMessageInterface
     /**
      * PublishablePayload constructor.
      *
-     * @param string           $subject
-     * @param ContextInterface $context
-     * @param null|string      $inbox
+     * @param string      $subject
+     * @param array       $context
+     * @param null|string $inbox
      */
-    public function __construct(string $subject, ContextInterface $context, ?string $inbox)
+    public function __construct(string $subject, array $context, string $inbox = null)
     {
         $this->subject = $subject;
         $this->context = $context;
@@ -52,7 +50,7 @@ class PublishableMessage implements PublishableMessageInterface
     /**
      * @inheritDoc
      */
-    public function getContext() : ContextInterface
+    public function getContext() : array
     {
         return $this->context;
     }

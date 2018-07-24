@@ -78,9 +78,7 @@ class ConnectionAdapter implements ConnectionInterface
     public function send(MessageInterface $message) : ConnectionInterface
     {
         // TODO: Refactor to using MessageFormatter
-        $payload = $message->getType() . ' ' . $message->getContent();
-        $msg = $payload . "\r\n";
-        
+        $msg = $this->formatMessageForStream($message);
         $len = \strlen($msg);
         
         while (true) {
@@ -108,5 +106,15 @@ class ConnectionAdapter implements ConnectionInterface
 //        }
         
         return $this;
+    }
+    
+    /**
+     * @param MessageInterface $message
+     *
+     * @return string
+     */
+    private function formatMessageForStream(MessageInterface $message) : string
+    {
+        return "{$message->getType()} {$message->getContent()}\r\n";
     }
 }

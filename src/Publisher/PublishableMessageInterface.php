@@ -4,8 +4,6 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Publisher;
 
-use SmartWeb\CloudEvents\Context\ContextInterface;
-
 /**
  * Interface PublishableMessageInterface
  *
@@ -25,9 +23,9 @@ interface PublishableMessageInterface
     public function getSubject() : string;
     
     /**
-     * @return ContextInterface
+     * @return array
      */
-    public function getContext() : ContextInterface;
+    public function getContext() : array;
     
     /**
      * @return null|string

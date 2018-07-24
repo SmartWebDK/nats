@@ -5,9 +5,11 @@ declare(strict_types = 1);
 namespace SmartWeb\Nats;
 
 use SmartWeb\Nats\Connection\ConnectionInterface;
+use SmartWeb\Nats\Publisher\PublishableMessage;
 use SmartWeb\Nats\Publisher\PublishableMessageInterface;
 use SmartWeb\Nats\Publisher\Publisher;
 use SmartWeb\Nats\Publisher\PublisherInterface;
+use Symfony\Component\Serializer\Encoder\JsonEncode;
 
 /**
  * Class Service
@@ -33,7 +35,7 @@ class Service implements ServiceInterface
     public function __construct(ConnectionInterface $connection)
     {
         $this->connection = $connection;
-        $this->publisher = new Publisher($connection);
+        $this->publisher = new Publisher($connection, new JsonEncode());
     }
     
     /**
@@ -45,9 +47,13 @@ class Service implements ServiceInterface
     {
         $this->connection->connect();
         
-        $payload = null;
+        $payload = [
+            'someField' => 'someValue'
+        ];
         
-        $this->runPublisherTest($payload, 3);
+        $message = new PublishableMessage('someSubject', $payload);
+        
+        $this->runPublisherTest($message, 3);
         
         // Publish Subscribe
 //        $this->runPublishSubscribeExample();

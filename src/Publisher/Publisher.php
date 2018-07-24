@@ -4,9 +4,12 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Publisher;
 
+use Nats\Encoders\Encoder;
 use SmartWeb\Nats\Connection\ConnectionInterface;
 use SmartWeb\Nats\Message\Message;
 use SmartWeb\Nats\Message\MessageInterface;
+use Symfony\Component\Serializer\Encoder\EncoderInterface;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 
 /**
  * Class Publisher
@@ -22,13 +25,20 @@ class Publisher implements PublisherInterface
     private $connection;
     
     /**
+     * @var EncoderInterface
+     */
+    private $encoder;
+    
+    /**
      * Publisher constructor.
      *
      * @param ConnectionInterface $connection
+     * @param EncoderInterface    $encoder
      */
-    public function __construct(ConnectionInterface $connection)
+    public function __construct(ConnectionInterface $connection, EncoderInterface $encoder)
     {
         $this->connection = $connection;
+        $this->encoder = $encoder;
     }
     
     /**
@@ -61,7 +71,7 @@ class Publisher implements PublisherInterface
      */
     private function createMessageContent(PublishableMessageInterface $message) : string
     {
-        $serializedContext = $message->getContext()->serialize();
+        $serializedContext = $this->encoder->encode($message->getContext(), JsonEncoder::FORMAT);
         
         $content = [
             // $message::MESSAGE_TYPE,

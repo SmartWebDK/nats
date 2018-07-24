@@ -13,8 +13,12 @@ $client = new \Nats\Connection();
 
 $client->connect();
 
-$client->publish('foo', 'Marty McFly');
-$client->publish('foo', 'Marty McFly');
-$client->publish('foo', 'Marty McFly');
+$service = new \SmartWeb\Nats\Service($client);
+
+$service->run();
+
+//$client->publish('foo', 'Marty McFly');
+//$client->publish('foo', 'Marty McFly');
+//$client->publish('foo', 'Marty McFly');
 
 $client->close();
