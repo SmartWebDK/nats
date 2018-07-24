@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Connection;
 
+use SmartWeb\Nats\Error\SendError;
 use SmartWeb\Nats\Message\MessageInterface;
 
 /**
@@ -19,26 +20,32 @@ interface ConnectionInterface
      *
      * @param float|null $timeout Number of seconds until the connect() system call should timeout.
      *
+     * @return self
+     *
      * @throws \Exception Exception raised if connection fails.
      */
-    public function connect(float $timeout = null) : void;
+    public function connect(float $timeout = null) : self;
     
     /**
      * Reconnect to the server.
+     *
+     * @return self
      */
-    public function reconnect() : void;
+    public function reconnect() : self;
     
     /**
      * Close the connection to the server.
+     *
+     * @return self
      */
-    public function close() : void;
+    public function close() : self;
     
     /**
      * Waits for messages.
      *
      * @param int|null $numMessages Number of messages to wait for.
      *
-     * @return ConnectionInterface
+     * @return self
      */
     public function wait(int $numMessages = null) : self;
     
@@ -47,12 +54,9 @@ interface ConnectionInterface
      *
      * @param MessageInterface $message Message data.
      *
-     * @return void
+     * @return self
+     *
+     * @throws SendError
      */
-    public function send(MessageInterface $message) : void;
-    
-    /**
-     * @return bool
-     */
-    public function isConnected() : bool;
+    public function send(MessageInterface $message) : self;
 }
