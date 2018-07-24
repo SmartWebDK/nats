@@ -30,11 +30,12 @@ $connection->connect();
 
 $publisher->publish($publishable);
 $publisher->publish($publishable);
+$publisher->publish($publishable);
 
 $connection->close();
 
-$client->publish('foo', 'Marty McFly');
-$client->publish('foo', 'Marty McFly');
-$client->publish('foo', 'Marty McFly');
+//$client->publish('foo', 'Marty McFly');
+//$client->publish('foo', 'Marty McFly');
+//$client->publish('foo', 'Marty McFly');
 
 $client->close();
