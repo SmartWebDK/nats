@@ -13,5 +13,5 @@ interface ServiceInterface
     /**
      * Run the service.
      */
-    public function run();
+    public function run() : void;
 }

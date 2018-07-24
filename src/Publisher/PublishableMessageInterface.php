@@ -15,7 +15,7 @@ interface PublishableMessageInterface
     /**
      * The message type of this message.
      */
-    public const MESSAGE_TYPE = '';
+    public const MESSAGE_TYPE = 'PUB';
     
     /**
      * @return string

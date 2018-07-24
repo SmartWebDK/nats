@@ -4,7 +4,6 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Publisher;
 
-use Nats\Encoders\Encoder;
 use SmartWeb\Nats\Connection\ConnectionInterface;
 use SmartWeb\Nats\Message\Message;
 use SmartWeb\Nats\Message\MessageInterface;
@@ -71,6 +70,7 @@ class Publisher implements PublisherInterface
      */
     private function createMessageContent(PublishableMessageInterface $message) : string
     {
+        // TODO: Refactor to separate class
         $serializedContext = $this->encoder->encode($message->getContext(), JsonEncoder::FORMAT);
         
         $content = [

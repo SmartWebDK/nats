@@ -13,12 +13,28 @@ $client = new \Nats\Connection();
 
 $client->connect();
 
-$service = new \SmartWeb\Nats\Service($client);
+$connection = new \SmartWeb\Nats\Connection\ConnectionAdapter($options);
+$encoder = new \Symfony\Component\Serializer\Encoder\JsonEncode();
 
-$service->run();
+$publisher = new \SmartWeb\Nats\Publisher\Publisher($connection, $encoder);
 
-//$client->publish('foo', 'Marty McFly');
-//$client->publish('foo', 'Marty McFly');
-//$client->publish('foo', 'Marty McFly');
+$subject = 'foo';
+$messageContent = [
+    'someField' => 'someVal'
+];
+
+$publishable = new \SmartWeb\Nats\Publisher\PublishableMessage($subject, $messageContent);
+
+
+$connection->connect();
+
+$publisher->publish($publishable);
+$publisher->publish($publishable);
+
+$connection->close();
+
+$client->publish('foo', 'Marty McFly');
+$client->publish('foo', 'Marty McFly');
+$client->publish('foo', 'Marty McFly');
 
 $client->close();
