@@ -5,15 +5,19 @@ declare(strict_types = 1);
 namespace SmartWeb\Nats\Publisher;
 
 use SmartWeb\CloudEvents\Context\ContextInterface;
-use SmartWeb\Nats\Message\MessageInterface;
 
 /**
- * Interface PayloadInterface
+ * Interface PublishableMessageInterface
  *
  * @api
  */
-interface PublishablePayloadInterface extends MessageInterface
+interface PublishableMessageInterface
 {
+    
+    /**
+     * The message type of this message.
+     */
+    public const MESSAGE_TYPE = '';
     
     /**
      * @return string
@@ -23,10 +27,10 @@ interface PublishablePayloadInterface extends MessageInterface
     /**
      * @return ContextInterface
      */
-    public function getPayload() : ContextInterface;
+    public function getContext() : ContextInterface;
     
     /**
-     * @return string
+     * @return null|string
      */
-    public function getInbox() : string;
+    public function getInbox() : ?string;
 }

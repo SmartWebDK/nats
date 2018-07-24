@@ -13,7 +13,9 @@ interface PublisherInterface
 {
     
     /**
-     * @param PublishablePayloadInterface $payload
+     * @param PublishableMessageInterface $message
+     *
+     * @return self
      */
-    public function publish(PublishablePayloadInterface $payload) : void;
+    public function publish(PublishableMessageInterface $message) : self;
 }
