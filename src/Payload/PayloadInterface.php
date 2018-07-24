@@ -27,16 +27,6 @@ interface PayloadInterface
     public function getEventTypeVersion() : ?string;
     
     /**
-     * @return null|string
-     */
-    public function getEventId() : ?string;
-    
-    /**
-     * @return \DateTimeInterface
-     */
-    public function getEventTime() : \DateTimeInterface;
-    
-    /**
      * The CloudEvents specification version this payload adheres to.
      *
      * @return VersionInterface
@@ -49,6 +39,16 @@ interface PayloadInterface
      * @return string
      */
     public function getSource() : string;
+    
+    /**
+     * @return string
+     */
+    public function getEventId() : string;
+    
+    /**
+     * @return \DateTimeInterface|null
+     */
+    public function getEventTime() : ?\DateTimeInterface;
     
     /**
      * @return null|string
@@ -66,7 +66,7 @@ interface PayloadInterface
     public function getExtensions() : ?array;
     
     /**
-     * @return array
+     * @return array|null
      */
-    public function getData() : array;
+    public function getData() : ?array;
 }

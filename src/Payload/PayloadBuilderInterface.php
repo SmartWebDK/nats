@@ -35,20 +35,6 @@ interface PayloadBuilderInterface
     public function setEventTypeVersion(VersionInterface $version) : self;
     
     /**
-     * @param string $id
-     *
-     * @return PayloadBuilderInterface
-     */
-    public function setEventId(string $id) : self;
-    
-    /**
-     * @param \DateTimeInterface $time
-     *
-     * @return PayloadBuilderInterface
-     */
-    public function setEventTime(\DateTimeInterface $time) : self;
-    
-    /**
      * @param VersionInterface $version
      *
      * @return PayloadBuilderInterface
@@ -61,6 +47,20 @@ interface PayloadBuilderInterface
      * @return PayloadBuilderInterface
      */
     public function setSource(string $source) : self;
+    
+    /**
+     * @param string $id
+     *
+     * @return PayloadBuilderInterface
+     */
+    public function setEventId(string $id) : self;
+    
+    /**
+     * @param \DateTimeInterface $time
+     *
+     * @return PayloadBuilderInterface
+     */
+    public function setEventTime(\DateTimeInterface $time) : self;
     
     /**
      * @param string $schemaURL

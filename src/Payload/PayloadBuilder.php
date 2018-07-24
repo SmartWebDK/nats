@@ -26,16 +26,6 @@ class PayloadBuilder implements PayloadBuilderInterface
     private const EVENT_TYPE_VERSION = 'eventTypeVersion';
     
     /**
-     * Key used for storing 'eventId' payload data.
-     */
-    private const EVENT_ID = 'eventId';
-    
-    /**
-     * Key used for storing 'eventTime' payload data.
-     */
-    private const EVENT_TIME = 'eventTime';
-    
-    /**
      * Key used for storing 'cloudEventsVersion' payload data.
      */
     private const CLOUD_EVENTS_VERSION = 'cloudEventsVersion';
@@ -44,6 +34,16 @@ class PayloadBuilder implements PayloadBuilderInterface
      * Key used for storing 'source' payload data.
      */
     private const SOURCE = 'source';
+    
+    /**
+     * Key used for storing 'eventId' payload data.
+     */
+    private const EVENT_ID = 'eventId';
+    
+    /**
+     * Key used for storing 'eventTime' payload data.
+     */
+    private const EVENT_TIME = 'eventTime';
     
     /**
      * Key used for storing 'schemaURL' payload data.
@@ -64,6 +64,16 @@ class PayloadBuilder implements PayloadBuilderInterface
      * Key used for storing 'data' payload data.
      */
     private const DATA = 'data';
+    
+    /**
+     * @var string[]
+     */
+    private static $requiredFields = [
+        self::EVENT_TYPE,
+        self::CLOUD_EVENTS_VERSION,
+        self::SOURCE,
+        self::EVENT_ID,
+    ];
     
     /**
      * @var array
@@ -93,19 +103,27 @@ class PayloadBuilder implements PayloadBuilderInterface
      */
     private function validateBuilderArgs() : void
     {
-        $missingArgs = $this->getMissingArgs();
+        $missingFields = $this->getMissingFields();
         
-        if ($missingArgs !== []) {
-            throw new PayloadBuilderError($missingArgs);
+        if ($missingFields !== []) {
+            throw new PayloadBuilderError($missingFields);
         }
     }
     
     /**
-     * @return array
+     * @return string[]
      */
-    private function getMissingArgs() : array
+    private function getMissingFields() : array
     {
-        return [];
+        return \array_diff($this->getRequiredFields(), \array_keys($this->builderArgs));
+    }
+    
+    /**
+     * @return string[]
+     */
+    private function getRequiredFields() : array
+    {
+        return self::$requiredFields;
     }
     
     /**
@@ -131,26 +149,6 @@ class PayloadBuilder implements PayloadBuilderInterface
     /**
      * @inheritDoc
      */
-    public function setEventId(string $id) : PayloadBuilderInterface
-    {
-        $this->builderArgs[self::EVENT_ID] = $id;
-        
-        return $this;
-    }
-    
-    /**
-     * @inheritDoc
-     */
-    public function setEventTime(\DateTimeInterface $time) : PayloadBuilderInterface
-    {
-        $this->builderArgs[self::EVENT_TIME] = $time;
-        
-        return $this;
-    }
-    
-    /**
-     * @inheritDoc
-     */
     public function setCloudEventsVersion(VersionInterface $version) : PayloadBuilderInterface
     {
         $this->builderArgs[self::CLOUD_EVENTS_VERSION] = $version;
@@ -164,6 +162,26 @@ class PayloadBuilder implements PayloadBuilderInterface
     public function setSource(string $source) : PayloadBuilderInterface
     {
         $this->builderArgs[self::SOURCE] = $source;
+        
+        return $this;
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function setEventId(string $id) : PayloadBuilderInterface
+    {
+        $this->builderArgs[self::EVENT_ID] = $id;
+        
+        return $this;
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function setEventTime(\DateTimeInterface $time) : PayloadBuilderInterface
+    {
+        $this->builderArgs[self::EVENT_TIME] = $time;
         
         return $this;
     }
