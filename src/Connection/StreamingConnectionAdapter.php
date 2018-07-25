@@ -70,6 +70,8 @@ class StreamingConnectionAdapter implements ConnectionAdapterInterface
     private function getSubscriberCallback(SubscriberInterface $subscriber) : callable
     {
         return function (string $payload) use ($subscriber): void {
+            \var_dump($payload);
+            exit(1);
             $subscriber->handle($this->serializer->deserialize($payload));
         };
     }

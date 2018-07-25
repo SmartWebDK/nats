@@ -24,7 +24,7 @@ class PayloadDenormalizer implements DenormalizerInterface
     public function denormalize($data, $class, $format = null, array $context = [])
     {
         if (!$this->supportsDenormalization($data, $class)) {
-            throw new \InvalidArgumentException('The given data is not supported by this normalizer.');
+            throw new \InvalidArgumentException('The given data is not supported by this denormalizer.');
         }
         
         return new $class(...\array_values($data));
