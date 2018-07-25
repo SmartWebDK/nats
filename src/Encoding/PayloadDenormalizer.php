@@ -16,13 +16,18 @@ use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 class PayloadDenormalizer implements DenormalizerInterface
 {
     
+    // TODO: Match $format parameter against support schema URLs, mapping schemas to denormalization strategies?
+    
     /**
      * @inheritDoc
      */
     public function denormalize($data, $class, $format = null, array $context = [])
     {
-        // TODO: Implement denormalize() method.
-        throw new \BadMethodCallException(__METHOD__ . ' not yet implemented!');
+        if (!$this->supportsDenormalization($data, $class)) {
+            throw new \InvalidArgumentException('The given data is not supported by this normalizer.');
+        }
+        
+        return new $class(...\array_values($data));
     }
     
     /**
@@ -30,9 +35,11 @@ class PayloadDenormalizer implements DenormalizerInterface
      */
     public function supportsDenormalization($data, $type, $format = null)
     {
+        // TODO: Refactor to separate validator class
         return \is_array($data)
                && $this->typeSupportsDenormalization($type)
-               && $this->dataHasRequiredFields($data);
+               && $this->dataHasRequiredFields($data)
+               && $this->dataHasOnlySupportedFields($data);
     }
     
     /**
@@ -62,7 +69,7 @@ class PayloadDenormalizer implements DenormalizerInterface
      */
     private function dataHasRequiredFields(array $data) : bool
     {
-        return $this->getMissingFields($data) === [];
+        return \count($this->getMissingFields($data)) === 0;
     }
     
     /**
@@ -73,5 +80,25 @@ class PayloadDenormalizer implements DenormalizerInterface
     private function getMissingFields(array $data) : array
     {
         return \array_diff(PayloadFields::getRequiredFields(), \array_keys($data));
+    }
+    
+    /**
+     * @param array $data
+     *
+     * @return bool
+     */
+    private function dataHasOnlySupportedFields(array $data) : bool
+    {
+        return \count($this->getUnsupportedFields($data)) === 0;
+    }
+    
+    /**
+     * @param array $data
+     *
+     * @return array
+     */
+    private function getUnsupportedFields(array $data) : array
+    {
+        return \array_diff(\array_keys($data), PayloadFields::getSupportedFields());
     }
 }

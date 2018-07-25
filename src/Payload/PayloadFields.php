@@ -65,6 +65,22 @@ final class PayloadFields
     /**
      * @var string[]
      */
+    private static $supportedFields = [
+        PayloadFields::EVENT_TYPE,
+        PayloadFields::EVENT_TYPE_VERSION,
+        PayloadFields::CLOUD_EVENTS_VERSION,
+        PayloadFields::SOURCE,
+        PayloadFields::EVENT_ID,
+        PayloadFields::EVENT_TIME,
+        PayloadFields::SCHEMA_URL,
+        PayloadFields::CONTENT_TYPE,
+        PayloadFields::EXTENSIONS,
+        PayloadFields::DATA,
+    ];
+    
+    /**
+     * @var string[]
+     */
     private static $requiredFields = [
         PayloadFields::EVENT_TYPE,
         PayloadFields::CLOUD_EVENTS_VERSION,
@@ -74,6 +90,14 @@ final class PayloadFields
     
     private function __construct()
     {
+    }
+    
+    /**
+     * @return string[]
+     */
+    public static function getSupportedFields() : array
+    {
+        return self::$supportedFields;
     }
     
     /**
