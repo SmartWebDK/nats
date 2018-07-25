@@ -25,12 +25,12 @@ class Payload implements PayloadInterface
     private $eventTypeVersion;
     
     /**
-     * @var null|string
+     * @var string
      */
     private $eventId;
     
     /**
-     * @var \DateTimeInterface
+     * @var \DateTimeInterface|null
      */
     private $eventTime;
     
@@ -67,27 +67,27 @@ class Payload implements PayloadInterface
     /**
      * Payload constructor.
      *
-     * @param string                $eventType
-     * @param null|VersionInterface $eventTypeVersion
-     * @param null|string           $eventId
-     * @param \DateTimeInterface    $eventTime
-     * @param VersionInterface      $cloudEventsVersion
-     * @param string                $source
-     * @param null|string           $schemaURL
-     * @param null|string           $contentType
-     * @param array|null            $extensions
-     * @param array                 $data
+     * @param string                  $eventType
+     * @param VersionInterface|null   $eventTypeVersion
+     * @param string                  $eventId
+     * @param \DateTimeInterface|null $eventTime
+     * @param VersionInterface        $cloudEventsVersion
+     * @param string                  $source
+     * @param string|null             $schemaURL
+     * @param string|null             $contentType
+     * @param array|null              $extensions
+     * @param array                   $data
      */
     public function __construct(
         string $eventType,
-        ?VersionInterface $eventTypeVersion,
-        ?string $eventId,
-        \DateTimeInterface $eventTime,
+        VersionInterface $eventTypeVersion = null,
+        string $eventId,
+        \DateTimeInterface $eventTime = null,
         VersionInterface $cloudEventsVersion,
         string $source,
-        ?string $schemaURL,
-        ?string $contentType,
-        ?array $extensions,
+        string $schemaURL = null,
+        string $contentType = null,
+        array $extensions = null,
         array $data
     ) {
         $this->eventType = $eventType;
@@ -121,7 +121,7 @@ class Payload implements PayloadInterface
     /**
      * @inheritDoc
      */
-    public function getEventId() : ?string
+    public function getEventId() : string
     {
         return $this->eventId;
     }

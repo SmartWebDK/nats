@@ -22,9 +22,9 @@ interface PayloadInterface
     /**
      * The event version.
      *
-     * @return null|string
+     * @return null|VersionInterface
      */
-    public function getEventTypeVersion() : ?string;
+    public function getEventTypeVersion() : ?VersionInterface;
     
     /**
      * The CloudEvents specification version this payload adheres to.
