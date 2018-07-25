@@ -3,7 +3,9 @@ declare(strict_types = 1);
 
 require __DIR__ . '/../../../vendor/autoload.php';
 
-$options = new \NatsStreaming\ConnectionOptions();
+$port = 4223;
+$natsOptions = new \Nats\ConnectionOptions(\compact('port'));
+$options = new \NatsStreaming\ConnectionOptions(\compact('natsOptions'));
 
 $clientID = mt_rand();
 $options->setClientID($clientID);
@@ -16,7 +18,7 @@ $connection->connect();
 $subOptions = new \NatsStreaming\SubscriptionOptions();
 $subOptions->setStartAt(\NatsStreamingProtos\StartPosition::NewOnly());
 
-$subjects = 'some.subject';
+$subjects = 'some.channel';
 $callback = function ($message) {
     \printf($message);
 };

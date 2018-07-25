@@ -28,7 +28,18 @@ class PayloadBuilder implements PayloadBuilderInterface
     /**
      * @var array
      */
-    private $builderArgs = [];
+    private $builderArgs = [
+        PayloadField::EVENT_TYPE           => null,
+        PayloadField::EVENT_TYPE_VERSION   => null,
+        PayloadField::CLOUD_EVENTS_VERSION => null,
+        PayloadField::SOURCE               => null,
+        PayloadField::EVENT_ID             => null,
+        PayloadField::EVENT_TIME           => null,
+        PayloadField::SCHEMA_URL           => null,
+        PayloadField::CONTENT_TYPE         => null,
+        PayloadField::EXTENSIONS           => null,
+        PayloadField::DATA                 => null,
+    ];
     
     /**
      * @inheritDoc
@@ -45,7 +56,7 @@ class PayloadBuilder implements PayloadBuilderInterface
     {
         $this->validateBuilderArgs();
         
-        return new Payload(...$this->builderArgs);
+        return new Payload(...\array_values($this->builderArgs));
     }
     
     /**

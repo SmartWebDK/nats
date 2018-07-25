@@ -69,26 +69,26 @@ class Payload implements PayloadInterface
      *
      * @param string                  $eventType
      * @param VersionInterface|null   $eventTypeVersion
-     * @param string                  $eventId
-     * @param \DateTimeInterface|null $eventTime
      * @param VersionInterface        $cloudEventsVersion
      * @param string                  $source
+     * @param string                  $eventId
+     * @param \DateTimeInterface|null $eventTime
      * @param string|null             $schemaURL
      * @param string|null             $contentType
      * @param array|null              $extensions
-     * @param array                   $data
+     * @param array|null              $data
      */
     public function __construct(
         string $eventType,
         VersionInterface $eventTypeVersion = null,
-        string $eventId,
-        \DateTimeInterface $eventTime = null,
         VersionInterface $cloudEventsVersion,
         string $source,
+        string $eventId,
+        \DateTimeInterface $eventTime = null,
         string $schemaURL = null,
         string $contentType = null,
         array $extensions = null,
-        array $data
+        array $data = null
     ) {
         $this->eventType = $eventType;
         $this->eventTypeVersion = $eventTypeVersion;
@@ -129,7 +129,7 @@ class Payload implements PayloadInterface
     /**
      * @inheritDoc
      */
-    public function getEventTime() : \DateTimeInterface
+    public function getEventTime() : ?\DateTimeInterface
     {
         return $this->eventTime;
     }
@@ -177,7 +177,7 @@ class Payload implements PayloadInterface
     /**
      * @inheritDoc
      */
-    public function getData() : array
+    public function getData() : ?array
     {
         return $this->data;
     }
