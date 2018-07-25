@@ -5,29 +5,7 @@ require __DIR__ . '/../../../vendor/autoload.php';
 
 $port = 4223;
 $natsOptions = new \Nats\ConnectionOptions(\compact('port'));
-$options = new \NatsStreaming\ConnectionOptions(\compact('natsOptions'));
 
-$clientID = mt_rand();
-$options->setClientID($clientID);
-$options->setClusterID('test-cluster');
+$service = new \SmartWeb\Nats\Service($natsOptions);
 
-$connection = new \NatsStreaming\Connection($options);
-
-$connection->connect();
-
-$subOptions = new \NatsStreaming\SubscriptionOptions();
-$subOptions->setStartAt(\NatsStreamingProtos\StartPosition::NewOnly());
-
-$subjects = 'some.channel';
-$callback = function ($message) {
-    \printf($message);
-};
-
-$sub = $connection->subscribe($subjects, $callback, $subOptions);
-
-$sub->wait(3);
-
-// not explicitly needed
-$sub->unsubscribe(); // or $sub->close();
-
-$connection->close();
+$service->runSimpleSubscribeTest('test-cluster');

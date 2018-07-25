@@ -7,6 +7,8 @@ namespace SmartWeb\Nats;
 use Nats\ConnectionOptions;
 use NatsStreaming\Connection;
 use NatsStreaming\ConnectionOptions as StreamingConnectionOptions;
+use NatsStreaming\SubscriptionOptions;
+use NatsStreamingProtos\StartPosition;
 use SmartWeb\CloudEvents\Version;
 use SmartWeb\Nats\Channel\Channel;
 use SmartWeb\Nats\Connection\StreamingConnectionAdapter;
@@ -15,6 +17,7 @@ use SmartWeb\Nats\Encoding\PayloadNormalizer;
 use SmartWeb\Nats\Encoding\PayloadSerializer;
 use SmartWeb\Nats\Encoding\SerializerInterface;
 use SmartWeb\Nats\Payload\PayloadBuilder;
+use SmartWeb\Nats\Subscriber\SubscriberTest;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
 
@@ -124,10 +127,75 @@ class Service implements ServiceInterface
         $connection->close();
     }
     
-    public function runSubscribeTest() : void
+    /**
+     * @param string      $clusterID
+     * @param null|string $clientID
+     *
+     * @throws \NatsStreaming\Exceptions\ConnectException
+     * @throws \NatsStreaming\Exceptions\TimeoutException
+     */
+    public function runSimpleSubscribeTest(string $clusterID, ?string $clientID = null) : void
     {
-        // TODO: Implement run() method.
-        throw new \BadMethodCallException(__METHOD__ . ' not yet implemented!');
+        $options = new StreamingConnectionOptions(
+            [
+                'natsOptions' => $this->natsConnectionOptions,
+            ]
+        );
+    
+        $clientID = $clientID ?? (string)\mt_rand();
+        $options->setClientID($clientID);
+        $options->setClusterID($clusterID);
+    
+        $connection = new Connection($options);
+    
+        $connection->connect();
+    
+        $subOptions = new SubscriptionOptions();
+        $subOptions->setStartAt(StartPosition::NewOnly());
+    
+        $subjects = 'some.channel';
+        $callback = function ($message) {
+            \printf($message);
+        };
+    
+        $sub = $connection->subscribe($subjects, $callback, $subOptions);
+    
+        $sub->wait(2);
+    
+        // not explicitly needed
+        $sub->unsubscribe(); // or $sub->close();
+    
+        $connection->close();
+    }
+    
+    /**
+     * @param string      $clusterID
+     * @param null|string $clientID
+     *
+     * @throws \NatsStreaming\Exceptions\ConnectException
+     * @throws \NatsStreaming\Exceptions\TimeoutException
+     */
+    public function runSubscribeTest(string $clusterID, ?string $clientID = null) : void
+    {
+        $connection = $this->createConnection($clusterID, $clientID);
+        $connection->connect();
+    
+        $subOptions = new SubscriptionOptions();
+        $subOptions->setStartAt(StartPosition::NewOnly());
+    
+        $adapter = new StreamingConnectionAdapter($connection, $this->getSerializer());
+    
+        $channel = new Channel('some.channel');
+    
+        $subscriber = new SubscriberTest();
+    
+        $subscription = $adapter->subscribe($channel, $subscriber, $subOptions);
+        $subscription->wait(1);
+    
+        // not explicitly needed
+        $subscription->unsubscribe(); // or $sub->close();
+    
+        $connection->close();
     }
     
     public function runQueueGroupSubscribeTest() : void

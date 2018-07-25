@@ -8,11 +8,10 @@ use NatsStreaming\Connection;
 use NatsStreaming\Subscription;
 use NatsStreaming\SubscriptionOptions;
 use NatsStreaming\TrackedNatsRequest;
-use SmartWeb\Nats\Channel\ChannelGroupInterface;
 use SmartWeb\Nats\Channel\ChannelInterface;
 use SmartWeb\Nats\Encoding\SerializerInterface;
 use SmartWeb\Nats\Payload\PayloadInterface;
-use SmartWeb\Nats\SubscriberInterface;
+use SmartWeb\Nats\Subscriber\SubscriberInterface;
 
 /**
  * Class StreamingConnectionAdapter
@@ -56,11 +55,11 @@ class StreamingConnectionAdapter implements ConnectionAdapterInterface
      * @inheritDoc
      */
     public function subscribe(
-        ChannelGroupInterface $channels,
+        ChannelInterface $channels,
         SubscriberInterface $subscriber,
         SubscriptionOptions $subscriptionOptions
     ) : Subscription {
-        return $this->connection->subscribe($channels, $this->getSubscriberCallback($subscriber), $subscriptionOptions);
+        return $this->connection->subscribe($channels->getName(), $this->getSubscriberCallback($subscriber), $subscriptionOptions);
     }
     
     /**

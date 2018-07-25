@@ -7,10 +7,9 @@ namespace SmartWeb\Nats\Connection;
 use NatsStreaming\Subscription;
 use NatsStreaming\SubscriptionOptions;
 use NatsStreaming\TrackedNatsRequest;
-use SmartWeb\Nats\Channel\ChannelGroupInterface;
 use SmartWeb\Nats\Channel\ChannelInterface;
 use SmartWeb\Nats\Payload\PayloadInterface;
-use SmartWeb\Nats\SubscriberInterface;
+use SmartWeb\Nats\Subscriber\SubscriberInterface;
 
 /**
  * Interface ConnectionAdapterInterface
@@ -29,14 +28,14 @@ interface ConnectionAdapterInterface
     public function publish(ChannelInterface $channel, PayloadInterface $payload) : TrackedNatsRequest;
     
     /**
-     * @param ChannelGroupInterface $channels
-     * @param SubscriberInterface   $subscriber
-     * @param SubscriptionOptions   $subscriptionOptions
+     * @param ChannelInterface    $channels
+     * @param SubscriberInterface $subscriber
+     * @param SubscriptionOptions $subscriptionOptions
      *
      * @return Subscription
      */
     public function subscribe(
-        ChannelGroupInterface $channels,
+        ChannelInterface $channels,
         SubscriberInterface $subscriber,
         SubscriptionOptions $subscriptionOptions
     ) : Subscription;
