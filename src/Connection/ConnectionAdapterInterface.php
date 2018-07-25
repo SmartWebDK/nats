@@ -20,6 +20,11 @@ interface ConnectionAdapterInterface
 {
     
     /**
+     * Environment variable used for storing the cluster ID for connecting to the NATS server.
+     */
+    public const CLUSTER_ID_KEY = 'NATS_CLUSTER_ID';
+    
+    /**
      * @param ChannelInterface $channel
      * @param PayloadInterface $payload
      *

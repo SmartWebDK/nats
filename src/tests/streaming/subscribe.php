@@ -7,6 +7,7 @@ $port = 4223;
 $host = 'nats-streaming';
 $natsOptions = new \Nats\ConnectionOptions(\compact('port', 'host'));
 
-$service = new \SmartWeb\Nats\Service($natsOptions);
+$serviceName = 'fancy-subscribe-service';
+$service = new \SmartWeb\Nats\Service($serviceName, $natsOptions);
 
-$service->runSimpleSubscribeTest('test-cluster');
+$service->runSimpleSubscribeTest();

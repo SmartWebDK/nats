@@ -11,6 +11,7 @@ use NatsStreaming\SubscriptionOptions;
 use NatsStreamingProtos\StartPosition;
 use SmartWeb\CloudEvents\Version;
 use SmartWeb\Nats\Channel\Channel;
+use SmartWeb\Nats\Connection\ConnectionAdapterInterface;
 use SmartWeb\Nats\Connection\StreamingConnectionAdapter;
 use SmartWeb\Nats\Encoding\PayloadDenormalizer;
 use SmartWeb\Nats\Encoding\PayloadNormalizer;
@@ -28,18 +29,38 @@ class Service implements ServiceInterface
 {
     
     /**
+     * @var string
+     */
+    private static $defaultChannelName = 'some.channel';
+    
+    /**
      * @var ConnectionOptions
      */
     private $natsConnectionOptions;
     
     /**
+     * @var string
+     */
+    private $name;
+    
+    /**
+     * @inheritDoc
+     */
+    public function getName() : string
+    {
+        return $this->name;
+    }
+    
+    /**
      * Service constructor.
      *
+     * @param string            $name
      * @param ConnectionOptions $natsConnectionOptions
      */
-    public function __construct(ConnectionOptions $natsConnectionOptions)
+    public function __construct(string $name, ConnectionOptions $natsConnectionOptions)
     {
         $this->natsConnectionOptions = $natsConnectionOptions;
+        $this->name = $name;
     }
     
     public function run() : void
@@ -49,29 +70,33 @@ class Service implements ServiceInterface
     }
     
     /**
-     * @param string      $clusterID
-     * @param null|string $clientID
+     * @return string
+     */
+    private function getClusterID() : string
+    {
+        return \getenv(ConnectionAdapterInterface::CLUSTER_ID_KEY);
+    }
+    
+    /**
+     * @return string
+     */
+    private function getClientID() : string
+    {
+        return \str_replace('.', '', \uniqid($this->getName(), true));
+    }
+    
+    /**
+     * @param string|null $clientID
      *
      * @throws \NatsStreaming\Exceptions\ConnectException
      * @throws \NatsStreaming\Exceptions\TimeoutException
      */
-    public function runSimplePublishTest(string $clusterID, ?string $clientID = null) : void
+    public function runSimplePublishTest(string $clientID = null) : void
     {
-        $options = new StreamingConnectionOptions(
-            [
-                'natsOptions' => $this->natsConnectionOptions,
-            ]
-        );
-        
-        $clientID = $clientID ?? (string)\mt_rand();
-        $options->setClientID($clientID);
-        $options->setClusterID($clusterID);
-        
-        $connection = new Connection($options);
-        
+        $connection = $this->createConnection($clientID);
         $connection->connect();
         
-        $subject = 'some.subject';
+        $subject = self::$defaultChannelName;
         $data = 'Foo!';
         
         $r = $connection->publish($subject, $data);
@@ -88,20 +113,19 @@ class Service implements ServiceInterface
     }
     
     /**
-     * @param string      $clusterID
-     * @param null|string $clientID
+     * @param string|null $channelName
      *
      * @throws \NatsStreaming\Exceptions\ConnectException
      * @throws \NatsStreaming\Exceptions\TimeoutException
      */
-    public function runPublishTest(string $clusterID, ?string $clientID = null) : void
+    public function runPublishTest(string $channelName = null) : void
     {
-        $connection = $this->createConnection($clusterID, $clientID);
+        $connection = $this->createConnection();
         $connection->connect();
         
         $adapter = new StreamingConnectionAdapter($connection, $this->getSerializer());
         
-        $channel = new Channel('some.channel');
+        $channel = new Channel($channelName ?? self::$defaultChannelName);
         
         $data = [
             'foo' => 'bar',
@@ -128,118 +152,106 @@ class Service implements ServiceInterface
     }
     
     /**
-     * @param string      $clusterID
-     * @param null|string $clientID
+     * @param string[] $channels
      *
      * @throws \NatsStreaming\Exceptions\ConnectException
      * @throws \NatsStreaming\Exceptions\TimeoutException
      */
-    public function runSimpleSubscribeTest(string $clusterID, ?string $clientID = null) : void
+    public function runSimpleSubscribeTest(string ...$channels) : void
     {
-        $options = new StreamingConnectionOptions(
-            [
-                'natsOptions' => $this->natsConnectionOptions,
-            ]
-        );
-    
-        $clientID = $clientID ?? (string)\mt_rand();
-        $options->setClientID($clientID);
-        $options->setClusterID($clusterID);
-    
-        $connection = new Connection($options);
-    
+        $connection = $this->createConnection();
         $connection->connect();
-    
+        
         $subOptions = new SubscriptionOptions();
         $subOptions->setStartAt(StartPosition::NewOnly());
-    
-        $subjects = 'some.channel';
+        
+        $subjectDelimiter = ',';
+        $subjects = $this->parseSubjectsFromChannelNames($subjectDelimiter, $channels, self::$defaultChannelName);
         $callback = function ($message) {
             \printf($message);
         };
-    
+        
         $sub = $connection->subscribe($subjects, $callback, $subOptions);
-    
-        $sub->wait(2);
-    
+        
+        $sub->wait(1);
+        
         // not explicitly needed
         $sub->unsubscribe(); // or $sub->close();
-    
+        
         $connection->close();
     }
     
     /**
-     * @param string      $clusterID
-     * @param null|string $clientID
+     * @param string   $delimiter
+     * @param string[] $channels
+     * @param string   $default
      *
+     * @return string
+     */
+    private function parseSubjectsFromChannelNames(string $delimiter, array $channels, string $default) : string
+    {
+        return empty($channels)
+            ? $default
+            : \implode($delimiter, $channels);
+    }
+    
+    /**
      * @throws \NatsStreaming\Exceptions\ConnectException
      * @throws \NatsStreaming\Exceptions\TimeoutException
      */
-    public function runSubscribeTest(string $clusterID, ?string $clientID = null) : void
+    public function runSubscribeTest() : void
     {
-        $connection = $this->createConnection($clusterID, $clientID);
+        $connection = $this->createConnection();
         $connection->connect();
-    
+        
         $subOptions = new SubscriptionOptions();
         $subOptions->setStartAt(StartPosition::NewOnly());
-    
+        
         $adapter = new StreamingConnectionAdapter($connection, $this->getSerializer());
-    
+        
         $channel = new Channel('some.channel');
-    
+        
         $subscriber = new SubscriberTest();
-    
+        
         $subscription = $adapter->subscribe($channel, $subscriber, $subOptions);
         $subscription->wait(1);
-    
+        
         // not explicitly needed
         $subscription->unsubscribe(); // or $sub->close();
-    
+        
         $connection->close();
     }
     
     /**
-     * @param string      $clusterID
-     * @param null|string $clientID
+     * @param string|null $clientID
      *
      * @throws \NatsStreaming\Exceptions\ConnectException
      * @throws \NatsStreaming\Exceptions\TimeoutException
      */
-    public function runSimpleQueueGroupSubscribeTest(string $clusterID, ?string $clientID = null) : void
+    public function runSimpleQueueGroupSubscribeTest(string $clientID = null) : void
     {
-        $options = new StreamingConnectionOptions(
-            [
-                'natsOptions' => $this->natsConnectionOptions,
-            ]
-        );
-    
-        $clientID = $clientID ?? (string)\mt_rand();
-        $options->setClientID($clientID);
-        $options->setClusterID($clusterID);
-    
-        $connection = new Connection($options);
-    
+        $connection = $this->createConnection($clientID);
+        
         $connection->connect();
-    
+        
         $subOptions = new SubscriptionOptions();
         $subOptions->setStartAt(StartPosition::NewOnly());
-    
+        
         $subjects = 'some.channel';
         $queue = 'some.queue';
         $callback = function ($message) {
             \printf($message);
         };
-    
+        
         $sub = $connection->queueSubscribe($subjects, $queue, $callback, $subOptions);
-    
-    
-        $sub->wait(2);
-
+        
+        $sub->wait(1);
+        
         // not explicitly needed
         $sub->close(); // or $sub->unsubscribe();
-    
+        
         $connection->close();
-    
+        
     }
     
     public function runQueueGroupSubscribeTest() : void
@@ -262,22 +274,17 @@ class Service implements ServiceInterface
     }
     
     /**
-     * @param string      $clusterID
      * @param string|null $clientID
      *
      * @return Connection
      */
-    private function createConnection(string $clusterID, string $clientID = null) : Connection
+    private function createConnection(string $clientID = null) : Connection
     {
-        $options = new StreamingConnectionOptions(
-            [
-                'natsOptions' => $this->natsConnectionOptions,
-            ]
-        );
+        $options = new StreamingConnectionOptions();
         
-        $clientID = $clientID ?? (string)\mt_rand();
-        $options->setClientID($clientID);
-        $options->setClusterID($clusterID);
+        $options->setNatsOptions($this->natsConnectionOptions);
+        $options->setClientID($clientID ?? $this->getClientID());
+        $options->setClusterID($this->getClusterID());
         
         return new Connection($options);
     }

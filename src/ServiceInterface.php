@@ -14,4 +14,9 @@ interface ServiceInterface
      * Run the service.
      */
     public function run() : void;
+    
+    /**
+     * @return string
+     */
+    public function getName() : string;
 }
