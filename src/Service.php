@@ -14,11 +14,11 @@ use SmartWeb\CloudEvents\Version;
 use SmartWeb\Nats\Channel\Channel;
 use SmartWeb\Nats\Connection\ConnectionAdapterInterface;
 use SmartWeb\Nats\Connection\StreamingConnectionAdapter;
-use SmartWeb\Nats\Encoding\PayloadDenormalizer;
-use SmartWeb\Nats\Encoding\PayloadNormalizer;
-use SmartWeb\Nats\Encoding\PayloadSerializer;
-use SmartWeb\Nats\Encoding\SerializerInterface;
 use SmartWeb\Nats\Payload\PayloadBuilder;
+use SmartWeb\Nats\Payload\Serialization\PayloadDenormalizer;
+use SmartWeb\Nats\Payload\Serialization\PayloadNormalizer;
+use SmartWeb\Nats\Payload\Serialization\PayloadSerializer;
+use SmartWeb\Nats\Payload\Serialization\SerializerInterface;
 use SmartWeb\Nats\Subscriber\SubscriberTest;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
@@ -153,12 +153,12 @@ class Service implements ServiceInterface
     }
     
     /**
-     * @param string $channel
+     * @param null|string $channel
      *
      * @throws \NatsStreaming\Exceptions\ConnectException
      * @throws \NatsStreaming\Exceptions\TimeoutException
      */
-    public function runSimpleSubscribeTest(string $channel = null) : void
+    public function runSimpleSubscribeTest(?string $channel = null) : void
     {
         $connection = $this->createConnection();
         $connection->connect();
@@ -215,10 +215,12 @@ class Service implements ServiceInterface
     }
     
     /**
+     * @param null|string $channelName
+     *
      * @throws \NatsStreaming\Exceptions\ConnectException
      * @throws \NatsStreaming\Exceptions\TimeoutException
      */
-    public function runSubscribeTest() : void
+    public function runSubscribeTest(?string $channelName = null) : void
     {
         $connection = $this->createConnection();
         $connection->connect();
@@ -228,7 +230,7 @@ class Service implements ServiceInterface
         
         $adapter = new StreamingConnectionAdapter($connection, $this->getSerializer());
         
-        $channel = new Channel('some.channel');
+        $channel = new Channel($channelName ?? self::$defaultChannelName);
         
         $subscriber = new SubscriberTest();
         

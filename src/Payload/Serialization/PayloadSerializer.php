@@ -2,7 +2,7 @@
 declare(strict_types = 1);
 
 
-namespace SmartWeb\Nats\Encoding;
+namespace SmartWeb\Nats\Payload\Serialization;
 
 use SmartWeb\Nats\Payload\Payload;
 use SmartWeb\Nats\Payload\PayloadInterface;

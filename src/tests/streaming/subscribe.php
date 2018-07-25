@@ -12,3 +12,4 @@ $service = new \SmartWeb\Nats\Service($serviceName, $natsOptions);
 
 //$service->runSimpleSubscribeTest();
 $service->runMultipleChannelSimpleSubscribeTest('some.channel', 'other.channel');
+//$service->runSubscribeTest();

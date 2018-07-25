@@ -9,8 +9,8 @@ use NatsStreaming\Subscription;
 use NatsStreaming\SubscriptionOptions;
 use NatsStreaming\TrackedNatsRequest;
 use SmartWeb\Nats\Channel\ChannelInterface;
-use SmartWeb\Nats\Encoding\SerializerInterface;
 use SmartWeb\Nats\Payload\PayloadInterface;
+use SmartWeb\Nats\Payload\Serialization\SerializerInterface;
 use SmartWeb\Nats\Subscriber\SubscriberInterface;
 
 /**

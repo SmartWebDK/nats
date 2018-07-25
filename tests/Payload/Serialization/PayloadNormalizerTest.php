@@ -2,14 +2,14 @@
 declare(strict_types = 1);
 
 
-namespace SmartWeb\Nats\Tests\Encoding;
+namespace SmartWeb\Nats\Tests\Payload\Serialization;
 
 use PHPUnit\Framework\TestCase;
 use SmartWeb\CloudEvents\Version;
-use SmartWeb\Nats\Encoding\PayloadNormalizer;
 use SmartWeb\Nats\Payload\Payload;
 use SmartWeb\Nats\Payload\PayloadFields;
 use SmartWeb\Nats\Payload\PayloadInterface;
+use SmartWeb\Nats\Payload\Serialization\PayloadNormalizer;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
