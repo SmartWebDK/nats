@@ -34,7 +34,7 @@ class StreamingConnectionAdapter implements ConnectionAdapterInterface
     /**
      * StreamingConnectionAdapter constructor.
      *
-     * @param Connection          $connection
+     * @param Connection $connection
      * @param SerializerInterface $serializer
      */
     public function __construct(Connection $connection, SerializerInterface $serializer)
@@ -59,7 +59,11 @@ class StreamingConnectionAdapter implements ConnectionAdapterInterface
         SubscriberInterface $subscriber,
         SubscriptionOptions $subscriptionOptions
     ) : Subscription {
-        return $this->connection->subscribe($channels->getName(), $this->getSubscriberCallback($subscriber), $subscriptionOptions);
+        return $this->connection->subscribe(
+            $channels->getName(),
+            $this->getSubscriberCallback($subscriber),
+            $subscriptionOptions
+        );
     }
     
     /**
@@ -70,8 +74,6 @@ class StreamingConnectionAdapter implements ConnectionAdapterInterface
     private function getSubscriberCallback(SubscriberInterface $subscriber) : callable
     {
         return function (string $payload) use ($subscriber): void {
-            \var_dump($payload);
-            exit(1);
             $subscriber->handle($this->serializer->deserialize($payload));
         };
     }

@@ -14,13 +14,13 @@ use SmartWeb\CloudEvents\Version;
 use SmartWeb\Nats\Channel\Channel;
 use SmartWeb\Nats\Connection\ConnectionAdapterInterface;
 use SmartWeb\Nats\Connection\StreamingConnectionAdapter;
+use SmartWeb\Nats\Message\Serialization\MessageDecoder;
 use SmartWeb\Nats\Payload\PayloadBuilder;
 use SmartWeb\Nats\Payload\Serialization\PayloadDenormalizer;
 use SmartWeb\Nats\Payload\Serialization\PayloadNormalizer;
 use SmartWeb\Nats\Payload\Serialization\PayloadSerializer;
 use SmartWeb\Nats\Payload\Serialization\SerializerInterface;
 use SmartWeb\Nats\Subscriber\SubscriberTest;
-use Symfony\Component\Serializer\Encoder\JsonDecode;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
 
 /**
@@ -289,7 +289,7 @@ class Service implements ServiceInterface
         $normalizer = new PayloadNormalizer();
         $denormalizer = new PayloadDenormalizer();
         $encoder = new JsonEncode();
-        $decoder = new JsonDecode();
+        $decoder = new MessageDecoder();
         
         return new PayloadSerializer($normalizer, $denormalizer, $encoder, $decoder);
     }
