@@ -9,7 +9,7 @@ namespace SmartWeb\Nats\Payload;
  *
  * @api
  */
-final class PayloadField
+final class PayloadFields
 {
     
     /**
@@ -62,7 +62,25 @@ final class PayloadField
      */
     public const DATA = 'data';
     
+    /**
+     * @var string[]
+     */
+    private static $requiredFields = [
+        PayloadFields::EVENT_TYPE,
+        PayloadFields::CLOUD_EVENTS_VERSION,
+        PayloadFields::SOURCE,
+        PayloadFields::EVENT_ID,
+    ];
+    
     private function __construct()
     {
+    }
+    
+    /**
+     * @return string[]
+     */
+    public static function getRequiredFields() : array
+    {
+        return self::$requiredFields;
     }
 }

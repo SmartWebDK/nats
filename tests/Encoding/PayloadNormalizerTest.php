@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use SmartWeb\CloudEvents\Version;
 use SmartWeb\Nats\Encoding\PayloadNormalizer;
 use SmartWeb\Nats\Payload\Payload;
-use SmartWeb\Nats\Payload\PayloadField;
+use SmartWeb\Nats\Payload\PayloadFields;
 use SmartWeb\Nats\Payload\PayloadInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
@@ -60,33 +60,33 @@ class PayloadNormalizerTest extends TestCase
         return [
             'minimal'  => [
                 'data' => [
-                    PayloadField::EVENT_TYPE           => '',
-                    PayloadField::EVENT_TYPE_VERSION   => null,
-                    PayloadField::CLOUD_EVENTS_VERSION => new Version(0, 1, 0),
-                    PayloadField::SOURCE               => '',
-                    PayloadField::EVENT_ID             => '',
-                    PayloadField::EVENT_TIME           => null,
-                    PayloadField::SCHEMA_URL           => null,
-                    PayloadField::CONTENT_TYPE         => null,
-                    PayloadField::EXTENSIONS           => null,
-                    PayloadField::DATA                 => null,
+                    PayloadFields::EVENT_TYPE           => '',
+                    PayloadFields::EVENT_TYPE_VERSION   => null,
+                    PayloadFields::CLOUD_EVENTS_VERSION => new Version(0, 1, 0),
+                    PayloadFields::SOURCE               => '',
+                    PayloadFields::EVENT_ID             => '',
+                    PayloadFields::EVENT_TIME           => null,
+                    PayloadFields::SCHEMA_URL           => null,
+                    PayloadFields::CONTENT_TYPE         => null,
+                    PayloadFields::EXTENSIONS           => null,
+                    PayloadFields::DATA                 => null,
                 ],
             ],
             'complete' => [
                 'data' => [
-                    PayloadField::EVENT_TYPE           => '',
-                    PayloadField::EVENT_TYPE_VERSION   => new Version(1, 0, 0),
-                    PayloadField::CLOUD_EVENTS_VERSION => new Version(0, 1, 0),
-                    PayloadField::SOURCE               => '',
-                    PayloadField::EVENT_ID             => '',
-                    PayloadField::EVENT_TIME           => new \DateTime(),
-                    PayloadField::SCHEMA_URL           => 'schemaURL', // Invalid
-                    PayloadField::CONTENT_TYPE         => 'contentType', // Invalid
-                    PayloadField::EXTENSIONS           => [
+                    PayloadFields::EVENT_TYPE           => '',
+                    PayloadFields::EVENT_TYPE_VERSION   => new Version(1, 0, 0),
+                    PayloadFields::CLOUD_EVENTS_VERSION => new Version(0, 1, 0),
+                    PayloadFields::SOURCE               => '',
+                    PayloadFields::EVENT_ID             => '',
+                    PayloadFields::EVENT_TIME           => new \DateTime(),
+                    PayloadFields::SCHEMA_URL           => 'schemaURL', // Invalid
+                    PayloadFields::CONTENT_TYPE         => 'contentType', // Invalid
+                    PayloadFields::EXTENSIONS           => [
                         'extKey_1' => 'extVal_1',
                         'extKey_2' => 'extVal_2',
                     ],
-                    PayloadField::DATA                 => [
+                    PayloadFields::DATA                 => [
                         'dataKey_1' => 'dataVal_1',
                         'dataKey_2' => [
                             'dataKey_2.1' => 'dataVal_2.1',

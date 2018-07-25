@@ -16,29 +16,19 @@ class PayloadBuilder implements PayloadBuilderInterface
 {
     
     /**
-     * @var string[]
-     */
-    private static $requiredFields = [
-        PayloadField::EVENT_TYPE,
-        PayloadField::CLOUD_EVENTS_VERSION,
-        PayloadField::SOURCE,
-        PayloadField::EVENT_ID,
-    ];
-    
-    /**
      * @var array
      */
     private $builderArgs = [
-        PayloadField::EVENT_TYPE           => null,
-        PayloadField::EVENT_TYPE_VERSION   => null,
-        PayloadField::CLOUD_EVENTS_VERSION => null,
-        PayloadField::SOURCE               => null,
-        PayloadField::EVENT_ID             => null,
-        PayloadField::EVENT_TIME           => null,
-        PayloadField::SCHEMA_URL           => null,
-        PayloadField::CONTENT_TYPE         => null,
-        PayloadField::EXTENSIONS           => null,
-        PayloadField::DATA                 => null,
+        PayloadFields::EVENT_TYPE           => null,
+        PayloadFields::EVENT_TYPE_VERSION   => null,
+        PayloadFields::CLOUD_EVENTS_VERSION => null,
+        PayloadFields::SOURCE               => null,
+        PayloadFields::EVENT_ID             => null,
+        PayloadFields::EVENT_TIME           => null,
+        PayloadFields::SCHEMA_URL           => null,
+        PayloadFields::CONTENT_TYPE         => null,
+        PayloadFields::EXTENSIONS           => null,
+        PayloadFields::DATA                 => null,
     ];
     
     /**
@@ -76,15 +66,7 @@ class PayloadBuilder implements PayloadBuilderInterface
      */
     private function getMissingFields() : array
     {
-        return \array_diff($this->getRequiredFields(), \array_keys($this->builderArgs));
-    }
-    
-    /**
-     * @return string[]
-     */
-    private function getRequiredFields() : array
-    {
-        return self::$requiredFields;
+        return \array_diff(PayloadFields::getRequiredFields(), \array_keys($this->builderArgs));
     }
     
     /**
@@ -92,7 +74,7 @@ class PayloadBuilder implements PayloadBuilderInterface
      */
     public function setEventType(string $type) : PayloadBuilderInterface
     {
-        $this->builderArgs[PayloadField::EVENT_TYPE] = $type;
+        $this->builderArgs[PayloadFields::EVENT_TYPE] = $type;
         
         return $this;
     }
@@ -102,7 +84,7 @@ class PayloadBuilder implements PayloadBuilderInterface
      */
     public function setEventTypeVersion(VersionInterface $version) : PayloadBuilderInterface
     {
-        $this->builderArgs[PayloadField::EVENT_TYPE_VERSION] = $version;
+        $this->builderArgs[PayloadFields::EVENT_TYPE_VERSION] = $version;
         
         return $this;
     }
@@ -112,7 +94,7 @@ class PayloadBuilder implements PayloadBuilderInterface
      */
     public function setCloudEventsVersion(VersionInterface $version) : PayloadBuilderInterface
     {
-        $this->builderArgs[PayloadField::CLOUD_EVENTS_VERSION] = $version;
+        $this->builderArgs[PayloadFields::CLOUD_EVENTS_VERSION] = $version;
         
         return $this;
     }
@@ -122,7 +104,7 @@ class PayloadBuilder implements PayloadBuilderInterface
      */
     public function setSource(string $source) : PayloadBuilderInterface
     {
-        $this->builderArgs[PayloadField::SOURCE] = $source;
+        $this->builderArgs[PayloadFields::SOURCE] = $source;
         
         return $this;
     }
@@ -132,7 +114,7 @@ class PayloadBuilder implements PayloadBuilderInterface
      */
     public function setEventId(string $id) : PayloadBuilderInterface
     {
-        $this->builderArgs[PayloadField::EVENT_ID] = $id;
+        $this->builderArgs[PayloadFields::EVENT_ID] = $id;
         
         return $this;
     }
@@ -142,7 +124,7 @@ class PayloadBuilder implements PayloadBuilderInterface
      */
     public function setEventTime(\DateTimeInterface $time) : PayloadBuilderInterface
     {
-        $this->builderArgs[PayloadField::EVENT_TIME] = $time;
+        $this->builderArgs[PayloadFields::EVENT_TIME] = $time;
         
         return $this;
     }
@@ -152,7 +134,7 @@ class PayloadBuilder implements PayloadBuilderInterface
      */
     public function setSchemaURL(string $schemaURL) : PayloadBuilderInterface
     {
-        $this->builderArgs[PayloadField::SCHEMA_URL] = $schemaURL;
+        $this->builderArgs[PayloadFields::SCHEMA_URL] = $schemaURL;
         
         return $this;
     }
@@ -162,7 +144,7 @@ class PayloadBuilder implements PayloadBuilderInterface
      */
     public function setContentType(string $contentType) : PayloadBuilderInterface
     {
-        $this->builderArgs[PayloadField::CONTENT_TYPE] = $contentType;
+        $this->builderArgs[PayloadFields::CONTENT_TYPE] = $contentType;
         
         return $this;
     }
@@ -172,7 +154,7 @@ class PayloadBuilder implements PayloadBuilderInterface
      */
     public function setExtensions(array $extensions) : PayloadBuilderInterface
     {
-        $this->builderArgs[PayloadField::EXTENSIONS] = $extensions;
+        $this->builderArgs[PayloadFields::EXTENSIONS] = $extensions;
         
         return $this;
     }
@@ -182,7 +164,7 @@ class PayloadBuilder implements PayloadBuilderInterface
      */
     public function setData(array $data) : PayloadBuilderInterface
     {
-        $this->builderArgs[PayloadField::DATA] = $data;
+        $this->builderArgs[PayloadFields::DATA] = $data;
         
         return $this;
     }

@@ -5,7 +5,7 @@ declare(strict_types = 1);
 namespace SmartWeb\Nats\Encoding;
 
 use SmartWeb\Nats\Payload\Payload;
-use SmartWeb\Nats\Payload\PayloadField;
+use SmartWeb\Nats\Payload\PayloadFields;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 /**
@@ -15,16 +15,6 @@ use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
  */
 class PayloadDenormalizer implements DenormalizerInterface
 {
-    
-    /**
-     * @var string[]
-     */
-    private static $requiredFields = [
-        PayloadField::EVENT_TYPE,
-        PayloadField::CLOUD_EVENTS_VERSION,
-        PayloadField::SOURCE,
-        PayloadField::EVENT_ID,
-    ];
     
     /**
      * @inheritDoc
@@ -82,6 +72,6 @@ class PayloadDenormalizer implements DenormalizerInterface
      */
     private function getMissingFields(array $data) : array
     {
-        return \array_diff(self::$requiredFields, \array_keys($data));
+        return \array_diff(PayloadFields::getRequiredFields(), \array_keys($data));
     }
 }
