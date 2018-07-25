@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f4375864436f548945841646c4e1e041",
-    "content-hash": "07745d7d45dc9f1e0b3035aa2448ed8c",
+    "hash": "6e9651a52f5c9d6b33a17976911b23f8",
+    "content-hash": "c96068f2aa146f3282f1b353dc6bebe9",
     "packages": [
         {
             "name": "byrnedo/php-nats-streaming",
@@ -312,6 +312,60 @@
                 "issues": "https://github.com/nicolai-agersbaek/cloud-events/issues"
             },
             "time": "2018-07-24 15:35:35"
+        },
+        {
+            "name": "symfony/options-resolver",
+            "version": "v4.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/options-resolver.git",
+                "reference": "0aec9f9c5d2447ae7ea5ea31bc82f1d43f9a8a56"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/options-resolver/zipball/0aec9f9c5d2447ae7ea5ea31bc82f1d43f9a8a56",
+                "reference": "0aec9f9c5d2447ae7ea5ea31bc82f1d43f9a8a56",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\OptionsResolver\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony OptionsResolver Component",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "config",
+                "configuration",
+                "options"
+            ],
+            "time": "2018-07-07 16:00:36"
         },
         {
             "name": "symfony/polyfill-ctype",

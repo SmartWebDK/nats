@@ -16,10 +16,11 @@
     "type": "project",
     "require": {
         "php": ">=7.1.19",
-        "repejota/nats": "^0.8.7",
         "smartweb/cloud-events": "dev-master",
+        "repejota/nats": "^0.8.7",
+        "byrnedo/php-nats-streaming": "^0.2.4",
         "symfony/serializer": "^4.0",
-        "byrnedo/php-nats-streaming": "^0.2.4"
+        "symfony/options-resolver": "^4.0"
     },
     "require-dev": {
         "roave/security-advisories": "dev-master"
