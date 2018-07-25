@@ -114,9 +114,9 @@ class Service implements ServiceInterface
                                  ->setData($data)
                                  ->build();
         
-        $r = $adapter->publish($channel, $payload);
+        $request = $adapter->publish($channel, $payload);
         
-        $gotAck = $r->wait();
+        $gotAck = $request->wait();
         
         $statusResponse = $gotAck
             ? 'Acknowledged'
@@ -196,6 +196,50 @@ class Service implements ServiceInterface
         $subscription->unsubscribe(); // or $sub->close();
     
         $connection->close();
+    }
+    
+    /**
+     * @param string      $clusterID
+     * @param null|string $clientID
+     *
+     * @throws \NatsStreaming\Exceptions\ConnectException
+     * @throws \NatsStreaming\Exceptions\TimeoutException
+     */
+    public function runSimpleQueueGroupSubscribeTest(string $clusterID, ?string $clientID = null) : void
+    {
+        $options = new StreamingConnectionOptions(
+            [
+                'natsOptions' => $this->natsConnectionOptions,
+            ]
+        );
+    
+        $clientID = $clientID ?? (string)\mt_rand();
+        $options->setClientID($clientID);
+        $options->setClusterID($clusterID);
+    
+        $connection = new Connection($options);
+    
+        $connection->connect();
+    
+        $subOptions = new SubscriptionOptions();
+        $subOptions->setStartAt(StartPosition::NewOnly());
+    
+        $subjects = 'some.channel';
+        $queue = 'some.queue';
+        $callback = function ($message) {
+            \printf($message);
+        };
+    
+        $sub = $connection->queueSubscribe($subjects, $queue, $callback, $subOptions);
+    
+    
+        $sub->wait(2);
+
+        // not explicitly needed
+        $sub->close(); // or $sub->unsubscribe();
+    
+        $connection->close();
+    
     }
     
     public function runQueueGroupSubscribeTest() : void

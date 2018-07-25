@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6e9651a52f5c9d6b33a17976911b23f8",
-    "content-hash": "c96068f2aa146f3282f1b353dc6bebe9",
+    "hash": "1c38cccfaed8f348e160943b5388ef05",
+    "content-hash": "0aa9058c8b16eb5ed7c67cdf215686cb",
     "packages": [
         {
             "name": "byrnedo/php-nats-streaming",
@@ -684,7 +684,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.1.19"
+        "php": ">=7.1"
     },
     "platform-dev": [],
     "platform-overrides": {

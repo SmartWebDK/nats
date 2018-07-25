@@ -3,30 +3,10 @@ declare(strict_types = 1);
 
 require __DIR__ . '/../../../vendor/autoload.php';
 
-$options = new \NatsStreaming\ConnectionOptions();
+$port = 4223;
+$host = 'nats-streaming';
+$natsOptions = new \Nats\ConnectionOptions(\compact('port', 'host'));
 
-$clientID = mt_rand();
-$options->setClientID($clientID);
-$options->setClusterID('test-cluster');
+$service = new \SmartWeb\Nats\Service($natsOptions);
 
-$connection = new \NatsStreaming\Connection($options);
-
-$connection->connect();
-
-$subOptions = new \NatsStreaming\SubscriptionOptions();
-
-$subjects = 'some.subject';
-$queue = 'some.queue';
-$callback = function ($message) {
-    \printf($message);
-};
-
-$sub = $connection->queueSubscribe($subjects, $queue, $callback, $subOptions);
-
-
-$sub->wait(1);
-
-// not explicitly needed
-$sub->close(); // or $sub->unsubscribe();
-
-$connection->close();
+$service->runSimpleQueueGroupSubscribeTest('test-cluster');
