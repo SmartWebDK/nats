@@ -15,15 +15,15 @@
     ],
     "type": "project",
     "require": {
-        "php": ">=7.1.19",
+        "php": ">=7.1.20",
         "smartweb/cloud-events": "dev-master",
         "repejota/nats": "^0.8.7",
         "byrnedo/php-nats-streaming": "^0.2.4",
-        "symfony/serializer": "^4.1",
-        "symfony/options-resolver": "^4.1"
+        "symfony/serializer": "^4.1"
     },
     "require-dev": {
-        "roave/security-advisories": "dev-master"
+        "roave/security-advisories": "dev-master",
+        "phpunit/phpunit": "^7"
     },
     "autoload": {
         "psr-4": {
@@ -34,8 +34,9 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "platform": {
-            "php": "7.1.19",
-            "ext-mbstring": "0.1"
+            "php": "7.1.20",
+            "ext-mbstring": "0.1",
+            "ext-dom": "0.1"
         }
     }
 }
