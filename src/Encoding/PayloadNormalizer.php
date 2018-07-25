@@ -17,7 +17,7 @@ class PayloadNormalizer implements NormalizerInterface
     /**
      * @inheritDoc
      */
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize($object, $format = null, array $context = null) : array
     {
         if (!$this->supportsNormalization($object)) {
             throw new \InvalidArgumentException('The given data is not supported by this normalizer.');
@@ -50,7 +50,7 @@ class PayloadNormalizer implements NormalizerInterface
     /**
      * @inheritDoc
      */
-    public function supportsNormalization($data, $format = null)
+    public function supportsNormalization($data, $format = null) : bool
     {
         return $data instanceof PayloadInterface;
     }
