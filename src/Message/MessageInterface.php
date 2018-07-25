@@ -9,7 +9,7 @@ namespace SmartWeb\Nats\Message;
  *
  * @api
  */
-interface MessageInterface extends MessageTypeAwareInterface
+interface MessageInterface
 {
     
     /**

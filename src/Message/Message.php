@@ -6,14 +6,11 @@ namespace SmartWeb\Nats\Message;
 
 /**
  * Class Message
+ *
+ * @api
  */
 class Message implements MessageInterface
 {
-    
-    /**
-     * @var MessageType
-     */
-    private $type;
     
     /**
      * @var string
@@ -23,21 +20,11 @@ class Message implements MessageInterface
     /**
      * Message constructor.
      *
-     * @param MessageType $type
-     * @param string      $content
+     * @param string $content
      */
-    public function __construct(MessageType $type, string $content)
+    public function __construct(string $content)
     {
-        $this->type = $type;
         $this->content = $content;
-    }
-    
-    /**
-     * @inheritDoc
-     */
-    public function getType() : MessageType
-    {
-        return $this->type;
     }
     
     /**
