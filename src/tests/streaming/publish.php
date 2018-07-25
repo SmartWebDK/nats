@@ -4,7 +4,8 @@ declare(strict_types = 1);
 require __DIR__ . '/../../../vendor/autoload.php';
 
 $port = 4223;
-$natsOptions = new \Nats\ConnectionOptions(\compact('port'));
+$host = 'nats-streaming';
+$natsOptions = new \Nats\ConnectionOptions(\compact('port', 'host'));
 
 $service = new \SmartWeb\Nats\Service($natsOptions);
 
