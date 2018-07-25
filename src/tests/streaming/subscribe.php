@@ -10,4 +10,5 @@ $natsOptions = new \Nats\ConnectionOptions(\compact('port', 'host'));
 $serviceName = 'fancy-subscribe-service';
 $service = new \SmartWeb\Nats\Service($serviceName, $natsOptions);
 
-$service->runSimpleSubscribeTest();
+//$service->runSimpleSubscribeTest();
+$service->runMultipleChannelSimpleSubscribeTest('some.channel', 'other.channel');

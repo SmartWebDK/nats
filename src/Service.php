@@ -7,6 +7,7 @@ namespace SmartWeb\Nats;
 use Nats\ConnectionOptions;
 use NatsStreaming\Connection;
 use NatsStreaming\ConnectionOptions as StreamingConnectionOptions;
+use NatsStreaming\Subscription;
 use NatsStreaming\SubscriptionOptions;
 use NatsStreamingProtos\StartPosition;
 use SmartWeb\CloudEvents\Version;
@@ -152,12 +153,12 @@ class Service implements ServiceInterface
     }
     
     /**
-     * @param string[] $channels
+     * @param string $channel
      *
      * @throws \NatsStreaming\Exceptions\ConnectException
      * @throws \NatsStreaming\Exceptions\TimeoutException
      */
-    public function runSimpleSubscribeTest(string ...$channels) : void
+    public function runSimpleSubscribeTest(string $channel = null) : void
     {
         $connection = $this->createConnection();
         $connection->connect();
@@ -165,34 +166,52 @@ class Service implements ServiceInterface
         $subOptions = new SubscriptionOptions();
         $subOptions->setStartAt(StartPosition::NewOnly());
         
-        $subjectDelimiter = ',';
-        $subjects = $this->parseSubjectsFromChannelNames($subjectDelimiter, $channels, self::$defaultChannelName);
+        $subject = $channel ?? self::$defaultChannelName;
         $callback = function ($message) {
             \printf($message);
         };
         
-        $sub = $connection->subscribe($subjects, $callback, $subOptions);
-        
+        $sub = $connection->subscribe($subject, $callback, $subOptions);
         $sub->wait(1);
-        
-        // not explicitly needed
-        $sub->unsubscribe(); // or $sub->close();
         
         $connection->close();
     }
     
     /**
-     * @param string   $delimiter
      * @param string[] $channels
-     * @param string   $default
      *
-     * @return string
+     * @throws \NatsStreaming\Exceptions\ConnectException
+     * @throws \NatsStreaming\Exceptions\TimeoutException
      */
-    private function parseSubjectsFromChannelNames(string $delimiter, array $channels, string $default) : string
+    public function runMultipleChannelSimpleSubscribeTest(string ...$channels) : void
     {
-        return empty($channels)
-            ? $default
-            : \implode($delimiter, $channels);
+        $connection = $this->createConnection();
+        $connection->connect();
+        
+        $subOptions = new SubscriptionOptions();
+        $subOptions->setStartAt(StartPosition::NewOnly());
+        
+        $callback = function ($message) {
+            \printf($message);
+        };
+        
+        $subjects = empty($channels)
+            ? [self::$defaultChannelName]
+            : $channels;
+        
+        /** @var Subscription[] $subs */
+        $subs = [];
+        
+        foreach ($subjects as $subject) {
+            $sub = $connection->subscribe($subject, $callback, $subOptions);
+            $subs[] = $sub;
+        }
+        
+        foreach ($subs as $sub) {
+            $sub->wait(1);
+        }
+        
+        $connection->close();
     }
     
     /**
