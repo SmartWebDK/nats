@@ -75,7 +75,22 @@ class Service implements ServiceInterface
      */
     private function getClusterID() : string
     {
-        return \getenv(ConnectionAdapterInterface::CLUSTER_ID_KEY);
+        $clusterID = \getenv(ConnectionAdapterInterface::CLUSTER_ID_KEY);
+        
+        $this->validateClusterID($clusterID);
+        
+        return $clusterID;
+    }
+    
+    /**
+     * @param $clusterID
+     */
+    private function validateClusterID($clusterID) : void
+    {
+        if (!\is_string($clusterID)) {
+            $actualType = \gettype($clusterID);
+            throw new \RuntimeException("Invalid cluster ID configured. Expected string, was: {$actualType}");
+        }
     }
     
     /**
