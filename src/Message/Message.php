@@ -15,7 +15,7 @@ class Message implements MessageInterface
     /**
      * @var int
      */
-    private $index;
+    private $sequence;
     
     /**
      * @var string
@@ -35,14 +35,14 @@ class Message implements MessageInterface
     /**
      * Message constructor.
      *
-     * @param int    $index
+     * @param int    $sequence
      * @param string $subject
      * @param string $data
      * @param int    $timestamp
      */
-    public function __construct(int $index, string $subject, string $data, int $timestamp)
+    public function __construct(int $sequence, string $subject, string $data, int $timestamp)
     {
-        $this->index = $index;
+        $this->sequence = $sequence;
         $this->subject = $subject;
         $this->data = $data;
         $this->timestamp = $timestamp;
@@ -51,9 +51,9 @@ class Message implements MessageInterface
     /**
      * @inheritDoc
      */
-    public function getIndex() : int
+    public function getSequence() : int
     {
-        return $this->index;
+        return $this->sequence;
     }
     
     /**

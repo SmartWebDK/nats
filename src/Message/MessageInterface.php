@@ -17,7 +17,7 @@ interface MessageInterface
      *
      * @return int
      */
-    public function getIndex() : int;
+    public function getSequence() : int;
     
     /**
      * The subject of this message.
