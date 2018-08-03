@@ -5,7 +5,7 @@ declare(strict_types = 1);
 namespace SmartWeb\Nats\Message;
 
 /**
- * Class Message
+ * Message received from a NATS connection.
  *
  * @api
  */

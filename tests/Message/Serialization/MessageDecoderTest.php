@@ -38,7 +38,7 @@ class MessageDecoderTest extends TestCase
         $messageString = <<<'MESSAGE'
 sequence: 17
 subject: "some.channel"
-data: "{\"eventType\":\"some.event\",\"eventTypeVersion\":null,\"cloudEventsVersion\":{\"major\":0,\"minor\":1,\"patch\":0},\"source\":\"some.source\",\"eventId\":\"some.event.id\",\"eventTime\":null,\"schemaURL\":null,\"contentType\":null,\"extensions\":null,\"data\":{\"foo\":\"bar\"}}"
+data: "{"eventType":"some.event","eventTypeVersion":null,"cloudEventsVersion":{"major":0,"minor":1,"patch":0},"source":"some.source","eventId":"some.event.id","eventTime":null,"schemaURL":null,"contentType":null,"extensions":null,"data":{"foo":"bar"}}"
 timestamp: 1532525124250055719
 MESSAGE;
         
@@ -62,6 +62,7 @@ MESSAGE;
                 'foo' => 'bar',
             ],
         ];
+        $data = '{"eventType":"some.event","eventTypeVersion":null,"cloudEventsVersion":{"major":0,"minor":1,"patch":0},"source":"some.source","eventId":"some.event.id","eventTime":null,"schemaURL":null,"contentType":null,"extensions":null,"data":{"foo":"bar"}}';
         $timestamp = 1532525124250055719;
         
         $expected = [

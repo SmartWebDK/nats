@@ -147,11 +147,12 @@ class MessageDecoder implements DecoderInterface
             'subject'   => function (string $value) : string {
                 return \trim($value, '"');
             },
-            'data'      => function (string $value) use ($jsonDecoder) : array {
+            'data'      => function (string $value) use ($jsonDecoder) : string {
                 $json = \trim($value, '"');
                 $json = \str_replace('\"', '"', $json);
-                
-                return $jsonDecoder->decode($json, JsonEncoder::FORMAT);
+
+//                return $jsonDecoder->decode($json, JsonEncoder::FORMAT);
+                return $json;
             },
             'timestamp' => function (string $value) : int {
                 return (int)$value;
