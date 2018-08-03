@@ -4,11 +4,17 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Message;
 
+use SmartWeb\Nats\Support\DataContainerDefinition;
+use SmartWeb\Nats\Support\DataContainerDefinitionInterface;
+use SmartWeb\Nats\Support\FieldDefinition;
+
 /**
  * Class MessageFields
  */
 final class MessageFields
 {
+    
+    // FIXME: Integrate this into the MessageInterface itself (returning a DataContainerDefinitionInterface)
     
     /**
      * The key used for storing the 'sequence' data of this message.
@@ -40,15 +46,41 @@ final class MessageFields
         self::TIMESTAMP,
     ];
     
+    /**
+     * @var self
+     */
+    private static $instance;
+    
+    /**
+     * @var DataContainerDefinitionInterface
+     */
+    private $definition;
+    
     private function __construct()
     {
+        $this->definition = new DataContainerDefinition(
+            [
+                new FieldDefinition(self::SEQUENCE, true),
+                new FieldDefinition(self::SUBJECT, true),
+                new FieldDefinition(self::DATA, true),
+                new FieldDefinition(self::TIMESTAMP, true),
+            ]
+        );
     }
     
     /**
-     * @return array
+     * @return self
      */
-    public static function getRequiredFields() : array
+    private static function getInstance() : self
     {
-        return self::$requiredFields;
+        return self::$instance ?? self::$instance = new static();
+    }
+    
+    /**
+     * @return DataContainerDefinitionInterface
+     */
+    public static function getDefinition() : DataContainerDefinitionInterface
+    {
+        return self::getInstance()->definition;
     }
 }
