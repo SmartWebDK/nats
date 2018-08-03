@@ -36,6 +36,25 @@ class MessageDenormalizer implements DenormalizerInterface
      */
     public function denormalize($data, $class, $format = null, ?array $context = null) : MessageInterface
     {
+        $this->validateDenormalizeInput($data, $class);
+        
+        return $this->createMessage($data, $class);
+    }
+    
+    /**
+     * Validate the data given to the denormalizer.
+     *
+     * @param mixed       $data    Data to restore
+     * @param string      $class   The expected class to instantiate
+     * @param string|null $format  Format the given data was extracted from
+     * @param array|null  $context Options available to the denormalizer
+     *
+     * @throws InvalidArgumentException Occurs when the arguments are not coherent or not supported
+     * @throws UnexpectedValueException Occurs when the item cannot be hydrated with the given data
+     * @throws ExtraAttributesException Occurs when the item doesn't have attribute to receive given data
+     */
+    private function validateDenormalizeInput($data, string $class, $format = null, ?array $context = null) : void
+    {
         if (!$this->targetIsSupported($class)) {
             $this->invalidArgumentException(
                 'The given target class is not supported. Expected one of: %s',
@@ -61,8 +80,6 @@ class MessageDenormalizer implements DenormalizerInterface
         if (!$this->hasCorrectFieldTypes($data)) {
             throw new UnexpectedValueException('The given data contains values of invalid type');
         }
-        
-        return $this->createMessage($data, $class);
     }
     
     /**
