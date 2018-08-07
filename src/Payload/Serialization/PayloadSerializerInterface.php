@@ -9,7 +9,7 @@ use SmartWeb\Nats\Payload\PayloadInterface;
 /**
  * Interface SerializerInterface
  */
-interface SerializerInterface
+interface PayloadSerializerInterface
 {
     
     /**

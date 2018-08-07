@@ -12,11 +12,11 @@ use SmartWeb\Nats\Payload\PayloadInterface;
 use SmartWeb\Nats\Subscriber\SubscriberInterface;
 
 /**
- * Interface ConnectionAdapterInterface
+ * Definition of a NATS streaming connection enabling interaction using CloudEvents payload specification.
  *
  * @api
  */
-interface ConnectionAdapterInterface
+interface ConnectionInterface
 {
     
     /**

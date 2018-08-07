@@ -17,7 +17,7 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
  *
  * @api
  */
-class PayloadSerializer implements SerializerInterface
+class PayloadSerializer implements PayloadSerializerInterface
 {
     
     /**

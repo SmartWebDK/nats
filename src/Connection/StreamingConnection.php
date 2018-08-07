@@ -10,15 +10,15 @@ use NatsStreaming\SubscriptionOptions;
 use NatsStreaming\TrackedNatsRequest;
 use SmartWeb\Nats\Channel\ChannelInterface;
 use SmartWeb\Nats\Payload\PayloadInterface;
-use SmartWeb\Nats\Payload\Serialization\SerializerInterface;
+use SmartWeb\Nats\Payload\Serialization\PayloadSerializerInterface;
 use SmartWeb\Nats\Subscriber\SubscriberInterface;
 
 /**
- * Class StreamingConnectionAdapter
+ * Adapter for {@link NatsStreaming\Connection}, enabling interaction using CloudEvents payload specification.
  *
  * @api
  */
-class StreamingConnectionAdapter implements ConnectionAdapterInterface
+class StreamingConnection implements ConnectionInterface
 {
     
     /**
@@ -27,17 +27,17 @@ class StreamingConnectionAdapter implements ConnectionAdapterInterface
     private $connection;
     
     /**
-     * @var SerializerInterface
+     * @var PayloadSerializerInterface
      */
     private $serializer;
     
     /**
      * StreamingConnectionAdapter constructor.
      *
-     * @param Connection $connection
-     * @param SerializerInterface $serializer
+     * @param Connection                 $connection
+     * @param PayloadSerializerInterface $serializer
      */
-    public function __construct(Connection $connection, SerializerInterface $serializer)
+    public function __construct(Connection $connection, PayloadSerializerInterface $serializer)
     {
         $this->connection = $connection;
         $this->serializer = $serializer;

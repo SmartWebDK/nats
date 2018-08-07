@@ -12,14 +12,14 @@ use NatsStreaming\SubscriptionOptions;
 use NatsStreamingProtos\StartPosition;
 use SmartWeb\CloudEvents\Version;
 use SmartWeb\Nats\Channel\Channel;
-use SmartWeb\Nats\Connection\ConnectionAdapterInterface;
-use SmartWeb\Nats\Connection\StreamingConnectionAdapter;
+use SmartWeb\Nats\Connection\ConnectionInterface;
+use SmartWeb\Nats\Connection\StreamingConnection;
 use SmartWeb\Nats\Message\Serialization\MessageDecoder;
 use SmartWeb\Nats\Payload\PayloadBuilder;
 use SmartWeb\Nats\Payload\Serialization\PayloadDenormalizer;
 use SmartWeb\Nats\Payload\Serialization\PayloadNormalizer;
 use SmartWeb\Nats\Payload\Serialization\PayloadSerializer;
-use SmartWeb\Nats\Payload\Serialization\SerializerInterface;
+use SmartWeb\Nats\Payload\Serialization\PayloadSerializerInterface;
 use SmartWeb\Nats\Subscriber\SubscriberTest;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
 
@@ -75,7 +75,7 @@ class Service implements ServiceInterface
      */
     private function getClusterID() : string
     {
-        $clusterID = \getenv(ConnectionAdapterInterface::CLUSTER_ID_KEY);
+        $clusterID = \getenv(ConnectionInterface::CLUSTER_ID_KEY);
         
         $this->validateClusterID($clusterID);
         
@@ -139,7 +139,7 @@ class Service implements ServiceInterface
         $connection = $this->createConnection();
         $connection->connect();
         
-        $adapter = new StreamingConnectionAdapter($connection, $this->getSerializer());
+        $adapter = new StreamingConnection($connection, $this->getSerializer());
         
         $channel = new Channel($channelName ?? self::$defaultChannelName);
         
@@ -243,7 +243,7 @@ class Service implements ServiceInterface
         $subOptions = new SubscriptionOptions();
         $subOptions->setStartAt(StartPosition::NewOnly());
         
-        $adapter = new StreamingConnectionAdapter($connection, $this->getSerializer());
+        $adapter = new StreamingConnection($connection, $this->getSerializer());
         
         $channel = new Channel($channelName ?? self::$defaultChannelName);
         
@@ -297,9 +297,9 @@ class Service implements ServiceInterface
     }
     
     /**
-     * @return SerializerInterface
+     * @return PayloadSerializerInterface
      */
-    private function getSerializer() : SerializerInterface
+    private function getSerializer() : PayloadSerializerInterface
     {
         $normalizer = new PayloadNormalizer();
         $denormalizer = new PayloadDenormalizer();
