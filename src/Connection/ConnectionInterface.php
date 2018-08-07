@@ -25,6 +25,8 @@ interface ConnectionInterface
     public const CLUSTER_ID_KEY = 'NATS_CLUSTER_ID';
     
     /**
+     * Publish a payload on the given channel.
+     *
      * @param ChannelInterface $channel
      * @param PayloadInterface $payload
      *
@@ -33,14 +35,33 @@ interface ConnectionInterface
     public function publish(ChannelInterface $channel, PayloadInterface $payload) : TrackedNatsRequest;
     
     /**
-     * @param ChannelInterface    $channels
+     * Register a subscriber on the given channel.
+     *
+     * @param ChannelInterface    $channel
      * @param SubscriberInterface $subscriber
      * @param SubscriptionOptions $subscriptionOptions
      *
      * @return Subscription
      */
     public function subscribe(
-        ChannelInterface $channels,
+        ChannelInterface $channel,
+        SubscriberInterface $subscriber,
+        SubscriptionOptions $subscriptionOptions
+    ) : Subscription;
+    
+    /**
+     * Register a subscriber on the given channel in the given queue group.
+     *
+     * @param ChannelInterface    $channel
+     * @param string              $group
+     * @param SubscriberInterface $subscriber
+     * @param SubscriptionOptions $subscriptionOptions
+     *
+     * @return Subscription
+     */
+    public function groupSubscribe(
+        ChannelInterface $channel,
+        string $group,
         SubscriberInterface $subscriber,
         SubscriptionOptions $subscriptionOptions
     ) : Subscription;

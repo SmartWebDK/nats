@@ -55,13 +55,30 @@ class StreamingConnection implements ConnectionInterface
      * @inheritDoc
      */
     public function subscribe(
-        ChannelInterface $channels,
+        ChannelInterface $channel,
         SubscriberInterface $subscriber,
         SubscriptionOptions $subscriptionOptions
     ) : Subscription {
         return $this->connection->subscribe(
-            $channels->getName(),
-            $this->getSubscriberCallback($subscriber),
+            $channel->getName(),
+            $this->createSubscriberCallback($subscriber),
+            $subscriptionOptions
+        );
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function groupSubscribe(
+        ChannelInterface $channel,
+        string $group,
+        SubscriberInterface $subscriber,
+        SubscriptionOptions $subscriptionOptions
+    ) : Subscription {
+        return $this->connection->queueSubscribe(
+            $channel,
+            $group,
+            $this->createSubscriberCallback($subscriber),
             $subscriptionOptions
         );
     }
@@ -71,7 +88,7 @@ class StreamingConnection implements ConnectionInterface
      *
      * @return callable
      */
-    private function getSubscriberCallback(SubscriberInterface $subscriber) : callable
+    private function createSubscriberCallback(SubscriberInterface $subscriber) : callable
     {
         return function (string $payload) use ($subscriber): void {
             $subscriber->handle($this->serializer->deserialize($payload));
