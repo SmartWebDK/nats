@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace SmartWeb\Nats\Payload;
 
 use SmartWeb\CloudEvents\VersionInterface;
+use SmartWeb\Nats\Payload\Data\PayloadDataInterface;
 
 /**
  * Interface PayloadInterface
@@ -66,7 +67,7 @@ interface PayloadInterface
     public function getExtensions() : ?array;
     
     /**
-     * @return array|null
+     * @return null|PayloadDataInterface
      */
-    public function getData() : ?array;
+    public function getData() : ?PayloadDataInterface;
 }

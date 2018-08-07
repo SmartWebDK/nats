@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace SmartWeb\Nats\Payload;
 
 use SmartWeb\CloudEvents\VersionInterface;
+use SmartWeb\Nats\Payload\Data\PayloadDataInterface;
 
 /**
  * Class Payload
@@ -60,23 +61,23 @@ class Payload implements PayloadInterface
     private $extensions;
     
     /**
-     * @var array|null
+     * @var null|PayloadDataInterface
      */
     private $data;
     
     /**
      * Payload constructor.
      *
-     * @param string                  $eventType
-     * @param VersionInterface|null   $eventTypeVersion
-     * @param VersionInterface        $cloudEventsVersion
-     * @param string                  $source
-     * @param string                  $eventId
-     * @param \DateTimeInterface|null $eventTime
-     * @param string|null             $schemaURL
-     * @param string|null             $contentType
-     * @param array|null              $extensions
-     * @param array|null              $data
+     * @param string                    $eventType
+     * @param VersionInterface|null     $eventTypeVersion
+     * @param VersionInterface          $cloudEventsVersion
+     * @param string                    $source
+     * @param string                    $eventId
+     * @param \DateTimeInterface|null   $eventTime
+     * @param string|null               $schemaURL
+     * @param string|null               $contentType
+     * @param array|null                $extensions
+     * @param null|PayloadDataInterface $data
      */
     public function __construct(
         string $eventType,
@@ -88,7 +89,7 @@ class Payload implements PayloadInterface
         ?string $schemaURL,
         ?string $contentType,
         ?array $extensions,
-        ?array $data
+        ?PayloadDataInterface $data
     ) {
         $this->eventType = $eventType;
         $this->eventTypeVersion = $eventTypeVersion;
@@ -177,7 +178,7 @@ class Payload implements PayloadInterface
     /**
      * @inheritDoc
      */
-    public function getData() : ?array
+    public function getData() : ?PayloadDataInterface
     {
         return $this->data;
     }

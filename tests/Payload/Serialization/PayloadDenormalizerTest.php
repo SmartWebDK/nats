@@ -6,6 +6,7 @@ namespace SmartWeb\Nats\Tests\Payload\Serialization;
 
 use PHPUnit\Framework\TestCase;
 use SmartWeb\CloudEvents\Version;
+use SmartWeb\Nats\Payload\Data\ArrayData;
 use SmartWeb\Nats\Payload\Payload;
 use SmartWeb\Nats\Payload\PayloadFields;
 use SmartWeb\Nats\Payload\PayloadInterface;
@@ -83,13 +84,15 @@ class PayloadDenormalizerTest extends TestCase
                         'extKey_1' => 'extVal_1',
                         'extKey_2' => 'extVal_2',
                     ],
-                    PayloadFields::DATA                 => [
-                        'dataKey_1' => 'dataVal_1',
-                        'dataKey_2' => [
-                            'dataKey_2.1' => 'dataVal_2.1',
-                            'dataKey_2.2' => 'dataVal_2.2',
-                        ],
-                    ],
+                    PayloadFields::DATA                 => new ArrayData(
+                        [
+                            'dataKey_1' => 'dataVal_1',
+                            'dataKey_2' => [
+                                'dataKey_2.1' => 'dataVal_2.1',
+                                'dataKey_2.2' => 'dataVal_2.2',
+                            ],
+                        ]
+                    ),
                 ],
             ],
         ];
@@ -140,7 +143,7 @@ class PayloadDenormalizerTest extends TestCase
                     PayloadFields::SCHEMA_URL           => 'schemaURL', // Invalid
                     PayloadFields::CONTENT_TYPE         => 'contentType', // Invalid
                     PayloadFields::EXTENSIONS           => [],
-                    PayloadFields::DATA                 => [],
+                    PayloadFields::DATA                 => new ArrayData([]),
                 ],
                 'type'     => Payload::class,
                 'format'   => null,

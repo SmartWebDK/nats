@@ -6,6 +6,12 @@ namespace SmartWeb\Nats\Payload\Serialization;
 
 use SmartWeb\Nats\Payload\Payload;
 use SmartWeb\Nats\Payload\PayloadFields;
+use Symfony\Component\Serializer\Exception\BadMethodCallException;
+use Symfony\Component\Serializer\Exception\ExtraAttributesException;
+use Symfony\Component\Serializer\Exception\InvalidArgumentException;
+use Symfony\Component\Serializer\Exception\LogicException;
+use Symfony\Component\Serializer\Exception\RuntimeException;
+use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 /**
@@ -19,10 +25,25 @@ class PayloadDenormalizer implements DenormalizerInterface
     // TODO: Match $format parameter against support schema URLs, mapping schemas to denormalization strategies?
     
     /**
-     * @inheritDoc
+     * Denormalizes data back into an object of the given class.
+     *
+     * @param mixed  $data    Data to restore
+     * @param string $class   The expected class to instantiate
+     * @param string $format  Format the given data was extracted from
+     * @param array  $context Options available to the denormalizer
+     *
+     * @return object
+     *
+     * @throws InvalidArgumentException Occurs when the arguments are not coherent or not supported
+     * @throws UnexpectedValueException Occurs when the item cannot be hydrated with the given data
+     * @throws ExtraAttributesException Occurs when the item doesn't have attribute to receive given data
+     * @throws LogicException           Occurs when the normalizer is not supposed to denormalize
+     * @throws RuntimeException         Occurs if the class cannot be instantiated
      */
-    public function denormalize($data, $class, $format = null, array $context = [])
+    public function denormalize($data, $class, $format = null, ?array $context = null)
     {
+        $context = $context ?? [];
+        
         if (!$this->supportsDenormalization($data, $class)) {
             throw new \InvalidArgumentException('The given data is not supported by this denormalizer.');
         }
@@ -33,7 +54,7 @@ class PayloadDenormalizer implements DenormalizerInterface
     /**
      * @inheritDoc
      */
-    public function supportsDenormalization($data, $type, $format = null)
+    public function supportsDenormalization($data, $type, $format = null) : bool
     {
         // TODO: Refactor to separate validator class
         return \is_array($data)

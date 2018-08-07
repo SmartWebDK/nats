@@ -6,6 +6,7 @@ namespace SmartWeb\Nats\Payload;
 
 use SmartWeb\CloudEvents\VersionInterface;
 use SmartWeb\Nats\Error\PayloadBuilderError;
+use SmartWeb\Nats\Payload\Data\PayloadDataInterface;
 
 /**
  * Class PayloadBuilder
@@ -49,9 +50,6 @@ class PayloadBuilder implements PayloadBuilderInterface
         return new Payload(...\array_values($this->builderArgs));
     }
     
-    /**
-     *
-     */
     private function validateBuilderArgs() : void
     {
         $missingFields = $this->getMissingFields();
@@ -162,7 +160,7 @@ class PayloadBuilder implements PayloadBuilderInterface
     /**
      * @inheritDoc
      */
-    public function setData(array $data) : PayloadBuilderInterface
+    public function setData(PayloadDataInterface $data) : PayloadBuilderInterface
     {
         $this->builderArgs[PayloadFields::DATA] = $data;
         

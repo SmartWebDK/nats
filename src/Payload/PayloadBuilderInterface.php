@@ -6,6 +6,7 @@ namespace SmartWeb\Nats\Payload;
 
 use SmartWeb\CloudEvents\VersionInterface;
 use SmartWeb\Nats\Error\PayloadBuilderError;
+use SmartWeb\Nats\Payload\Data\PayloadDataInterface;
 
 /**
  * Interface PayloadBuilderInterface
@@ -84,11 +85,11 @@ interface PayloadBuilderInterface
     public function setExtensions(array $extensions) : self;
     
     /**
-     * @param array $data
+     * @param PayloadDataInterface $data
      *
      * @return PayloadBuilderInterface
      */
-    public function setData(array $data) : self;
+    public function setData(PayloadDataInterface $data) : self;
     
     /**
      * @return PayloadInterface
