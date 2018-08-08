@@ -11,9 +11,10 @@ use SmartWeb\Nats\Payload\PayloadFields;
 use SmartWeb\Nats\Payload\Serialization\PayloadDecoder;
 use SmartWeb\Nats\Payload\Serialization\PayloadDenormalizer;
 use SmartWeb\Nats\Payload\Serialization\PayloadNormalizer;
-use SmartWeb\Nats\Payload\Serialization\PayloadSerializer;
-use SmartWeb\Nats\Payload\Serialization\PayloadSerializerInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * Tests of payload serialization.
@@ -22,23 +23,27 @@ class PayloadSerializerTest extends TestCase
 {
     
     /**
-     * @var PayloadSerializerInterface
+     * @var SerializerInterface
      */
-    private $serializer;
+    private static $serializer;
     
     /**
      * @inheritDoc
+     * The :void return type declaration that should be here would cause a BC issue
      */
-    protected function setUp()/* The :void return type declaration that should be here would cause a BC issue */
+    public static function setUpBeforeClass()
     {
-        parent::setUp();
+        parent::setUpBeforeClass();
         
-        $normalizer = new PayloadNormalizer();
-        $denormalizer = new PayloadDenormalizer();
-        $encoder = new JsonEncode();
-        $decoder = new PayloadDecoder();
+        $payloadNormalizer = new PayloadNormalizer();
+        $payloadEncoder = new JsonEncode();
+        $payloadDecoder = new PayloadDecoder();
+        $payloadDenormalizer = new PayloadDenormalizer();
         
-        $this->serializer = new PayloadSerializer($normalizer, $encoder, $decoder, $denormalizer);
+        self::$serializer = new Serializer(
+            [$payloadNormalizer, $payloadDenormalizer],
+            [$payloadEncoder, $payloadDecoder]
+        );
     }
     
     /**
@@ -66,7 +71,7 @@ class PayloadSerializerTest extends TestCase
         ];
         
         $expected = new Payload(...\array_values($expectedPayloadData));
-        $actual = $this->serializer->deserialize($payloadString);
+        $actual = self::$serializer->deserialize($payloadString, Payload::class, PayloadDecoder::FORMAT);
         
         $this->assertEquals($expected, $actual);
     }
@@ -77,7 +82,7 @@ class PayloadSerializerTest extends TestCase
     public function shouldSerializeValidValues() : void
     {
         $expected = '{"eventType":"some.event","eventTypeVersion":null,"cloudEventsVersion":"0.1.0","source":"some.source","eventId":"some.event.id","eventTime":null,"schemaURL":null,"contentType":null,"extensions":null,"data":{"foo":"bar"}}';
-    
+        
         $data = [
             PayloadFields::EVENT_TYPE           => 'some.event',
             PayloadFields::EVENT_TYPE_VERSION   => null,
@@ -94,10 +99,10 @@ class PayloadSerializerTest extends TestCase
                 ]
             ),
         ];
-    
+        
         $payload = new Payload(...\array_values($data));
-        $actual = $this->serializer->serialize($payload);
-    
+        $actual = self::$serializer->serialize($payload, JsonEncoder::FORMAT);
+        
         $this->assertSame($expected, $actual);
     }
 }
