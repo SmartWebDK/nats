@@ -4,16 +4,12 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Payload\Serialization;
 
-use SmartWeb\Nats\Message\Message;
-use SmartWeb\Nats\Message\Serialization\MessageDecoder;
-use SmartWeb\Nats\Message\Serialization\MessageDenormalizer;
 use SmartWeb\Nats\Payload\Payload;
 use SmartWeb\Nats\Payload\PayloadInterface;
-use Symfony\Component\Serializer\Encoder\DecoderInterface;
-use Symfony\Component\Serializer\Encoder\EncoderInterface;
+use Symfony\Component\Serializer\Encoder\JsonEncode;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * Class PayloadSerializer
@@ -24,43 +20,28 @@ class PayloadSerializer implements PayloadSerializerInterface
 {
     
     /**
-     * @var NormalizerInterface
+     * @var SerializerInterface
      */
-    private $normalizer;
-    
-    /**
-     * @var DenormalizerInterface
-     */
-    private $denormalizer;
-    
-    /**
-     * @var EncoderInterface
-     */
-    private $encoder;
-    
-    /**
-     * @var DecoderInterface
-     */
-    private $decoder;
+    private $serializer;
     
     /**
      * PayloadSerializer constructor.
      *
-     * @param NormalizerInterface   $normalizer
-     * @param DenormalizerInterface $denormalizer
-     * @param EncoderInterface      $encoder
-     * @param DecoderInterface      $decoder
+     * @param PayloadNormalizer   $normalizer
+     * @param JsonEncode          $encoder
+     * @param PayloadDecoder      $decoder
+     * @param PayloadDenormalizer $denormalizer
      */
     public function __construct(
-        NormalizerInterface $normalizer,
-        DenormalizerInterface $denormalizer,
-        EncoderInterface $encoder,
-        DecoderInterface $decoder
+        PayloadNormalizer $normalizer,
+        JsonEncode $encoder,
+        PayloadDecoder $decoder,
+        PayloadDenormalizer $denormalizer
     ) {
-        $this->normalizer = $normalizer;
-        $this->denormalizer = $denormalizer;
-        $this->encoder = $encoder;
-        $this->decoder = $decoder;
+        $this->serializer = new Serializer(
+            [$normalizer, $denormalizer],
+            [$encoder, $decoder]
+        );
     }
     
     /**
@@ -70,7 +51,7 @@ class PayloadSerializer implements PayloadSerializerInterface
      */
     public function serialize(PayloadInterface $payload) : string
     {
-        return $this->encoder->encode($this->normalizer->normalize($payload), JsonEncoder::FORMAT);
+        return $this->serializer->serialize($payload, JsonEncoder::FORMAT);
     }
     
     /**
@@ -80,20 +61,6 @@ class PayloadSerializer implements PayloadSerializerInterface
      */
     public function deserialize(string $payload) : PayloadInterface
     {
-        $msgDecoder = new MessageDecoder();
-        $msgDenormalizer = new MessageDenormalizer();
-        
-        $msgArray = $msgDecoder->decode($payload, MessageDecoder::FORMAT);
-        $msgObject = $msgDenormalizer->denormalize($msgArray, Message::class);
-        
-        $payloadString = $msgObject->getData();
-        
-        $payloadDecoder = new PayloadDecoder();
-        $payloadDenormalizer = new PayloadDenormalizer();
-        
-        $payloadArray = $payloadDecoder->decode($payloadString, PayloadDecoder::FORMAT);
-        $payloadObject = $payloadDenormalizer->denormalize($payloadArray, Payload::class);
-        
-        return $payloadObject;
+        return $this->serializer->deserialize($payload, Payload::class, PayloadDecoder::FORMAT);
     }
 }

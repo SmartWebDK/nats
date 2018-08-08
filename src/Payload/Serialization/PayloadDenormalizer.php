@@ -150,10 +150,31 @@ class PayloadDenormalizer implements DenormalizerInterface
     public function supportsDenormalization($data, $type, $format = null) : bool
     {
         // TODO: Refactor to separate validator class
-        return $this->targetIsSupported($type)
+        return $this->supportsFormat($format)
+               && $this->targetIsSupported($type)
                && $this->dataTypeIsSupported($data)
                && $this->hasRequiredFields($data)
                && !$this->hasExtraAttributes($data);
+    }
+    
+    /**
+     * @param null|string $format
+     *
+     * @return bool
+     */
+    private function supportsFormat(?string $format) : bool
+    {
+        return $format !== null && \in_array($format, $this->getSupportedFormats(), true);
+    }
+    
+    /**
+     * @return string[]
+     */
+    private function getSupportedFormats() : array
+    {
+        return [
+            PayloadDecoder::FORMAT
+        ];
     }
     
     /**

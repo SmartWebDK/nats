@@ -10,6 +10,7 @@ use SmartWeb\Nats\Payload\Data\ArrayData;
 use SmartWeb\Nats\Payload\Payload;
 use SmartWeb\Nats\Payload\PayloadFields;
 use SmartWeb\Nats\Payload\PayloadInterface;
+use SmartWeb\Nats\Payload\Serialization\PayloadDecoder;
 use SmartWeb\Nats\Payload\Serialization\PayloadDenormalizer;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
@@ -167,7 +168,7 @@ class PayloadDenormalizerTest extends TestCase
                     PayloadFields::EVENT_ID             => '',
                 ],
                 'type'     => Payload::class,
-                'format'   => null,
+                'format'   => PayloadDecoder::FORMAT,
                 'expected' => true,
             ],
             'array, complete'                    => [
@@ -184,8 +185,19 @@ class PayloadDenormalizerTest extends TestCase
                     PayloadFields::DATA                 => new ArrayData([]),
                 ],
                 'type'     => Payload::class,
-                'format'   => null,
+                'format'   => PayloadDecoder::FORMAT,
                 'expected' => true,
+            ],
+            'array, minimal, invalid format'     => [
+                'data'     => [
+                    PayloadFields::EVENT_TYPE           => '',
+                    PayloadFields::CLOUD_EVENTS_VERSION => new Version(0, 1, 0),
+                    PayloadFields::SOURCE               => '',
+                    PayloadFields::EVENT_ID             => '',
+                ],
+                'type'     => Payload::class,
+                'format'   => null,
+                'expected' => false,
             ],
             'array, incomplete'                  => [
                 'data'     => [
