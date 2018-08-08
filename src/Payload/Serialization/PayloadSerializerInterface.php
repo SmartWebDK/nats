@@ -20,9 +20,9 @@ interface PayloadSerializerInterface
     public function serialize(PayloadInterface $payload) : string;
     
     /**
-     * @param string $rawMessageString
+     * @param string $payload
      *
      * @return PayloadInterface
      */
-    public function deserialize(string $rawMessageString) : PayloadInterface;
+    public function deserialize(string $payload) : PayloadInterface;
 }

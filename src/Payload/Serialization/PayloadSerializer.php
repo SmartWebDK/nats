@@ -74,16 +74,16 @@ class PayloadSerializer implements PayloadSerializerInterface
     }
     
     /**
-     * @param string $rawMessageString
+     * @param string $payload
      *
      * @return PayloadInterface
      */
-    public function deserialize(string $rawMessageString) : PayloadInterface
+    public function deserialize(string $payload) : PayloadInterface
     {
         $msgDecoder = new MessageDecoder();
         $msgDenormalizer = new MessageDenormalizer();
         
-        $msgArray = $msgDecoder->decode($rawMessageString, MessageDecoder::FORMAT);
+        $msgArray = $msgDecoder->decode($payload, MessageDecoder::FORMAT);
         $msgObject = $msgDenormalizer->denormalize($msgArray, Message::class);
         
         $payloadString = $msgObject->getData();

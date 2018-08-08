@@ -19,6 +19,6 @@ class SubscriberTest implements SubscriberInterface
      */
     public function handle(PayloadInterface $payload) : void
     {
-        \printf($payload);
+        \var_dump($payload);
     }
 }

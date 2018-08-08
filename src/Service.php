@@ -15,8 +15,10 @@ use SmartWeb\Nats\Channel\Channel;
 use SmartWeb\Nats\Connection\ConnectionInterface;
 use SmartWeb\Nats\Connection\StreamingConnection;
 use SmartWeb\Nats\Message\Serialization\MessageDecoder;
+use SmartWeb\Nats\Message\Serialization\MessageDenormalizer;
 use SmartWeb\Nats\Payload\Data\ArrayData;
 use SmartWeb\Nats\Payload\PayloadBuilder;
+use SmartWeb\Nats\Payload\Serialization\PayloadDecoder;
 use SmartWeb\Nats\Payload\Serialization\PayloadDenormalizer;
 use SmartWeb\Nats\Payload\Serialization\PayloadNormalizer;
 use SmartWeb\Nats\Payload\Serialization\PayloadSerializer;
@@ -56,7 +58,7 @@ class Service implements ServiceInterface
     /**
      * Service constructor.
      *
-     * @param string            $name
+     * @param string $name
      * @param ConnectionOptions $natsConnectionOptions
      */
     public function __construct(string $name, ConnectionOptions $natsConnectionOptions)
@@ -140,16 +142,18 @@ class Service implements ServiceInterface
         $connection = $this->createConnection();
         $connection->connect();
         
-        $adapter = new StreamingConnection($connection, $this->getSerializer());
+        $adapter = $this->createStreamingConnection($connection);
         
         $channel = new Channel($channelName ?? self::$defaultChannelName);
         
-        $data = new ArrayData([
-                                  'foo' => 'bar',
-                              ]);
+        $data = new ArrayData(
+            [
+                'foo' => 'bar',
+            ]
+        );
         $payload = PayloadBuilder::create()
                                  ->setEventType('some.event')
-                                 ->setCloudEventsVersion(new Version(0, 1, 0))
+                                 ->setCloudEventsVersion('0.1.0')
                                  ->setSource('some.source')
                                  ->setEventId('some.event.id')
                                  ->setData($data)
@@ -244,7 +248,7 @@ class Service implements ServiceInterface
         $subOptions = new SubscriptionOptions();
         $subOptions->setStartAt(StartPosition::NewOnly());
         
-        $adapter = new StreamingConnection($connection, $this->getSerializer());
+        $adapter = $this->createStreamingConnection($connection);
         
         $channel = new Channel($channelName ?? self::$defaultChannelName);
         
@@ -298,19 +302,6 @@ class Service implements ServiceInterface
     }
     
     /**
-     * @return PayloadSerializerInterface
-     */
-    private function getSerializer() : PayloadSerializerInterface
-    {
-        $normalizer = new PayloadNormalizer();
-        $denormalizer = new PayloadDenormalizer();
-        $encoder = new JsonEncode();
-        $decoder = new MessageDecoder();
-        
-        return new PayloadSerializer($normalizer, $denormalizer, $encoder, $decoder);
-    }
-    
-    /**
      * @param string|null $clientID
      *
      * @return Connection
@@ -324,5 +315,30 @@ class Service implements ServiceInterface
         $options->setClusterID($this->getClusterID());
         
         return new Connection($options);
+    }
+    
+    /**
+     * @param Connection $connection
+     *
+     * @return StreamingConnection
+     */
+    private function createStreamingConnection(Connection $connection) : StreamingConnection
+    {
+        $payloadNormalizer = new PayloadNormalizer();
+        $payloadEncoder = new JsonEncode();
+        $messageDecoder = new MessageDecoder();
+        $messageDenormalizer = new MessageDenormalizer();
+        $payloadDecoder = new PayloadDecoder();
+        $payloadDenormalizer = new PayloadDenormalizer();
+        
+        return new StreamingConnection(
+            $connection,
+            $payloadNormalizer,
+            $payloadEncoder,
+            $messageDecoder,
+            $messageDenormalizer,
+            $payloadDecoder,
+            $payloadDenormalizer
+        );
     }
 }
