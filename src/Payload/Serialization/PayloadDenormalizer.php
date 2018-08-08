@@ -6,16 +6,14 @@ namespace SmartWeb\Nats\Payload\Serialization;
 
 use SmartWeb\Nats\Payload\Payload;
 use SmartWeb\Nats\Payload\PayloadFields;
-use Symfony\Component\Serializer\Exception\BadMethodCallException;
+use SmartWeb\Nats\Payload\PayloadInterface;
 use Symfony\Component\Serializer\Exception\ExtraAttributesException;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
-use Symfony\Component\Serializer\Exception\LogicException;
 use Symfony\Component\Serializer\Exception\RuntimeException;
-use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 /**
- * Class PayloadDenormalizer
+ * Denormalizer responsible for denormalizing payloads.
  *
  * @api
  */
@@ -32,22 +30,69 @@ class PayloadDenormalizer implements DenormalizerInterface
      * @param string $format  Format the given data was extracted from
      * @param array  $context Options available to the denormalizer
      *
-     * @return object
+     * @return PayloadInterface
      *
      * @throws InvalidArgumentException Occurs when the arguments are not coherent or not supported
-     * @throws UnexpectedValueException Occurs when the item cannot be hydrated with the given data
      * @throws ExtraAttributesException Occurs when the item doesn't have attribute to receive given data
-     * @throws LogicException           Occurs when the normalizer is not supposed to denormalize
      * @throws RuntimeException         Occurs if the class cannot be instantiated
      */
-    public function denormalize($data, $class, $format = null, ?array $context = null)
+    public function denormalize($data, $class, $format = null, ?array $context = null) : PayloadInterface
     {
         $context = $context ?? [];
         
-        if (!$this->supportsDenormalization($data, $class)) {
-            throw new \InvalidArgumentException('The given data is not supported by this denormalizer.');
+        if (!$this->targetIsSupported($class)) {
+            $this->invalidArgumentException(
+                'The given target class is not supported. Expected one of: %s',
+                $this->getSupportedTargets()
+            );
         }
         
+        if (!$this->dataTypeIsSupported($data)) {
+            throw new InvalidArgumentException('The given data must be an array');
+        }
+        
+        if (!$this->hasRequiredFields($data)) {
+            $this->invalidArgumentException(
+                'The given data is invalid. Missing required fields: %s',
+                $this->getMissingFields($data)
+            );
+        }
+        
+        if ($this->hasExtraAttributes($data)) {
+            throw new ExtraAttributesException($this->getExtraAttributes($data));
+        }
+        
+        return $this->createPayload($data, $class);
+    }
+    
+    /**
+     * @param string $format
+     * @param array  $values
+     */
+    private function invalidArgumentException(string $format, array $values) : void
+    {
+        throw new InvalidArgumentException($this->hydrateExceptionMessage($format, $values));
+    }
+    
+    /**
+     * @param string $format
+     * @param array  $values
+     *
+     * @return string
+     */
+    private function hydrateExceptionMessage(string $format, array $values) : string
+    {
+        return \sprintf($format, \implode(', ', $values));
+    }
+    
+    /**
+     * @param array  $data
+     * @param string $class
+     *
+     * @return PayloadInterface
+     */
+    private function createPayload(array $data, string $class) : PayloadInterface
+    {
         return new $class(...\array_values($data));
     }
     
@@ -57,10 +102,10 @@ class PayloadDenormalizer implements DenormalizerInterface
     public function supportsDenormalization($data, $type, $format = null) : bool
     {
         // TODO: Refactor to separate validator class
-        return \is_array($data)
-               && $this->typeSupportsDenormalization($type)
-               && $this->dataHasRequiredFields($data)
-               && $this->dataHasOnlySupportedFields($data);
+        return $this->targetIsSupported($type)
+               && $this->dataTypeIsSupported($data)
+               && $this->hasRequiredFields($data)
+               && !$this->hasExtraAttributes($data);
     }
     
     /**
@@ -68,15 +113,15 @@ class PayloadDenormalizer implements DenormalizerInterface
      *
      * @return bool
      */
-    private function typeSupportsDenormalization(string $type) : bool
+    private function targetIsSupported(string $type) : bool
     {
-        return \in_array($type, $this->getSupportedTypesForDenormalization(), true);
+        return \in_array($type, $this->getSupportedTargets(), true);
     }
     
     /**
      * @return string[]
      */
-    private function getSupportedTypesForDenormalization() : array
+    private function getSupportedTargets() : array
     {
         return [
             Payload::class,
@@ -84,13 +129,23 @@ class PayloadDenormalizer implements DenormalizerInterface
     }
     
     /**
+     * @param mixed $data
+     *
+     * @return bool
+     */
+    private function dataTypeIsSupported($data) : bool
+    {
+        return \is_array($data);
+    }
+    
+    /**
      * @param array $data
      *
      * @return bool
      */
-    private function dataHasRequiredFields(array $data) : bool
+    private function hasRequiredFields(array $data) : bool
     {
-        return \count($this->getMissingFields($data)) === 0;
+        return empty($this->getMissingFields($data));
     }
     
     /**
@@ -108,9 +163,9 @@ class PayloadDenormalizer implements DenormalizerInterface
      *
      * @return bool
      */
-    private function dataHasOnlySupportedFields(array $data) : bool
+    private function hasExtraAttributes(array $data) : bool
     {
-        return \count($this->getUnsupportedFields($data)) === 0;
+        return !empty($this->getExtraAttributes($data));
     }
     
     /**
@@ -118,7 +173,7 @@ class PayloadDenormalizer implements DenormalizerInterface
      *
      * @return array
      */
-    private function getUnsupportedFields(array $data) : array
+    private function getExtraAttributes(array $data) : array
     {
         return \array_diff(\array_keys($data), PayloadFields::getSupportedFields());
     }

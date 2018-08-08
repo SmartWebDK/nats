@@ -15,6 +15,7 @@ use SmartWeb\Nats\Channel\Channel;
 use SmartWeb\Nats\Connection\ConnectionInterface;
 use SmartWeb\Nats\Connection\StreamingConnection;
 use SmartWeb\Nats\Message\Serialization\MessageDecoder;
+use SmartWeb\Nats\Payload\Data\ArrayData;
 use SmartWeb\Nats\Payload\PayloadBuilder;
 use SmartWeb\Nats\Payload\Serialization\PayloadDenormalizer;
 use SmartWeb\Nats\Payload\Serialization\PayloadNormalizer;
@@ -143,9 +144,9 @@ class Service implements ServiceInterface
         
         $channel = new Channel($channelName ?? self::$defaultChannelName);
         
-        $data = [
-            'foo' => 'bar',
-        ];
+        $data = new ArrayData([
+                                  'foo' => 'bar',
+                              ]);
         $payload = PayloadBuilder::create()
                                  ->setEventType('some.event')
                                  ->setCloudEventsVersion(new Version(0, 1, 0))

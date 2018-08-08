@@ -46,11 +46,29 @@ class MessageDecoder implements DecoderInterface
      */
     public function decode($data, $format, ?array $context = null) : array
     {
-        if (!$this->supportsDecoding($format)) {
-            throw new UnexpectedValueException('The given data format is not supported by this normalizer.');
+        if (!$this->formatIsSupported($format)) {
+            throw new UnexpectedValueException("The given data format '{$format}' is not supported by this normalizer.");
         }
         
         return $this->decodeMessageString($data);
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function supportsDecoding($format) : bool
+    {
+        return $this->formatIsSupported($format);
+    }
+    
+    /**
+     * @param string $format
+     *
+     * @return bool
+     */
+    private function formatIsSupported(string $format) : bool
+    {
+        return $format === self::FORMAT;
     }
     
     /**
@@ -166,13 +184,5 @@ class MessageDecoder implements DecoderInterface
     private static function getJsonDecoder() : JsonDecode
     {
         return self::$jsonDecoder = self::$jsonDecoder ?? new JsonDecode(true);
-    }
-    
-    /**
-     * @inheritDoc
-     */
-    public function supportsDecoding($format) : bool
-    {
-        return $format === self::FORMAT;
     }
 }
