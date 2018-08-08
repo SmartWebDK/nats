@@ -4,7 +4,9 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Payload\Serialization;
 
+use SmartWeb\Nats\Message\Message;
 use SmartWeb\Nats\Message\Serialization\MessageDecoder;
+use SmartWeb\Nats\Message\Serialization\MessageDenormalizer;
 use SmartWeb\Nats\Payload\Payload;
 use SmartWeb\Nats\Payload\PayloadInterface;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
@@ -44,10 +46,10 @@ class PayloadSerializer implements PayloadSerializerInterface
     /**
      * PayloadSerializer constructor.
      *
-     * @param NormalizerInterface $normalizer
+     * @param NormalizerInterface   $normalizer
      * @param DenormalizerInterface $denormalizer
-     * @param EncoderInterface $encoder
-     * @param DecoderInterface $decoder
+     * @param EncoderInterface      $encoder
+     * @param DecoderInterface      $decoder
      */
     public function __construct(
         NormalizerInterface $normalizer,
@@ -72,14 +74,26 @@ class PayloadSerializer implements PayloadSerializerInterface
     }
     
     /**
-     * @param string $serialized
+     * @param string $rawMessageString
      *
      * @return PayloadInterface
      */
-    public function deserialize(string $serialized) : PayloadInterface
+    public function deserialize(string $rawMessageString) : PayloadInterface
     {
-        $decoded = $this->decoder->decode($serialized, MessageDecoder::FORMAT);
+        $msgDecoder = new MessageDecoder();
+        $msgDenormalizer = new MessageDenormalizer();
         
-        return $this->denormalizer->denormalize($decoded, Payload::class);
+        $msgArray = $msgDecoder->decode($rawMessageString, MessageDecoder::FORMAT);
+        $msgObject = $msgDenormalizer->denormalize($msgArray, Message::class);
+        
+        $payloadString = $msgObject->getData();
+        
+        $payloadDecoder = new PayloadDecoder();
+        $payloadDenormalizer = new PayloadDenormalizer();
+        
+        $payloadArray = $payloadDecoder->decode($payloadString, PayloadDecoder::FORMAT);
+        $payloadObject = $payloadDenormalizer->denormalize($payloadArray, Payload::class);
+        
+        return $payloadObject;
     }
 }

@@ -4,12 +4,15 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Payload\Serialization;
 
+use SmartWeb\Nats\Payload\Data\ArrayData;
+use SmartWeb\Nats\Payload\Data\PayloadDataInterface;
 use SmartWeb\Nats\Payload\Payload;
 use SmartWeb\Nats\Payload\PayloadFields;
 use SmartWeb\Nats\Payload\PayloadInterface;
 use Symfony\Component\Serializer\Exception\ExtraAttributesException;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\RuntimeException;
+use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 /**
@@ -33,6 +36,7 @@ class PayloadDenormalizer implements DenormalizerInterface
      * @return PayloadInterface
      *
      * @throws InvalidArgumentException Occurs when the arguments are not coherent or not supported
+     * @throws UnexpectedValueException Occurs when the item cannot be hydrated with the given data
      * @throws ExtraAttributesException Occurs when the item doesn't have attribute to receive given data
      * @throws RuntimeException         Occurs if the class cannot be instantiated
      */
@@ -93,7 +97,51 @@ class PayloadDenormalizer implements DenormalizerInterface
      */
     private function createPayload(array $data, string $class) : PayloadInterface
     {
+        $data[PayloadFields::DATA] = $this->denormalizePayloadData($data[PayloadFields::DATA]);
+        
         return new $class(...\array_values($data));
+    }
+    
+    /**
+     * @param $payloadData
+     *
+     * @return null|PayloadDataInterface
+     */
+    private function denormalizePayloadData($payloadData) : ?PayloadDataInterface
+    {
+        $format = \gettype($payloadData);
+        
+        return $payloadData !== null
+            ? $this->getPayloadDataDenormalizer($format)($payloadData)
+            : null;
+    }
+    
+    /**
+     * @param string $format
+     *
+     * @return callable
+     */
+    private function getPayloadDataDenormalizer(string $format) : callable
+    {
+        $denormalizer = $this->getPayloadDataDenormalizers()[$format] ?? null;
+        
+        if ($denormalizer === null) {
+            throw new UnexpectedValueException("No payload data denormalizer found for format '{$format}'");
+        }
+        
+        return $denormalizer;
+    }
+    
+    /**
+     * @return callable[]
+     */
+    private function getPayloadDataDenormalizers() : array
+    {
+        return [
+            'array' => function (array $payloadData) : PayloadDataInterface {
+                return new ArrayData($payloadData);
+            },
+        ];
     }
     
     /**

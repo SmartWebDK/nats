@@ -99,15 +99,13 @@ class PayloadDenormalizerTest extends TestCase
                         'extKey_1' => 'extVal_1',
                         'extKey_2' => 'extVal_2',
                     ],
-                    PayloadFields::DATA                 => new ArrayData(
-                        [
-                            'dataKey_1' => 'dataVal_1',
-                            'dataKey_2' => [
-                                'dataKey_2.1' => 'dataVal_2.1',
-                                'dataKey_2.2' => 'dataVal_2.2',
-                            ],
-                        ]
-                    ),
+                    PayloadFields::DATA                 => [
+                        'dataKey_1' => 'dataVal_1',
+                        'dataKey_2' => [
+                            'dataKey_2.1' => 'dataVal_2.1',
+                            'dataKey_2.2' => 'dataVal_2.2',
+                        ],
+                    ],
                 ],
                 'payload' => [
                     PayloadFields::EVENT_TYPE           => '',

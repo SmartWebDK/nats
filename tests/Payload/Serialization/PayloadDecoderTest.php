@@ -2,7 +2,7 @@
 declare(strict_types = 1);
 
 
-namespace SmartWeb\Nats\Tests\Message\Serialization;
+namespace SmartWeb\Nats\Tests\Payload\Serialization;
 
 use PHPUnit\Framework\TestCase;
 use SmartWeb\Nats\Payload\PayloadFields;
