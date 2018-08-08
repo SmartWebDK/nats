@@ -16,12 +16,12 @@ use SmartWeb\Nats\Connection\StreamingConnection;
 use SmartWeb\Nats\Message\Serialization\MessageDecoder;
 use SmartWeb\Nats\Message\Serialization\MessageDenormalizer;
 use SmartWeb\Nats\Message\Serialization\MessageDeserializer;
-use SmartWeb\Nats\Payload\Data\ArrayData;
 use SmartWeb\Nats\Payload\PayloadBuilder;
 use SmartWeb\Nats\Payload\Serialization\PayloadDecoder;
 use SmartWeb\Nats\Payload\Serialization\PayloadDenormalizer;
 use SmartWeb\Nats\Payload\Serialization\PayloadNormalizer;
 use SmartWeb\Nats\Subscriber\SubscriberTest;
+use SmartWeb\Nats\Tests\Fixtures\Payload\Data\ArrayData;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
 use Symfony\Component\Serializer\Serializer;
 

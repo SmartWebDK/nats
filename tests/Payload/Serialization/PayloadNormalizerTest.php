@@ -5,11 +5,11 @@ declare(strict_types = 1);
 namespace SmartWeb\Nats\Tests\Payload\Serialization;
 
 use PHPUnit\Framework\TestCase;
-use SmartWeb\Nats\Payload\Data\ArrayData;
 use SmartWeb\Nats\Payload\Payload;
 use SmartWeb\Nats\Payload\PayloadFields;
 use SmartWeb\Nats\Payload\PayloadInterface;
 use SmartWeb\Nats\Payload\Serialization\PayloadNormalizer;
+use SmartWeb\Nats\Tests\Fixtures\Payload\Data\ArrayData;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**

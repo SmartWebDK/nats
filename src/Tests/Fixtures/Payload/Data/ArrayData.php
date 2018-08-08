@@ -2,10 +2,12 @@
 declare(strict_types = 1);
 
 
-namespace SmartWeb\Nats\Payload\Data;
+namespace SmartWeb\Nats\Tests\Fixtures\Payload\Data;
+
+use SmartWeb\Nats\Payload\Data\PayloadDataInterface;
 
 /**
- * TODO: Missing class description.
+ * @author Nicolai Agersbæk <na@smartweb.dk>
  */
 class ArrayData implements PayloadDataInterface
 {
