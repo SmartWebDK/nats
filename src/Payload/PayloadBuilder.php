@@ -80,7 +80,7 @@ class PayloadBuilder implements PayloadBuilderInterface
     /**
      * @inheritDoc
      */
-    public function setEventTypeVersion(VersionInterface $version) : PayloadBuilderInterface
+    public function setEventTypeVersion(string $version) : PayloadBuilderInterface
     {
         $this->builderArgs[PayloadFields::EVENT_TYPE_VERSION] = $version;
         
@@ -90,7 +90,7 @@ class PayloadBuilder implements PayloadBuilderInterface
     /**
      * @inheritDoc
      */
-    public function setCloudEventsVersion(VersionInterface $version) : PayloadBuilderInterface
+    public function setCloudEventsVersion(string $version) : PayloadBuilderInterface
     {
         $this->builderArgs[PayloadFields::CLOUD_EVENTS_VERSION] = $version;
         

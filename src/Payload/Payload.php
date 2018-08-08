@@ -4,11 +4,12 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Payload;
 
-use SmartWeb\CloudEvents\VersionInterface;
 use SmartWeb\Nats\Payload\Data\PayloadDataInterface;
 
 /**
- * Class Payload
+ * The payload of an event according to the CloudEvents NATS Transporting Binding specification.
+ *
+ * @see https://github.com/cloudevents/spec/blob/master/nats-transport-binding.md
  *
  * @api
  */
@@ -21,12 +22,12 @@ class Payload implements PayloadInterface
     private $eventType;
     
     /**
-     * @var null|VersionInterface
+     * @var null|string
      */
     private $eventTypeVersion;
     
     /**
-     * @var VersionInterface
+     * @var string
      */
     private $cloudEventsVersion;
     
@@ -69,8 +70,8 @@ class Payload implements PayloadInterface
      * Payload constructor.
      *
      * @param string                    $eventType
-     * @param VersionInterface|null     $eventTypeVersion
-     * @param VersionInterface          $cloudEventsVersion
+     * @param null|string               $eventTypeVersion
+     * @param string                    $cloudEventsVersion
      * @param string                    $source
      * @param string                    $eventId
      * @param \DateTimeInterface|null   $eventTime
@@ -81,8 +82,8 @@ class Payload implements PayloadInterface
      */
     public function __construct(
         string $eventType,
-        ?VersionInterface $eventTypeVersion,
-        VersionInterface $cloudEventsVersion,
+        ?string $eventTypeVersion,
+        string $cloudEventsVersion,
         string $source,
         string $eventId,
         ?\DateTimeInterface $eventTime,
@@ -114,9 +115,25 @@ class Payload implements PayloadInterface
     /**
      * @inheritDoc
      */
-    public function getEventTypeVersion() : ?VersionInterface
+    public function getEventTypeVersion() : ?string
     {
         return $this->eventTypeVersion;
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function getCloudEventsVersion() : string
+    {
+        return $this->cloudEventsVersion;
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function getSource() : string
+    {
+        return $this->source;
     }
     
     /**
@@ -133,22 +150,6 @@ class Payload implements PayloadInterface
     public function getEventTime() : ?\DateTimeInterface
     {
         return $this->eventTime;
-    }
-    
-    /**
-     * @inheritDoc
-     */
-    public function getCloudEventsVersion() : VersionInterface
-    {
-        return $this->cloudEventsVersion;
-    }
-    
-    /**
-     * @inheritDoc
-     */
-    public function getSource() : string
-    {
-        return $this->source;
     }
     
     /**

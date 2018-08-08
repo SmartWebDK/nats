@@ -63,7 +63,7 @@ class PayloadNormalizerTest extends TestCase
                 'data' => [
                     PayloadFields::EVENT_TYPE           => '',
                     PayloadFields::EVENT_TYPE_VERSION   => null,
-                    PayloadFields::CLOUD_EVENTS_VERSION => new Version(0, 1, 0),
+                    PayloadFields::CLOUD_EVENTS_VERSION => '0.1.0',
                     PayloadFields::SOURCE               => '',
                     PayloadFields::EVENT_ID             => '',
                     PayloadFields::EVENT_TIME           => null,
@@ -76,8 +76,8 @@ class PayloadNormalizerTest extends TestCase
             'complete' => [
                 'data' => [
                     PayloadFields::EVENT_TYPE           => '',
-                    PayloadFields::EVENT_TYPE_VERSION   => new Version(1, 0, 0),
-                    PayloadFields::CLOUD_EVENTS_VERSION => new Version(0, 1, 0),
+                    PayloadFields::EVENT_TYPE_VERSION   => '1.0.0',
+                    PayloadFields::CLOUD_EVENTS_VERSION => '0.1.0',
                     PayloadFields::SOURCE               => '',
                     PayloadFields::EVENT_ID             => '',
                     PayloadFields::EVENT_TIME           => new \DateTime(),

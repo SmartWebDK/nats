@@ -38,12 +38,13 @@ class PayloadDenormalizerTest extends TestCase
      * @test
      *
      * @param array $data
+     * @param array $payload
      *
      * @dataProvider denormalizeValidDataProvider
      */
-    public function shouldDenormalizeValidPayload(array $data) : void
+    public function shouldDenormalizeValidPayload(array $data, array $payload) : void
     {
-        $expected = new Payload(...\array_values($data));
+        $expected = new Payload(...\array_values($payload));
         $actual = $this->denormalizer->denormalize($data, Payload::class);
         
         $this->assertEquals($expected, $actual, 'Should correctly denormalize payload');
@@ -55,12 +56,26 @@ class PayloadDenormalizerTest extends TestCase
      */
     public function denormalizeValidDataProvider() : array
     {
+        $eventTime = new \DateTime();
+        
         return [
             'minimal'  => [
-                'data' => [
+                'data'    => [
                     PayloadFields::EVENT_TYPE           => '',
                     PayloadFields::EVENT_TYPE_VERSION   => null,
-                    PayloadFields::CLOUD_EVENTS_VERSION => new Version(0, 1, 0),
+                    PayloadFields::CLOUD_EVENTS_VERSION => '0.1.0',
+                    PayloadFields::SOURCE               => '',
+                    PayloadFields::EVENT_ID             => '',
+                    PayloadFields::EVENT_TIME           => null,
+                    PayloadFields::SCHEMA_URL           => null,
+                    PayloadFields::CONTENT_TYPE         => null,
+                    PayloadFields::EXTENSIONS           => null,
+                    PayloadFields::DATA                 => null,
+                ],
+                'payload' => [
+                    PayloadFields::EVENT_TYPE           => '',
+                    PayloadFields::EVENT_TYPE_VERSION   => null,
+                    PayloadFields::CLOUD_EVENTS_VERSION => '0.1.0',
                     PayloadFields::SOURCE               => '',
                     PayloadFields::EVENT_ID             => '',
                     PayloadFields::EVENT_TIME           => null,
@@ -71,13 +86,36 @@ class PayloadDenormalizerTest extends TestCase
                 ],
             ],
             'complete' => [
-                'data' => [
+                'data'    => [
                     PayloadFields::EVENT_TYPE           => '',
-                    PayloadFields::EVENT_TYPE_VERSION   => new Version(1, 0, 0),
-                    PayloadFields::CLOUD_EVENTS_VERSION => new Version(0, 1, 0),
+                    PayloadFields::EVENT_TYPE_VERSION   => '1.0.0',
+                    PayloadFields::CLOUD_EVENTS_VERSION => '0.1.0',
                     PayloadFields::SOURCE               => '',
                     PayloadFields::EVENT_ID             => '',
-                    PayloadFields::EVENT_TIME           => new \DateTime(),
+                    PayloadFields::EVENT_TIME           => $eventTime,
+                    PayloadFields::SCHEMA_URL           => 'schemaURL', // Invalid
+                    PayloadFields::CONTENT_TYPE         => 'contentType', // Invalid
+                    PayloadFields::EXTENSIONS           => [
+                        'extKey_1' => 'extVal_1',
+                        'extKey_2' => 'extVal_2',
+                    ],
+                    PayloadFields::DATA                 => new ArrayData(
+                        [
+                            'dataKey_1' => 'dataVal_1',
+                            'dataKey_2' => [
+                                'dataKey_2.1' => 'dataVal_2.1',
+                                'dataKey_2.2' => 'dataVal_2.2',
+                            ],
+                        ]
+                    ),
+                ],
+                'payload' => [
+                    PayloadFields::EVENT_TYPE           => '',
+                    PayloadFields::EVENT_TYPE_VERSION   => '1.0.0',
+                    PayloadFields::CLOUD_EVENTS_VERSION => '0.1.0',
+                    PayloadFields::SOURCE               => '',
+                    PayloadFields::EVENT_ID             => '',
+                    PayloadFields::EVENT_TIME           => $eventTime,
                     PayloadFields::SCHEMA_URL           => 'schemaURL', // Invalid
                     PayloadFields::CONTENT_TYPE         => 'contentType', // Invalid
                     PayloadFields::EXTENSIONS           => [
@@ -120,8 +158,10 @@ class PayloadDenormalizerTest extends TestCase
      */
     public function supportsDenormalizationDataProvider() : array
     {
+        $eventTime = new \DateTime();
+        
         return [
-            'array, minimal'               => [
+            'array, minimal'                     => [
                 'data'     => [
                     PayloadFields::EVENT_TYPE           => '',
                     PayloadFields::CLOUD_EVENTS_VERSION => new Version(0, 1, 0),
@@ -132,14 +172,14 @@ class PayloadDenormalizerTest extends TestCase
                 'format'   => null,
                 'expected' => true,
             ],
-            'array, complete'              => [
+            'array, complete'                    => [
                 'data'     => [
                     PayloadFields::EVENT_TYPE           => '',
-                    PayloadFields::EVENT_TYPE_VERSION   => new Version(1, 0, 0),
-                    PayloadFields::CLOUD_EVENTS_VERSION => new Version(0, 1, 0),
+                    PayloadFields::EVENT_TYPE_VERSION   => '1.0.0',
+                    PayloadFields::CLOUD_EVENTS_VERSION => '0.1.0',
                     PayloadFields::SOURCE               => '',
                     PayloadFields::EVENT_ID             => '',
-                    PayloadFields::EVENT_TIME           => new \DateTime(),
+                    PayloadFields::EVENT_TIME           => $eventTime,
                     PayloadFields::SCHEMA_URL           => 'schemaURL', // Invalid
                     PayloadFields::CONTENT_TYPE         => 'contentType', // Invalid
                     PayloadFields::EXTENSIONS           => [],
@@ -149,7 +189,7 @@ class PayloadDenormalizerTest extends TestCase
                 'format'   => null,
                 'expected' => true,
             ],
-            'array, incomplete'            => [
+            'array, incomplete'                  => [
                 'data'     => [
                     PayloadFields::EVENT_TYPE => '',
                     PayloadFields::SOURCE     => '',
@@ -159,16 +199,16 @@ class PayloadDenormalizerTest extends TestCase
                 'format'   => null,
                 'expected' => false,
             ],
-            'array, empty'                 => [
+            'array, empty'                       => [
                 'data'     => [],
                 'type'     => Payload::class,
                 'format'   => null,
                 'expected' => false,
             ],
-            'array, minimal, invalid type' => [
+            'array, minimal, invalid data entry' => [
                 'data'     => [
                     PayloadFields::EVENT_TYPE           => '',
-                    PayloadFields::CLOUD_EVENTS_VERSION => new Version(0, 1, 0),
+                    PayloadFields::CLOUD_EVENTS_VERSION => 1,
                     PayloadFields::SOURCE               => '',
                     PayloadFields::EVENT_ID             => '',
                 ],
@@ -176,7 +216,18 @@ class PayloadDenormalizerTest extends TestCase
                 'format'   => null,
                 'expected' => false,
             ],
-            'Payload'                      => [
+            'array, minimal, invalid type'       => [
+                'data'     => [
+                    PayloadFields::EVENT_TYPE           => '',
+                    PayloadFields::CLOUD_EVENTS_VERSION => '0.1.0',
+                    PayloadFields::SOURCE               => '',
+                    PayloadFields::EVENT_ID             => '',
+                ],
+                'type'     => PayloadInterface::class,
+                'format'   => null,
+                'expected' => false,
+            ],
+            'Payload'                            => [
                 'data'     => $this->createMock(Payload::class),
                 'type'     => Payload::class,
                 'format'   => null,

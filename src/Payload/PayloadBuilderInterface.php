@@ -29,18 +29,18 @@ interface PayloadBuilderInterface
     public function setEventType(string $type) : self;
     
     /**
-     * @param VersionInterface $version
+     * @param string $version
      *
      * @return PayloadBuilderInterface
      */
-    public function setEventTypeVersion(VersionInterface $version) : self;
+    public function setEventTypeVersion(string $version) : self;
     
     /**
-     * @param VersionInterface $version
+     * @param string $version
      *
      * @return PayloadBuilderInterface
      */
-    public function setCloudEventsVersion(VersionInterface $version) : self;
+    public function setCloudEventsVersion(string $version) : self;
     
     /**
      * @param string $source

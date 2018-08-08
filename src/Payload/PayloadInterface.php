@@ -4,11 +4,12 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Payload;
 
-use SmartWeb\CloudEvents\VersionInterface;
 use SmartWeb\Nats\Payload\Data\PayloadDataInterface;
 
 /**
- * Interface PayloadInterface
+ * Definition of the payload of an event according to the CloudEvents NATS Transporting Binding specification.
+ *
+ * @see https://github.com/cloudevents/spec/blob/master/nats-transport-binding.md
  *
  * @api
  */
@@ -23,16 +24,16 @@ interface PayloadInterface
     /**
      * The event version.
      *
-     * @return null|VersionInterface
+     * @return null|string
      */
-    public function getEventTypeVersion() : ?VersionInterface;
+    public function getEventTypeVersion() : ?string;
     
     /**
      * The CloudEvents specification version this payload adheres to.
      *
-     * @return VersionInterface
+     * @return string
      */
-    public function getCloudEventsVersion() : VersionInterface;
+    public function getCloudEventsVersion() : string;
     
     /**
      * The name of the service that emitted the event.
