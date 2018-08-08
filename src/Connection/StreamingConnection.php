@@ -15,11 +15,9 @@ use SmartWeb\Nats\Message\Serialization\MessageDenormalizer;
 use SmartWeb\Nats\Payload\Payload;
 use SmartWeb\Nats\Payload\PayloadInterface;
 use SmartWeb\Nats\Payload\Serialization\PayloadDecoder;
-use SmartWeb\Nats\Payload\Serialization\PayloadDenormalizer;
-use SmartWeb\Nats\Payload\Serialization\PayloadNormalizer;
 use SmartWeb\Nats\Subscriber\SubscriberInterface;
-use Symfony\Component\Serializer\Encoder\JsonEncode;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * Adapter for {@link NatsStreaming\Connection}, enabling interaction using CloudEvents payload specification.
@@ -35,16 +33,6 @@ class StreamingConnection implements ConnectionInterface
     private $connection;
     
     /**
-     * @var PayloadNormalizer
-     */
-    private $payloadNormalizer;
-    
-    /**
-     * @var JsonEncode
-     */
-    private $payloadEncoder;
-    
-    /**
      * @var MessageDecoder
      */
     private $messageDecoder;
@@ -55,63 +43,29 @@ class StreamingConnection implements ConnectionInterface
     private $messageDenormalizer;
     
     /**
-     * @var PayloadDecoder
+     * @var SerializerInterface
      */
-    private $payloadDecoder;
-    
-    /**
-     * @var PayloadDenormalizer
-     */
-    private $payloadDenormalizer;
+    private $payloadSerializer;
     
     /**
      * StreamingConnectionAdapter constructor.
      *
      * @param Connection          $connection
-     * @param PayloadNormalizer   $payloadNormalizer
-     * @param JsonEncode          $payloadEncoder
      * @param MessageDecoder      $messageDecoder
      * @param MessageDenormalizer $messageDenormalizer
-     * @param PayloadDecoder      $payloadDecoder
-     * @param PayloadDenormalizer $payloadDenormalizer
+     * @param SerializerInterface $payloadSerializer
      */
     public function __construct(
         Connection $connection,
-        PayloadNormalizer $payloadNormalizer,
-        JsonEncode $payloadEncoder,
         MessageDecoder $messageDecoder,
         MessageDenormalizer $messageDenormalizer,
-        PayloadDecoder $payloadDecoder,
-        PayloadDenormalizer $payloadDenormalizer
+        SerializerInterface $payloadSerializer
     ) {
         $this->connection = $connection;
-        $this->payloadNormalizer = $payloadNormalizer;
-        $this->payloadEncoder = $payloadEncoder;
         $this->messageDecoder = $messageDecoder;
         $this->messageDenormalizer = $messageDenormalizer;
-        $this->payloadDecoder = $payloadDecoder;
-        $this->payloadDenormalizer = $payloadDenormalizer;
+        $this->payloadSerializer = $payloadSerializer;
     }
-
-//    /**
-//     * StreamingConnectionAdapter constructor.
-//     *
-//     * @param Connection $connection
-//     * @param DeserializerInterface $messageDeserializer
-//     * @param SerializerInterface $messageSerializer
-//     * @param SerializerInterface $payloadSerializer
-//     */
-//    public function __construct(
-//        Connection $connection,
-//        DeserializerInterface $messageDeserializer,
-//        SerializerInterface $messageSerializer,
-//        SerializerInterface $payloadSerializer
-//    ) {
-//        $this->connection = $connection;
-//        $this->messageDeserializer = $messageDeserializer;
-//        $this->messageSerializer = $messageSerializer;
-//        $this->payloadSerializer = $payloadSerializer;
-//    }
     
     /**
      * @inheritDoc
@@ -120,18 +74,8 @@ class StreamingConnection implements ConnectionInterface
     {
         return $this->connection->publish(
             $channel->getName(),
-            $this->serializePayload($payload)
+            $this->payloadSerializer->serialize($payload, JsonEncoder::FORMAT)
         );
-    }
-    
-    /**
-     * @param PayloadInterface $payload
-     *
-     * @return string
-     */
-    private function serializePayload(PayloadInterface $payload) : string
-    {
-        return $this->payloadEncoder->encode($this->payloadNormalizer->normalize($payload), JsonEncoder::FORMAT);
     }
     
     /**
@@ -188,11 +132,22 @@ class StreamingConnection implements ConnectionInterface
         $msgArray = $this->messageDecoder->decode($payload, MessageDecoder::FORMAT);
         $msgObject = $this->messageDenormalizer->denormalize($msgArray, Message::class);
         
-        $payloadString = $msgObject->getData();
+        return $this->deserializePayload($msgObject->getData());
+    }
+    
+    /**
+     * @param string $payload
+     *
+     * @return PayloadInterface
+     */
+    private function deserializePayload(string $payload) : PayloadInterface
+    {
+        $payloadObject = $this->payloadSerializer->deserialize($payload, Payload::class, PayloadDecoder::FORMAT);
         
-        $payloadArray = $this->payloadDecoder->decode($payloadString, PayloadDecoder::FORMAT);
-        $payloadObject = $this->payloadDenormalizer->denormalize($payloadArray, Payload::class);
+        if ($payloadObject instanceof PayloadInterface) {
+            return $payloadObject;
+        }
         
-        return $payloadObject;
+        throw new \LogicException('The deserialized payload object must be an instance of ' . PayloadInterface::class);
     }
 }

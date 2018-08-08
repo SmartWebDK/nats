@@ -25,6 +25,7 @@ use SmartWeb\Nats\Payload\Serialization\PayloadSerializer;
 use SmartWeb\Nats\Payload\Serialization\PayloadSerializerInterface;
 use SmartWeb\Nats\Subscriber\SubscriberTest;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * Class Service
@@ -324,21 +325,24 @@ class Service implements ServiceInterface
      */
     private function createStreamingConnection(Connection $connection) : StreamingConnection
     {
-        $payloadNormalizer = new PayloadNormalizer();
-        $payloadEncoder = new JsonEncode();
         $messageDecoder = new MessageDecoder();
         $messageDenormalizer = new MessageDenormalizer();
+        
+        $payloadNormalizer = new PayloadNormalizer();
+        $payloadEncoder = new JsonEncode();
         $payloadDecoder = new PayloadDecoder();
         $payloadDenormalizer = new PayloadDenormalizer();
         
+        $payloadSerializer = new Serializer(
+            [$payloadNormalizer, $payloadDenormalizer],
+            [$payloadEncoder, $payloadDecoder]
+        );
+        
         return new StreamingConnection(
             $connection,
-            $payloadNormalizer,
-            $payloadEncoder,
             $messageDecoder,
             $messageDenormalizer,
-            $payloadDecoder,
-            $payloadDenormalizer
+            $payloadSerializer
         );
     }
 }
