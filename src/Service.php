@@ -10,19 +10,17 @@ use NatsStreaming\ConnectionOptions as StreamingConnectionOptions;
 use NatsStreaming\Subscription;
 use NatsStreaming\SubscriptionOptions;
 use NatsStreamingProtos\StartPosition;
-use SmartWeb\CloudEvents\Version;
 use SmartWeb\Nats\Channel\Channel;
 use SmartWeb\Nats\Connection\ConnectionInterface;
 use SmartWeb\Nats\Connection\StreamingConnection;
 use SmartWeb\Nats\Message\Serialization\MessageDecoder;
 use SmartWeb\Nats\Message\Serialization\MessageDenormalizer;
+use SmartWeb\Nats\Message\Serialization\MessageDeserializer;
 use SmartWeb\Nats\Payload\Data\ArrayData;
 use SmartWeb\Nats\Payload\PayloadBuilder;
 use SmartWeb\Nats\Payload\Serialization\PayloadDecoder;
 use SmartWeb\Nats\Payload\Serialization\PayloadDenormalizer;
 use SmartWeb\Nats\Payload\Serialization\PayloadNormalizer;
-use SmartWeb\Nats\Payload\Serialization\PayloadSerializer;
-use SmartWeb\Nats\Payload\Serialization\PayloadSerializerInterface;
 use SmartWeb\Nats\Subscriber\SubscriberTest;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
 use Symfony\Component\Serializer\Serializer;
@@ -59,7 +57,7 @@ class Service implements ServiceInterface
     /**
      * Service constructor.
      *
-     * @param string $name
+     * @param string            $name
      * @param ConnectionOptions $natsConnectionOptions
      */
     public function __construct(string $name, ConnectionOptions $natsConnectionOptions)
@@ -328,6 +326,8 @@ class Service implements ServiceInterface
         $messageDecoder = new MessageDecoder();
         $messageDenormalizer = new MessageDenormalizer();
         
+        $messageDeserializer = new MessageDeserializer($messageDecoder, $messageDenormalizer);
+        
         $payloadNormalizer = new PayloadNormalizer();
         $payloadEncoder = new JsonEncode();
         $payloadDecoder = new PayloadDecoder();
@@ -340,8 +340,7 @@ class Service implements ServiceInterface
         
         return new StreamingConnection(
             $connection,
-            $messageDecoder,
-            $messageDenormalizer,
+            $messageDeserializer,
             $payloadSerializer
         );
     }
