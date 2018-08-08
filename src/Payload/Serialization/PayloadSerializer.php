@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Payload\Serialization;
 
+use SmartWeb\Nats\Message\Serialization\MessageDecoder;
 use SmartWeb\Nats\Payload\Payload;
 use SmartWeb\Nats\Payload\PayloadInterface;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
@@ -77,7 +78,7 @@ class PayloadSerializer implements PayloadSerializerInterface
      */
     public function deserialize(string $serialized) : PayloadInterface
     {
-        $decoded = $this->decoder->decode($serialized, JsonEncoder::FORMAT);
+        $decoded = $this->decoder->decode($serialized, MessageDecoder::FORMAT);
         
         return $this->denormalizer->denormalize($decoded, Payload::class);
     }
