@@ -5,12 +5,12 @@ declare(strict_types = 1);
 namespace SmartWeb\Nats\Message\Serialization;
 
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
-use Symfony\Component\Serializer\Encoder\JsonDecode;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 
 /**
- * Class MessageDecoder
+ * Decoder responsible for decoding NATS streaming messages.
+ *
+ * @api
  */
 class MessageDecoder implements DecoderInterface
 {
@@ -19,11 +19,6 @@ class MessageDecoder implements DecoderInterface
      * The format supported by this decoder.
      */
     public const FORMAT = 'NATS_STREAMING';
-    
-    /**
-     * @var JsonDecode
-     */
-    private static $jsonDecoder;
     
     /**
      * @var callable[]
@@ -47,7 +42,9 @@ class MessageDecoder implements DecoderInterface
     public function decode($data, $format, ?array $context = null) : array
     {
         if (!$this->formatIsSupported($format)) {
-            throw new UnexpectedValueException("The given data format '{$format}' is not supported by this normalizer.");
+            throw new UnexpectedValueException(
+                "The given data format '{$format}' is not supported by this normalizer."
+            );
         }
         
         return $this->decodeMessageString($data);
@@ -131,7 +128,7 @@ class MessageDecoder implements DecoderInterface
      */
     private function getMessageLineProcessor(string $key) : callable
     {
-        $processor = self::getMessageLineProcessors(self::getJsonDecoder())[$key] ?? null;
+        $processor = self::getMessageLineProcessors()[$key] ?? null;
         
         if ($processor === null) {
             throw new \RuntimeException("No processor found for message entry '{$key}'");
@@ -141,22 +138,18 @@ class MessageDecoder implements DecoderInterface
     }
     
     /**
-     * @param JsonDecode $jsonDecoder
-     *
      * @return callable[]
      */
-    private static function getMessageLineProcessors(JsonDecode $jsonDecoder) : array
+    private static function getMessageLineProcessors() : array
     {
         return self::$messageLineProcessors = self::$messageLineProcessors ??
-                                              self::resolveMessageLineProcessors($jsonDecoder);
+                                              self::resolveMessageLineProcessors();
     }
     
     /**
-     * @param JsonDecode $jsonDecoder
-     *
      * @return callable[]
      */
-    private static function resolveMessageLineProcessors(JsonDecode $jsonDecoder) : array
+    private static function resolveMessageLineProcessors() : array
     {
         return [
             'sequence'  => function (string $value) : int {
@@ -165,24 +158,14 @@ class MessageDecoder implements DecoderInterface
             'subject'   => function (string $value) : string {
                 return \trim($value, '"');
             },
-            'data'      => function (string $value) use ($jsonDecoder) : string {
+            'data'      => function (string $value) : string {
                 $json = \trim($value, '"');
-                $json = \str_replace('\"', '"', $json);
-
-//                return $jsonDecoder->decode($json, JsonEncoder::FORMAT);
-                return $json;
+                
+                return \str_replace('\"', '"', $json);
             },
             'timestamp' => function (string $value) : int {
                 return (int)$value;
             },
         ];
-    }
-    
-    /**
-     * @return JsonDecode
-     */
-    private static function getJsonDecoder() : JsonDecode
-    {
-        return self::$jsonDecoder = self::$jsonDecoder ?? new JsonDecode(true);
     }
 }

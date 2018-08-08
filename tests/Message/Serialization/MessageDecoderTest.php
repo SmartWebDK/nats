@@ -44,24 +44,6 @@ MESSAGE;
         
         $sequence = 17;
         $subject = 'some.channel';
-        $data = [
-            PayloadFields::EVENT_TYPE           => 'some.event',
-            PayloadFields::EVENT_TYPE_VERSION   => null,
-            PayloadFields::CLOUD_EVENTS_VERSION => [
-                'major' => 0,
-                'minor' => 1,
-                'patch' => 0,
-            ],
-            PayloadFields::SOURCE               => 'some.source',
-            PayloadFields::EVENT_ID             => 'some.event.id',
-            PayloadFields::EVENT_TIME           => null,
-            PayloadFields::SCHEMA_URL           => null,
-            PayloadFields::CONTENT_TYPE         => null,
-            PayloadFields::EXTENSIONS           => null,
-            PayloadFields::DATA                 => [
-                'foo' => 'bar',
-            ],
-        ];
         $data = '{"eventType":"some.event","eventTypeVersion":null,"cloudEventsVersion":{"major":0,"minor":1,"patch":0},"source":"some.source","eventId":"some.event.id","eventTime":null,"schemaURL":null,"contentType":null,"extensions":null,"data":{"foo":"bar"}}';
         $timestamp = 1532525124250055719;
         
