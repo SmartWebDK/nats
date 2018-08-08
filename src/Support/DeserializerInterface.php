@@ -5,7 +5,7 @@ declare(strict_types = 1);
 namespace SmartWeb\Nats\Support;
 
 /**
- * Definition of an object capable of deserializing data into a given type.
+ * Defines the interface of an class capable of deserializing data into a given type.
  *
  * @api
  */
