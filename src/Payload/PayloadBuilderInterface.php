@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Payload;
 
-use SmartWeb\Nats\Error\PayloadBuilderError;
+use SmartWeb\Nats\Exception\PayloadBuilderError;
 use SmartWeb\Nats\Payload\Data\PayloadDataInterface;
 
 /**
