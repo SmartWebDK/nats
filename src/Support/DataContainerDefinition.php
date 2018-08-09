@@ -5,7 +5,9 @@ declare(strict_types = 1);
 namespace SmartWeb\Nats\Support;
 
 /**
- * TODO: Missing class description.
+ * Definition of a data container.
+ *
+ * @author Nicolai Agersbæk <na@smartweb.dk>
  *
  * @internal
  */

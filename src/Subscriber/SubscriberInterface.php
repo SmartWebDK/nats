@@ -7,7 +7,9 @@ namespace SmartWeb\Nats\Subscriber;
 use SmartWeb\Nats\Payload\PayloadInterface;
 
 /**
- * Interface SubscriberInterface
+ * Definition of a class capable of subscribing to NATS messages.
+ *
+ * @author Nicolai Agersbæk <na@smartweb.dk>
  *
  * @api
  */

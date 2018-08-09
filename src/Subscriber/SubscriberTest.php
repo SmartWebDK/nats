@@ -7,7 +7,7 @@ namespace SmartWeb\Nats\Subscriber;
 use SmartWeb\Nats\Payload\PayloadInterface;
 
 /**
- * Class SubscriberTest
+ * Internal test subscriber.
  *
  * @internal
  */

@@ -5,7 +5,9 @@ declare(strict_types = 1);
 namespace SmartWeb\Nats\Support;
 
 /**
- * TODO: Missing interface description.
+ * Interface for the definition of a field in a data container.
+ *
+ * @author Nicolai Agersbæk <na@smartweb.dk>
  *
  * @internal
  */
