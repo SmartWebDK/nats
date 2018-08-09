@@ -4,7 +4,6 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Payload;
 
-use SmartWeb\CloudEvents\VersionInterface;
 use SmartWeb\Nats\Error\PayloadBuilderError;
 use SmartWeb\Nats\Payload\Data\PayloadDataInterface;
 

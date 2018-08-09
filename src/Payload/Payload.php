@@ -11,6 +11,8 @@ use SmartWeb\Nats\Payload\Data\PayloadDataInterface;
  *
  * @see https://github.com/cloudevents/spec/blob/master/nats-transport-binding.md
  *
+ * @author Nicolai Agersbæk <na@smartweb.dk>
+ *
  * @api
  */
 class Payload implements PayloadInterface

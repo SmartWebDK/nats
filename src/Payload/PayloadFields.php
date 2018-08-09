@@ -5,7 +5,9 @@ declare(strict_types = 1);
 namespace SmartWeb\Nats\Payload;
 
 /**
- * Class PayloadField
+ * Definition of fields for a CloudEvents payload.
+ *
+ * @author Nicolai Agersbæk <na@smartweb.dk>
  *
  * @api
  */

@@ -4,11 +4,11 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Payload\Serialization;
 
+use SmartWeb\Nats\Payload\Data\ArrayData;
 use SmartWeb\Nats\Payload\Data\PayloadDataInterface;
 use SmartWeb\Nats\Payload\Payload;
 use SmartWeb\Nats\Payload\PayloadFields;
 use SmartWeb\Nats\Payload\PayloadInterface;
-use SmartWeb\Nats\Tests\Fixtures\Payload\Data\ArrayData;
 use Symfony\Component\Serializer\Exception\ExtraAttributesException;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\RuntimeException;
@@ -17,6 +17,8 @@ use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 /**
  * Denormalizer responsible for denormalizing payloads.
+ *
+ * @author Nicolai Agersbæk <na@smartweb.dk>
  *
  * @api
  */

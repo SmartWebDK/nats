@@ -2,12 +2,14 @@
 declare(strict_types = 1);
 
 
-namespace SmartWeb\Nats\Tests\Fixtures\Payload\Data;
-
-use SmartWeb\Nats\Payload\Data\PayloadDataInterface;
+namespace SmartWeb\Nats\Payload\Data;
 
 /**
+ * Implementation of payload data using an underlying array.
+ *
  * @author Nicolai Agersbæk <na@smartweb.dk>
+ *
+ * @internal
  */
 class ArrayData implements PayloadDataInterface
 {

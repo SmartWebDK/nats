@@ -14,6 +14,8 @@ use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 /**
  * Decoder responsible for decoding payload strings.
  *
+ * @author Nicolai Agersbæk <na@smartweb.dk>
+ *
  * @api
  */
 class PayloadDecoder implements DecoderInterface

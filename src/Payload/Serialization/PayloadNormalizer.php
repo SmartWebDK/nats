@@ -9,7 +9,9 @@ use SmartWeb\Nats\Payload\PayloadInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
- * Class PayloadNormalizer
+ * Normalizer responsible for normalizing payloads.
+ *
+ * @author Nicolai Agersbæk <na@smartweb.dk>
  *
  * @api
  */
