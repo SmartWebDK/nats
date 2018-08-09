@@ -15,27 +15,19 @@ use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
- * Provides sample data for payload serialization tests.
+ * Provides payload data for tests.
  *
  * @author Nicolai Agersbæk <na@smartweb.dk>
  *
  * @internal
  */
-class PayloadProvider
+class PayloadProvider implements PayloadProviderInterface
 {
     
     /**
-     * @var array[]
+     * @var EncoderInterface
      */
-    private static $cached = [
-        'complete' => [],
-        'minimal'  => [],
-    ];
-    
-    /**
-     * @var NormalizerInterface
-     */
-    private static $dateTimeNormalizer;
+    private static $jsonEncoder;
     
     /**
      * @var string
@@ -43,11 +35,26 @@ class PayloadProvider
     private static $dateTimeFormat;
     
     /**
-     * @var EncoderInterface
+     * @var NormalizerInterface
      */
-    private static $jsonEncoder;
+    private static $dateTimeNormalizer;
     
-    public function __construct()
+    /**
+     * @var array
+     */
+    private $contentsArray;
+    
+    /**
+     * @param array $contentsArray
+     */
+    public function __construct(array $contentsArray)
+    {
+        $this->contentsArray = $contentsArray;
+        
+        $this->initialize();
+    }
+    
+    private function initialize() : void
     {
         self::$jsonEncoder = self::$jsonEncoder ?? new JsonEncode();
         self::$dateTimeFormat = self::$dateTimeFormat ?? \DateTime::RFC3339;
@@ -57,183 +64,33 @@ class PayloadProvider
     /**
      * @return PayloadInterface
      */
-    public function getCompletePayload() : PayloadInterface
+    public function payload() : PayloadInterface
     {
-        return self::$cached['complete']['payload'] ??
-               self::$cached['complete']['payload'] = $this->resolveCompletePayload();
+        return new Payload(...\array_values($this->payloadContents()));
     }
     
     /**
      * @return array
      */
-    public function getCompletePayloadContents() : array
+    public function payloadContents() : array
     {
-        return self::$cached['complete']['payloadContents'] ??
-               self::$cached['complete']['payloadContents'] = $this->resolveCompletePayloadContents();
+        return $this->resolvePayloadContents($this->contentsArray);
     }
     
     /**
      * @return array
      */
-    public function getCompletePayloadContentsArray() : array
+    public function payloadContentsArray() : array
     {
-        return self::$cached['complete']['payloadContentsArray'] ??
-               self::$cached['complete']['payloadContentsArray'] = $this->resolveCompletePayloadContentsArray();
+        return $this->contentsArray;
     }
     
     /**
      * @return string
      */
-    public function getCompletePayloadString() : string
+    public function payloadString() : string
     {
-        return self::$cached['complete']['payloadString'] ??
-               self::$cached['complete']['payloadString'] = $this->resolveCompletePayloadString();
-    }
-    
-    /**
-     * @return PayloadInterface
-     */
-    public function getMinimalPayload() : PayloadInterface
-    {
-        return self::$cached['minimal']['payload'] ??
-               self::$cached['minimal']['payload'] = $this->resolveMinimalPayload();
-    }
-    
-    /**
-     * @return array
-     */
-    public function getMinimalPayloadContents() : array
-    {
-        return self::$cached['minimal']['payloadContents'] ??
-               self::$cached['minimal']['payloadContents'] = $this->resolveMinimalPayloadContents();
-    }
-    
-    /**
-     * @return array
-     */
-    public function getMinimalPayloadContentsArray() : array
-    {
-        return self::$cached['minimal']['payloadContentsArray'] ??
-               self::$cached['minimal']['payloadContentsArray'] = $this->resolveMinimalPayloadContentsArray();
-    }
-    
-    /**
-     * @return string
-     */
-    public function getMinimalPayloadString() : string
-    {
-        return self::$cached['minimal']['payloadString'] ??
-               self::$cached['minimal']['payloadString'] = $this->resolveMinimalPayloadString();
-    }
-    
-    /**
-     * @return PayloadInterface
-     */
-    private function resolveCompletePayload() : PayloadInterface
-    {
-        $contents = $this->getCompletePayloadContents();
-        
-        return $this->resolvePayloadFromContents($contents);
-    }
-    
-    /**
-     * @return array
-     */
-    private function resolveCompletePayloadContents() : array
-    {
-        $dataArray = $this->getCompletePayloadContentsArray();
-        
-        return $this->resolvePayloadContentsFromDataArray($dataArray);
-    }
-    
-    /**
-     * @return string
-     */
-    private function resolveCompletePayloadString() : string
-    {
-        $dataArray = $this->getCompletePayloadContentsArray();
-        
-        return $this->resolvePayloadStringFromDataArray($dataArray);
-    }
-    
-    /**
-     * @return array
-     */
-    private function resolveCompletePayloadContentsArray() : array
-    {
-        return [
-            PayloadFields::EVENT_TYPE           => 'some.event',
-            PayloadFields::EVENT_TYPE_VERSION   => '1.0.0',
-            PayloadFields::CLOUD_EVENTS_VERSION => '0.1.0',
-            PayloadFields::SOURCE               => 'some.source',
-            PayloadFields::EVENT_ID             => 'some.event.id',
-            PayloadFields::EVENT_TIME           => $this->getFixedTime(),
-            PayloadFields::SCHEMA_URL           => 'https://www.some-schema.org/cloud-events/test.schema?version=2.3.4',
-            PayloadFields::CONTENT_TYPE         => 'application/json',
-            PayloadFields::EXTENSIONS           => [
-                'com.foo.extension' => 'barExtension',
-            ],
-            PayloadFields::DATA                 => [
-                'foo' => 'bar',
-            ],
-        ];
-    }
-    
-    /**
-     * @return PayloadInterface
-     */
-    private function resolveMinimalPayload() : PayloadInterface
-    {
-        $contents = $this->getMinimalPayloadContents();
-        
-        return $this->resolvePayloadFromContents($contents);
-    }
-    
-    /**
-     * @return array
-     */
-    private function resolveMinimalPayloadContents() : array
-    {
-        $dataArray = $this->getMinimalPayloadContentsArray();
-        
-        return $this->resolvePayloadContentsFromDataArray($dataArray);
-    }
-    
-    /**
-     * @return string
-     */
-    private function resolveMinimalPayloadString() : string
-    {
-        $dataArray = $this->getCompletePayloadContentsArray();
-        
-        return $this->resolvePayloadStringFromDataArray($dataArray);
-    }
-    
-    /**
-     * @return array
-     */
-    private function resolveMinimalPayloadContentsArray() : array
-    {
-        $requiredFields = PayloadFields::getRequiredFields();
-        $data = $this->getCompletePayloadContentsArray();
-        
-        foreach ($data as $field => &$value) {
-            $value = \in_array($field, $requiredFields, true)
-                ? $value
-                : null;
-        }
-        
-        return $data;
-    }
-    
-    /**
-     * @param array $contents
-     *
-     * @return PayloadInterface
-     */
-    private function resolvePayloadFromContents(array $contents) : PayloadInterface
-    {
-        return new Payload(...\array_values($contents));
+        return $this->resolvePayloadString($this->contentsArray);
     }
     
     /**
@@ -241,7 +98,7 @@ class PayloadProvider
      *
      * @return array
      */
-    private function resolvePayloadContentsFromDataArray(array $dataArray) : array
+    private function resolvePayloadContents(array $dataArray) : array
     {
         $dataArray[PayloadFields::DATA] = new ArrayData($dataArray[PayloadFields::DATA]);
         
@@ -253,26 +110,11 @@ class PayloadProvider
      *
      * @return string
      */
-    private function resolvePayloadStringFromDataArray(array $dataArray) : string
+    private function resolvePayloadString(array $dataArray) : string
     {
         $eventTime = $dataArray[PayloadFields::EVENT_TIME];
         $dataArray[PayloadFields::EVENT_TIME] = self::$dateTimeNormalizer->normalize($eventTime);
         
         return self::$jsonEncoder->encode($dataArray, JsonEncoder::FORMAT);
-    }
-    
-    /**
-     * @return \DateTimeInterface
-     */
-    private function getFixedTime() : \DateTimeInterface
-    {
-        $time = new \DateTime();
-        $time->setDate(2000, 1, 2);
-        $time->setTime(12, 34, 56);
-        
-        $timeZone = new \DateTimeZone('Europe/Copenhagen');
-        $time->setTimezone($timeZone);
-        
-        return $time;
     }
 }

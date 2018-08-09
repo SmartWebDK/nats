@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use SmartWeb\CloudEvents\Nats\Payload\Data\ArrayData;
 use SmartWeb\CloudEvents\Nats\Payload\Payload;
 use SmartWeb\CloudEvents\Nats\Payload\PayloadFields;
-use SmartWeb\CloudEvents\Nats\Payload\PayloadInterface;
 use SmartWeb\Nats\Payload\Serialization\PayloadDecoder;
 use SmartWeb\Nats\Payload\Serialization\PayloadDenormalizer;
 use SmartWeb\Nats\Payload\Serialization\PayloadNormalizer;
@@ -47,27 +46,7 @@ class PayloadSerializerTest extends TestCase
     private static $dateTimeNormalizer;
     
     /**
-     * @var array
-     */
-    private static $payloadDataArray;
-    
-    /**
-     * @var string
-     */
-    private static $payloadString;
-    
-    /**
-     * @var array
-     */
-    private static $payloadData;
-    
-    /**
-     * @var PayloadInterface
-     */
-    private static $payload;
-    
-    /**
-     * @var PayloadProvider
+     * @var PayloadProviderFactory
      */
     private static $provider;
     
@@ -93,12 +72,7 @@ class PayloadSerializerTest extends TestCase
         self::$dateTimeFormat = \DateTime::RFC3339;
         self::$dateTimeNormalizer = new DateTimeNormalizer(self::$dateTimeFormat);
         
-        self::$payloadDataArray = self::getFixedPayloadDataArray();
-        self::$payloadString = self::getFixedPayloadString();
-        self::$payloadData = self::getFixedPayloadData();
-        self::$payload = new Payload(...\array_values(self::$payloadData));
-        
-        self::$provider = new PayloadProvider();
+        self::$provider = new PayloadProviderFactory();
     }
     
     /**
@@ -136,9 +110,9 @@ class PayloadSerializerTest extends TestCase
      */
     public function checkDeserialize() : void
     {
-        $payloadString = self::$provider->getCompletePayloadString();
+        $payloadString = self::$provider->complete()->payloadString();
         
-        $expected = self::$provider->getCompletePayload();
+        $expected = self::$provider->complete()->payload();
         $actual = self::$serializer->deserialize($payloadString, Payload::class, PayloadDecoder::FORMAT);
         
         $this->assertEquals($expected, $actual);
@@ -173,69 +147,5 @@ class PayloadSerializerTest extends TestCase
         $deserialized = self::$serializer->deserialize($serialized, Payload::class, PayloadDecoder::FORMAT);
         
         $this->assertEquals($payload, $deserialized);
-    }
-    
-    /**
-     * @return string
-     */
-    private static function getFixedPayloadString() : string
-    {
-        $dataArray = self::$payloadDataArray;
-        
-        $dataArray[PayloadFields::EVENT_TIME] = self::$dateTimeNormalizer->normalize(
-            $dataArray[PayloadFields::EVENT_TIME]
-        );
-        
-        return self::$jsonEncoder->encode($dataArray, JsonEncoder::FORMAT);
-    }
-    
-    /**
-     * @return array
-     */
-    private static function getFixedPayloadData() : array
-    {
-        $dataArray = self::$payloadDataArray;
-        
-        $dataArray[PayloadFields::DATA] = new ArrayData($dataArray[PayloadFields::DATA]);
-        
-        return $dataArray;
-    }
-    
-    /**
-     * @return array
-     */
-    private static function getFixedPayloadDataArray() : array
-    {
-        return [
-            PayloadFields::EVENT_TYPE           => 'some.event',
-            PayloadFields::EVENT_TYPE_VERSION   => '1.0.0',
-            PayloadFields::CLOUD_EVENTS_VERSION => '0.1.0',
-            PayloadFields::SOURCE               => 'some.source',
-            PayloadFields::EVENT_ID             => 'some.event.id',
-            PayloadFields::EVENT_TIME           => self::getFixedTime(),
-            PayloadFields::SCHEMA_URL           => 'https://www.some-schema.org/cloud-events/test.schema?version=2.3.4',
-            PayloadFields::CONTENT_TYPE         => 'application/json',
-            PayloadFields::EXTENSIONS           => [
-                'com.foo.extension' => 'barExtension',
-            ],
-            PayloadFields::DATA                 => [
-                'foo' => 'bar',
-            ],
-        ];
-    }
-    
-    /**
-     * @return \DateTimeInterface
-     */
-    private static function getFixedTime() : \DateTimeInterface
-    {
-        $time = new \DateTime();
-        $time->setDate(2000, 1, 2);
-        $time->setTime(12, 34, 56);
-        
-        $timeZone = new \DateTimeZone('Europe/Copenhagen');
-        $time->setTimezone($timeZone);
-        
-        return $time;
     }
 }
