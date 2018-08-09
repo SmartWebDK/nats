@@ -7,6 +7,8 @@ namespace SmartWeb\Nats\Message;
 /**
  * Definition of a message received from a NATS connection.
  *
+ * @author Nicolai Agersbæk <na@smartweb.dk>
+ *
  * @api
  */
 interface MessageInterface

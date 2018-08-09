@@ -14,7 +14,11 @@ use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 /**
- * Class MessageDenormalizer
+ * Denormalizes NATS message data into concrete message objects.
+ *
+ * @author Nicolai Agersbæk <na@smartweb.dk>
+ *
+ * @api
  */
 class MessageDenormalizer implements DenormalizerInterface
 {

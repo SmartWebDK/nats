@@ -42,8 +42,6 @@ class PayloadDenormalizer implements DenormalizerInterface
      */
     public function denormalize($data, $class, $format = null, ?array $context = null) : PayloadInterface
     {
-        $context = $context ?? [];
-        
         if (!$this->targetIsSupported($class)) {
             $this->invalidArgumentException(
                 'The given target class is not supported. Expected one of: %s',
@@ -173,7 +171,7 @@ class PayloadDenormalizer implements DenormalizerInterface
     private function getSupportedFormats() : array
     {
         return [
-            PayloadDecoder::FORMAT
+            PayloadDecoder::FORMAT,
         ];
     }
     

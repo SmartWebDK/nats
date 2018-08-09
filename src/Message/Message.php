@@ -7,6 +7,8 @@ namespace SmartWeb\Nats\Message;
 /**
  * Message received from a NATS connection.
  *
+ * @author Nicolai Agersbæk <na@smartweb.dk>
+ *
  * @api
  */
 class Message implements MessageInterface

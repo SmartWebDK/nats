@@ -10,6 +10,8 @@ use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 /**
  * Decoder responsible for decoding NATS streaming messages.
  *
+ * @author Nicolai Agersbæk <na@smartweb.dk>
+ *
  * @api
  */
 class MessageDecoder implements DecoderInterface
