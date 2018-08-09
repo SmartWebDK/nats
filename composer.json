@@ -1,6 +1,6 @@
 {
-    "name": "smartweb/nats-test-one",
-    "description": "Test of using NATS messaging protocol with PHP client implementations.",
+    "name": "smartweb/nats",
+    "description": "PHP implementation of the NATS messaging protocol using the CloudEvents specification.",
     "authors": [
         {
             "name": "Nicolai Agersbæk",
