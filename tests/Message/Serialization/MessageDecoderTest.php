@@ -6,7 +6,6 @@ namespace SmartWeb\Nats\Tests\Message\Serialization;
 
 use PHPUnit\Framework\TestCase;
 use SmartWeb\Nats\Message\Serialization\MessageDecoder;
-use SmartWeb\Nats\Payload\PayloadFields;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 
 /**

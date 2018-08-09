@@ -7,7 +7,7 @@ namespace SmartWeb\Nats\Connection;
 use NatsStreaming\Subscription;
 use NatsStreaming\SubscriptionOptions;
 use NatsStreaming\TrackedNatsRequest;
-use SmartWeb\Nats\Payload\PayloadInterface;
+use SmartWeb\CloudEvents\Nats\Payload\PayloadInterface;
 use SmartWeb\Nats\Subscriber\SubscriberInterface;
 
 /**

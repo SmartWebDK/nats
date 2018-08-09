@@ -5,11 +5,10 @@ declare(strict_types = 1);
 namespace SmartWeb\Nats\Tests\Payload\Serialization;
 
 use PHPUnit\Framework\TestCase;
-use SmartWeb\CloudEvents\Version;
-use SmartWeb\Nats\Payload\Data\ArrayData;
-use SmartWeb\Nats\Payload\Payload;
-use SmartWeb\Nats\Payload\PayloadFields;
-use SmartWeb\Nats\Payload\PayloadInterface;
+use SmartWeb\CloudEvents\Nats\Payload\Data\ArrayData;
+use SmartWeb\CloudEvents\Nats\Payload\Payload;
+use SmartWeb\CloudEvents\Nats\Payload\PayloadFields;
+use SmartWeb\CloudEvents\Nats\Payload\PayloadInterface;
 use SmartWeb\Nats\Payload\Serialization\PayloadDecoder;
 use SmartWeb\Nats\Payload\Serialization\PayloadDenormalizer;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
@@ -163,7 +162,7 @@ class PayloadDenormalizerTest extends TestCase
             'array, minimal'                     => [
                 'data'     => [
                     PayloadFields::EVENT_TYPE           => '',
-                    PayloadFields::CLOUD_EVENTS_VERSION => new Version(0, 1, 0),
+                    PayloadFields::CLOUD_EVENTS_VERSION => '0.1.0',
                     PayloadFields::SOURCE               => '',
                     PayloadFields::EVENT_ID             => '',
                 ],
@@ -191,7 +190,7 @@ class PayloadDenormalizerTest extends TestCase
             'array, minimal, invalid format'     => [
                 'data'     => [
                     PayloadFields::EVENT_TYPE           => '',
-                    PayloadFields::CLOUD_EVENTS_VERSION => new Version(0, 1, 0),
+                    PayloadFields::CLOUD_EVENTS_VERSION => '0.1.0',
                     PayloadFields::SOURCE               => '',
                     PayloadFields::EVENT_ID             => '',
                 ],

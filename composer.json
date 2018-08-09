@@ -10,13 +10,13 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/nicolai-agersbaek/cloud-events"
+            "url": "https://github.com/SmartWebDK/cloud-events-nats"
         }
     ],
     "type": "project",
     "require": {
         "php": ">=7.1.20",
-        "smartweb/cloud-events": "dev-master",
+        "smartweb/cloud-events-nats": "dev-master",
         "repejota/nats": "^0.8.7",
         "byrnedo/php-nats-streaming": "^0.2.4",
         "symfony/serializer": "^4.1"
@@ -41,7 +41,9 @@
         "platform": {
             "php": "7.1.20",
             "ext-mbstring": "0.1",
-            "ext-dom": "0.1"
+            "ext-dom": "0.1",
+            "ext-xml": "0.1",
+            "ext-xmlwriter": "0.1"
         }
     }
 }

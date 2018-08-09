@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Payload\Serialization;
 
-use SmartWeb\Nats\Payload\PayloadFields;
+use SmartWeb\CloudEvents\Nats\Payload\PayloadFields;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;

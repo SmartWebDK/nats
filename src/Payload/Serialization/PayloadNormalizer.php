@@ -4,8 +4,8 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Payload\Serialization;
 
-use SmartWeb\Nats\Payload\PayloadFields;
-use SmartWeb\Nats\Payload\PayloadInterface;
+use SmartWeb\CloudEvents\Nats\Payload\PayloadFields;
+use SmartWeb\CloudEvents\Nats\Payload\PayloadInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**

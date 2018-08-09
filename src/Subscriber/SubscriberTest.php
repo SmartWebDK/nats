@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Subscriber;
 
-use SmartWeb\Nats\Payload\PayloadInterface;
+use SmartWeb\CloudEvents\Nats\Payload\PayloadInterface;
 
 /**
  * Internal test subscriber.

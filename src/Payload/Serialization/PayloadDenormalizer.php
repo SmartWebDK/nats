@@ -4,11 +4,11 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Payload\Serialization;
 
-use SmartWeb\Nats\Payload\Data\ArrayData;
-use SmartWeb\Nats\Payload\Data\PayloadDataInterface;
-use SmartWeb\Nats\Payload\Payload;
-use SmartWeb\Nats\Payload\PayloadFields;
-use SmartWeb\Nats\Payload\PayloadInterface;
+use SmartWeb\CloudEvents\Nats\Payload\Data\ArrayData;
+use SmartWeb\CloudEvents\Nats\Payload\Data\PayloadDataInterface;
+use SmartWeb\CloudEvents\Nats\Payload\Payload;
+use SmartWeb\CloudEvents\Nats\Payload\PayloadFields;
+use SmartWeb\CloudEvents\Nats\Payload\PayloadInterface;
 use Symfony\Component\Serializer\Exception\ExtraAttributesException;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\RuntimeException;

@@ -5,7 +5,7 @@ declare(strict_types = 1);
 namespace SmartWeb\Nats\Tests\Payload\Serialization;
 
 use PHPUnit\Framework\TestCase;
-use SmartWeb\Nats\Payload\PayloadFields;
+use SmartWeb\CloudEvents\Nats\Payload\PayloadFields;
 use SmartWeb\Nats\Payload\Serialization\PayloadDecoder;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 
