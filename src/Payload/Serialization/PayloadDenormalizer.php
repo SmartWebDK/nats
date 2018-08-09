@@ -6,6 +6,7 @@ namespace SmartWeb\Nats\Payload\Serialization;
 
 use SmartWeb\CloudEvents\Nats\Payload\Data\ArrayData;
 use SmartWeb\CloudEvents\Nats\Payload\Data\PayloadDataInterface;
+use SmartWeb\CloudEvents\Nats\Payload\Data\ScalarData;
 use SmartWeb\CloudEvents\Nats\Payload\Payload;
 use SmartWeb\CloudEvents\Nats\Payload\PayloadFields;
 use SmartWeb\CloudEvents\Nats\Payload\PayloadInterface;
@@ -13,10 +14,13 @@ use Symfony\Component\Serializer\Exception\ExtraAttributesException;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\RuntimeException;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 /**
  * Denormalizer responsible for denormalizing payloads.
+ *
+ * @todo   Move denormalization of payload data to separate class
  *
  * @author Nicolai Agersbæk <na@smartweb.dk>
  *
@@ -25,7 +29,7 @@ use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 class PayloadDenormalizer implements DenormalizerInterface
 {
     
-    // TODO: Match $format parameter against support schema URLs, mapping schemas to denormalization strategies?
+    // TODO: Match $format parameter against supported schema URLs, mapping schemas to denormalization strategies?
     
     /**
      * Denormalizes data back into an object of the given class.
@@ -97,9 +101,34 @@ class PayloadDenormalizer implements DenormalizerInterface
      */
     private function createPayload(array $data, string $class) : PayloadInterface
     {
+        $data[PayloadFields::EVENT_TIME] = $this->denormalizeEventTime($data[PayloadFields::EVENT_TIME]);
         $data[PayloadFields::DATA] = $this->denormalizePayloadData($data[PayloadFields::DATA]);
         
         return new $class(...\array_values($data));
+    }
+    
+    /**
+     * @param null|string $date
+     *
+     * @return \DateTimeInterface|null
+     */
+    private function denormalizeEventTime(?string $date) : ?\DateTimeInterface
+    {
+        return $date !== null
+            ? $this->denormalizeDate($date)
+            : null;
+    }
+    
+    /**
+     * @param string $date
+     *
+     * @return \DateTimeInterface
+     */
+    private function denormalizeDate(string $date) : \DateTimeInterface
+    {
+        $denormalizer = new DateTimeNormalizer(\DateTime::RFC3339);
+        
+        return $denormalizer->denormalize($date, \DateTimeImmutable::class);
     }
     
     /**
@@ -109,11 +138,31 @@ class PayloadDenormalizer implements DenormalizerInterface
      */
     private function denormalizePayloadData($payloadData) : ?PayloadDataInterface
     {
-        $format = \gettype($payloadData);
+        // FIXME: Refactor to separate class.
+        $format = $this->getPayloadDataFormat($payloadData);
         
-        return $payloadData !== null
-            ? $this->getPayloadDataDenormalizer($format)($payloadData)
-            : null;
+        return $this->getPayloadDataDenormalizer($format)($payloadData);
+    }
+    
+    /**
+     * @param mixed $payloadData
+     *
+     * @return string
+     */
+    private function getPayloadDataFormat($payloadData) : string
+    {
+        static $payloadDataFormatToTypeMapping = [
+            'NULL'   => 'null',
+            'array'  => 'array',
+            'bool'   => 'scalar',
+            'float'  => 'scalar',
+            'int'    => 'scalar',
+            'string' => 'scalar',
+        ];
+        
+        $type = \gettype($payloadData);
+        
+        return $payloadDataFormatToTypeMapping[$type] ?? $type;
     }
     
     /**
@@ -138,8 +187,14 @@ class PayloadDenormalizer implements DenormalizerInterface
     private function getPayloadDataDenormalizers() : array
     {
         return [
-            'array' => function (array $payloadData) : PayloadDataInterface {
+            'null'   => function () : ?PayloadDataInterface {
+                return null;
+            },
+            'array'  => function (array $payloadData) : PayloadDataInterface {
                 return new ArrayData($payloadData);
+            },
+            'scalar' => function ($payloadData) : PayloadDataInterface {
+                return new ScalarData($payloadData);
             },
         ];
     }
