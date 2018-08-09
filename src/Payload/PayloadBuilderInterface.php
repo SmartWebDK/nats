@@ -9,7 +9,9 @@ use SmartWeb\Nats\Error\PayloadBuilderError;
 use SmartWeb\Nats\Payload\Data\PayloadDataInterface;
 
 /**
- * Interface PayloadBuilderInterface
+ * Defines a class capable of building payload objects.
+ *
+ * @author Nicolai Agersbæk <na@smartweb.dk>
  *
  * @api
  */

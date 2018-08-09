@@ -4,17 +4,20 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Payload;
 
-use SmartWeb\CloudEvents\VersionInterface;
 use SmartWeb\Nats\Error\PayloadBuilderError;
 use SmartWeb\Nats\Payload\Data\PayloadDataInterface;
 
 /**
- * Class PayloadBuilder
+ * Builder for creating payload objects.
+ *
+ * @author Nicolai Agersbæk <na@smartweb.dk>
  *
  * @api
  */
 class PayloadBuilder implements PayloadBuilderInterface
 {
+    
+    // FIXME: Missing tests!
     
     /**
      * @var array
@@ -55,7 +58,8 @@ class PayloadBuilder implements PayloadBuilderInterface
         $missingFields = $this->getMissingFields();
         
         if ($missingFields !== []) {
-            throw new PayloadBuilderError($missingFields);
+            $missingFieldsString = \implode("', '", $missingFields);
+            throw new PayloadBuilderError("Missing required fields: '{$missingFieldsString}'");
         }
     }
     

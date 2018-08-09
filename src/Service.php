@@ -10,9 +10,8 @@ use NatsStreaming\ConnectionOptions as StreamingConnectionOptions;
 use NatsStreaming\Subscription;
 use NatsStreaming\SubscriptionOptions;
 use NatsStreamingProtos\StartPosition;
-use SmartWeb\Nats\Channel\Channel;
-use SmartWeb\Nats\Connection\ConnectionInterface;
 use SmartWeb\Nats\Connection\StreamingConnection;
+use SmartWeb\Nats\Connection\StreamingConnectionInterface;
 use SmartWeb\Nats\Message\Serialization\MessageDecoder;
 use SmartWeb\Nats\Message\Serialization\MessageDenormalizer;
 use SmartWeb\Nats\Message\Serialization\MessageDeserializer;
@@ -77,7 +76,7 @@ class Service implements ServiceInterface
      */
     private function getClusterID() : string
     {
-        $clusterID = \getenv(ConnectionInterface::CLUSTER_ID_KEY);
+        $clusterID = \getenv(StreamingConnectionInterface::CLUSTER_ID_KEY);
         
         $this->validateClusterID($clusterID);
         
@@ -143,7 +142,7 @@ class Service implements ServiceInterface
         
         $adapter = $this->createStreamingConnection($connection);
         
-        $channel = new Channel($channelName ?? self::$defaultChannelName);
+        $channel = $channelName ?? self::$defaultChannelName;
         
         $data = new ArrayData(
             [
@@ -249,7 +248,7 @@ class Service implements ServiceInterface
         
         $adapter = $this->createStreamingConnection($connection);
         
-        $channel = new Channel($channelName ?? self::$defaultChannelName);
+        $channel = $channelName ?? self::$defaultChannelName;
         
         $subscriber = new SubscriberTest();
         

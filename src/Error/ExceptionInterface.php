@@ -5,9 +5,11 @@ declare(strict_types = 1);
 namespace SmartWeb\Nats\Error;
 
 /**
- * Interface ExceptionInterface
+ * Base exception interface.
+ *
+ * @author Nicolai Agersbæk <na@smartweb.dk>
  */
-interface ExceptionInterface extends \Throwable
+interface ExceptionInterface
 {
 
 }

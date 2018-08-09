@@ -8,7 +8,6 @@ use NatsStreaming\Connection;
 use NatsStreaming\Subscription;
 use NatsStreaming\SubscriptionOptions;
 use NatsStreaming\TrackedNatsRequest;
-use SmartWeb\Nats\Channel\ChannelInterface;
 use SmartWeb\Nats\Message\Message;
 use SmartWeb\Nats\Message\MessageInterface;
 use SmartWeb\Nats\Message\Serialization\MessageDecoder;
@@ -24,9 +23,11 @@ use Symfony\Component\Serializer\SerializerInterface;
 /**
  * Adapter for {@link NatsStreaming\Connection}, enabling interaction using CloudEvents payload specification.
  *
+ * @author Nicolai Agersbæk <na@smartweb.dk>
+ *
  * @api
  */
-class StreamingConnection implements ConnectionInterface
+class StreamingConnection implements StreamingConnectionInterface
 {
     
     /**
@@ -64,10 +65,10 @@ class StreamingConnection implements ConnectionInterface
     /**
      * @inheritDoc
      */
-    public function publish(ChannelInterface $channel, PayloadInterface $payload) : TrackedNatsRequest
+    public function publish(string $channel, PayloadInterface $payload) : TrackedNatsRequest
     {
         return $this->connection->publish(
-            $channel->getName(),
+            $channel,
             $this->payloadSerializer->serialize($payload, JsonEncoder::FORMAT)
         );
     }
@@ -76,12 +77,12 @@ class StreamingConnection implements ConnectionInterface
      * @inheritDoc
      */
     public function subscribe(
-        ChannelInterface $channel,
+        string $channel,
         SubscriberInterface $subscriber,
         SubscriptionOptions $subscriptionOptions
     ) : Subscription {
         return $this->connection->subscribe(
-            $channel->getName(),
+            $channel,
             $this->createSubscriberCallback($subscriber),
             $subscriptionOptions
         );
@@ -91,7 +92,7 @@ class StreamingConnection implements ConnectionInterface
      * @inheritDoc
      */
     public function groupSubscribe(
-        ChannelInterface $channel,
+        string $channel,
         string $group,
         SubscriberInterface $subscriber,
         SubscriptionOptions $subscriptionOptions
