@@ -27,7 +27,11 @@
     },
     "autoload": {
         "psr-4": {
-            "SmartWeb\\Nats\\": "src/",
+            "SmartWeb\\Nats\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
             "SmartWeb\\Nats\\Tests\\": "tests/"
         }
     },
