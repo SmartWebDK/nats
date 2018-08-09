@@ -70,27 +70,13 @@ class PayloadProvider implements PayloadProviderInterface
     }
     
     /**
+     * @param bool|null $includeNullEntries
+     *
      * @return array
      */
-    public function payloadContents() : array
+    public function payloadContents(?bool $includeNullEntries = null) : array
     {
-        return $this->resolvePayloadContents($this->contentsArray);
-    }
-    
-    /**
-     * @return array
-     */
-    public function payloadContentsArray() : array
-    {
-        return $this->contentsArray;
-    }
-    
-    /**
-     * @return string
-     */
-    public function payloadString() : string
-    {
-        return $this->resolvePayloadString($this->contentsArray);
+        return $this->resolvePayloadContents($this->payloadContentsArray($includeNullEntries));
     }
     
     /**
@@ -103,6 +89,55 @@ class PayloadProvider implements PayloadProviderInterface
         $dataArray[PayloadFields::DATA] = new ArrayData($dataArray[PayloadFields::DATA]);
         
         return $dataArray;
+    }
+    
+    /**
+     * @param bool|null $includeNullEntries
+     *
+     * @return array
+     */
+    public function payloadContentsArray(?bool $includeNullEntries = null) : array
+    {
+        return $this->resolveContentsArray($includeNullEntries);
+    }
+    
+    /**
+     * @param bool|null $includeNullEntries
+     *
+     * @return array
+     */
+    private function resolveContentsArray(?bool $includeNullEntries = null) : array
+    {
+        $includeNullEntries = $includeNullEntries ?? true;
+        
+        return $includeNullEntries
+            ? $this->contentsArray
+            : $this->filterNullValues($this->contentsArray);
+    }
+    
+    /**
+     * @param array $array
+     *
+     * @return array
+     */
+    private function filterNullValues(array $array) : array
+    {
+        return \array_filter(
+            $array,
+            function ($value) : bool {
+                return $value !== null;
+            }
+        );
+    }
+    
+    /**
+     * @param bool|null $includeNullEntries
+     *
+     * @return string
+     */
+    public function payloadString(?bool $includeNullEntries = null) : string
+    {
+        return $this->resolvePayloadString($this->payloadContentsArray($includeNullEntries));
     }
     
     /**

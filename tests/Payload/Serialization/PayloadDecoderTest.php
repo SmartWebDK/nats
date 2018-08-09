@@ -53,15 +53,11 @@ class PayloadDecoderTest extends TestCase
     {
         return [
             'minimal, with null entries' => [
-                'payload'  => '{"eventType":"some.event","eventTypeVersion":null,"cloudEventsVersion":{"major":0,"minor":1,"patch":0},"source":"some.source","eventId":"some.event.id","eventTime":null,"schemaURL":null,"contentType":null,"extensions":null,"data":null}',
+                'payload'  => '{"eventType":"some.event","eventTypeVersion":null,"cloudEventsVersion":"0.1.0","source":"some.source","eventId":"some.event.id","eventTime":null,"schemaURL":null,"contentType":null,"extensions":null,"data":null}',
                 'expected' => [
                     PayloadFields::EVENT_TYPE           => 'some.event',
                     PayloadFields::EVENT_TYPE_VERSION   => null,
-                    PayloadFields::CLOUD_EVENTS_VERSION => [
-                        'major' => 0,
-                        'minor' => 1,
-                        'patch' => 0,
-                    ],
+                    PayloadFields::CLOUD_EVENTS_VERSION => '0.1.0',
                     PayloadFields::SOURCE               => 'some.source',
                     PayloadFields::EVENT_ID             => 'some.event.id',
                     PayloadFields::EVENT_TIME           => null,
@@ -72,15 +68,11 @@ class PayloadDecoderTest extends TestCase
                 ],
             ],
             'minimal, without entries'   => [
-                'payload'  => '{"eventType":"some.event","cloudEventsVersion":{"major":0,"minor":1,"patch":0},"source":"some.source","eventId":"some.event.id"}',
+                'payload'  => '{"eventType":"some.event","cloudEventsVersion":"0.1.0","source":"some.source","eventId":"some.event.id"}',
                 'expected' => [
                     PayloadFields::EVENT_TYPE           => 'some.event',
                     PayloadFields::EVENT_TYPE_VERSION   => null,
-                    PayloadFields::CLOUD_EVENTS_VERSION => [
-                        'major' => 0,
-                        'minor' => 1,
-                        'patch' => 0,
-                    ],
+                    PayloadFields::CLOUD_EVENTS_VERSION => '0.1.0',
                     PayloadFields::SOURCE               => 'some.source',
                     PayloadFields::EVENT_ID             => 'some.event.id',
                     PayloadFields::EVENT_TIME           => null,
@@ -91,19 +83,11 @@ class PayloadDecoderTest extends TestCase
                 ],
             ],
             'complete'                   => [
-                'payload'  => '{"eventType":"some.event","eventTypeVersion":{"major":1,"minor":2,"patch":3},"cloudEventsVersion":{"major":0,"minor":1,"patch":0},"source":"some.source","eventId":"some.event.id","eventTime":"946816496","schemaURL":"https://www.test.com/schemas/schema.json","contentType":"application/json;charset=utf-8","extensions":{"comExampleExtension":"value"},"data":{"foo":"bar"}}',
+                'payload'  => '{"eventType":"some.event","eventTypeVersion":"1.2.3","cloudEventsVersion":"0.1.0","source":"some.source","eventId":"some.event.id","eventTime":"946816496","schemaURL":"https://www.test.com/schemas/schema.json","contentType":"application/json;charset=utf-8","extensions":{"comExampleExtension":"value"},"data":{"foo":"bar"}}',
                 'expected' => [
                     PayloadFields::EVENT_TYPE           => 'some.event',
-                    PayloadFields::EVENT_TYPE_VERSION   => [
-                        'major' => 1,
-                        'minor' => 2,
-                        'patch' => 3,
-                    ],
-                    PayloadFields::CLOUD_EVENTS_VERSION => [
-                        'major' => 0,
-                        'minor' => 1,
-                        'patch' => 0,
-                    ],
+                    PayloadFields::EVENT_TYPE_VERSION   => '1.2.3',
+                    PayloadFields::CLOUD_EVENTS_VERSION => '0.1.0',
                     PayloadFields::SOURCE               => 'some.source',
                     PayloadFields::EVENT_ID             => 'some.event.id',
                     PayloadFields::EVENT_TIME           => 946816496,

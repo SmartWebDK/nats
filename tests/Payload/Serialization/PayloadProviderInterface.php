@@ -22,17 +22,23 @@ interface PayloadProviderInterface
     public function payload() : PayloadInterface;
     
     /**
+     * @param bool|null $includeNullEntries
+     *
      * @return array
      */
-    public function payloadContents() : array;
+    public function payloadContents(?bool $includeNullEntries = null) : array;
     
     /**
+     * @param bool|null $includeNullEntries
+     *
      * @return array
      */
-    public function payloadContentsArray() : array;
+    public function payloadContentsArray(?bool $includeNullEntries = null) : array;
     
     /**
+     * @param bool|null $includeNullEntries
+     *
      * @return string
      */
-    public function payloadString() : string;
+    public function payloadString(?bool $includeNullEntries = null) : string;
 }
