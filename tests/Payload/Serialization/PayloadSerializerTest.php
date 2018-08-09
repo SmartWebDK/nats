@@ -49,7 +49,7 @@ class PayloadSerializerTest extends TestCase
     /**
      * @test
      */
-    public function shouldDeserializeValidValues() : void
+    public function checkDeserialize() : void
     {
         $payloadString = '{"eventType":"some.event","eventTypeVersion":null,"cloudEventsVersion":"0.1.0","source":"some.source","eventId":"some.event.id","eventTime":null,"schemaURL":null,"contentType":null,"extensions":null,"data":{"foo":"bar"}}';
         
@@ -79,7 +79,7 @@ class PayloadSerializerTest extends TestCase
     /**
      * @test
      */
-    public function shouldSerializeValidValues() : void
+    public function checkSerialize() : void
     {
         $expected = '{"eventType":"some.event","eventTypeVersion":null,"cloudEventsVersion":"0.1.0","source":"some.source","eventId":"some.event.id","eventTime":null,"schemaURL":null,"contentType":null,"extensions":null,"data":{"foo":"bar"}}';
         
@@ -104,5 +104,36 @@ class PayloadSerializerTest extends TestCase
         $actual = self::$serializer->serialize($payload, JsonEncoder::FORMAT);
         
         $this->assertSame($expected, $actual);
+    }
+    
+    /**
+     * @test
+     */
+    public function checkSerializeDeserialize() : void
+    {
+        $data = [
+            PayloadFields::EVENT_TYPE           => 'some.event',
+            PayloadFields::EVENT_TYPE_VERSION   => null,
+            PayloadFields::CLOUD_EVENTS_VERSION => '0.1.0',
+            PayloadFields::SOURCE               => 'some.source',
+            PayloadFields::EVENT_ID             => 'some.event.id',
+            PayloadFields::EVENT_TIME           => null,
+            PayloadFields::SCHEMA_URL           => null,
+            PayloadFields::CONTENT_TYPE         => null,
+            PayloadFields::EXTENSIONS           => null,
+            PayloadFields::DATA                 => new ArrayData(
+                [
+                    'foo' => 'bar',
+                ]
+            ),
+        ];
+        
+        $payload = new Payload(...\array_values($data));
+        
+        $serialized = self::$serializer->serialize($payload, JsonEncoder::FORMAT);
+        
+        $deserialized = self::$serializer->deserialize($serialized, Payload::class, PayloadDecoder::FORMAT);
+        
+        $this->assertEquals($payload, $deserialized);
     }
 }
