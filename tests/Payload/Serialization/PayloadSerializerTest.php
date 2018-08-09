@@ -11,11 +11,8 @@ use SmartWeb\CloudEvents\Nats\Payload\PayloadFields;
 use SmartWeb\Nats\Payload\Serialization\PayloadDecoder;
 use SmartWeb\Nats\Payload\Serialization\PayloadDenormalizer;
 use SmartWeb\Nats\Payload\Serialization\PayloadNormalizer;
-use Symfony\Component\Serializer\Encoder\EncoderInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -29,21 +26,6 @@ class PayloadSerializerTest extends TestCase
      * @var SerializerInterface
      */
     private static $serializer;
-    
-    /**
-     * @var EncoderInterface
-     */
-    private static $jsonEncoder;
-    
-    /**
-     * @var string
-     */
-    private static $dateTimeFormat;
-    
-    /**
-     * @var NormalizerInterface
-     */
-    private static $dateTimeNormalizer;
     
     /**
      * @var PayloadProviderFactory
@@ -67,10 +49,6 @@ class PayloadSerializerTest extends TestCase
             [$payloadNormalizer, $payloadDenormalizer],
             [$payloadEncoder, $payloadDecoder]
         );
-        
-        self::$jsonEncoder = new JsonEncode();
-        self::$dateTimeFormat = \DateTime::RFC3339;
-        self::$dateTimeNormalizer = new DateTimeNormalizer(self::$dateTimeFormat);
         
         self::$provider = new PayloadProviderFactory();
     }
