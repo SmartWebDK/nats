@@ -29,27 +29,27 @@ class EventNormalizer implements NormalizerInterface
             throw new \InvalidArgumentException('The given data is not supported by this normalizer.');
         }
         
-        return $this->convertPayloadToArray($object);
+        return $this->convertEventToArray($object);
     }
     
     /**
-     * @param EventInterface $payload
+     * @param EventInterface $event
      *
      * @return array
      */
-    private function convertPayloadToArray(EventInterface $payload) : array
+    private function convertEventToArray(EventInterface $event) : array
     {
         return [
-            EventFields::EVENT_TYPE           => $payload->getEventType(),
-            EventFields::EVENT_TYPE_VERSION   => $payload->getEventTypeVersion(),
-            EventFields::CLOUD_EVENTS_VERSION => $payload->getCloudEventsVersion(),
-            EventFields::SOURCE               => $payload->getSource(),
-            EventFields::EVENT_ID             => $payload->getEventId(),
-            EventFields::EVENT_TIME           => $payload->getEventTime(),
-            EventFields::SCHEMA_URL           => $payload->getSchemaURL(),
-            EventFields::CONTENT_TYPE         => $payload->getContentType(),
-            EventFields::EXTENSIONS           => $payload->getExtensions(),
-            EventFields::DATA                 => $payload->getData(),
+            EventFields::EVENT_TYPE           => $event->getEventType(),
+            EventFields::EVENT_TYPE_VERSION   => $event->getEventTypeVersion(),
+            EventFields::CLOUD_EVENTS_VERSION => $event->getCloudEventsVersion(),
+            EventFields::SOURCE               => $event->getSource(),
+            EventFields::EVENT_ID             => $event->getEventId(),
+            EventFields::EVENT_TIME           => $event->getEventTime(),
+            EventFields::SCHEMA_URL           => $event->getSchemaURL(),
+            EventFields::CONTENT_TYPE         => $event->getContentType(),
+            EventFields::EXTENSIONS           => $event->getExtensions(),
+            EventFields::DATA                 => $event->getData(),
         ];
     }
     

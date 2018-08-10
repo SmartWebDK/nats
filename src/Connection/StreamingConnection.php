@@ -21,7 +21,7 @@ use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
- * Adapter for {@link NatsStreaming\Connection}, enabling interaction using CloudEvents payload specification.
+ * Adapter for {@link NatsStreaming\Connection}, enabling interaction using CloudEvents event specification.
  *
  * @author Nicolai Agersbæk <na@smartweb.dk>
  *
@@ -65,11 +65,11 @@ class StreamingConnection implements StreamingConnectionInterface
     /**
      * @inheritDoc
      */
-    public function publish(string $channel, EventInterface $payload) : TrackedNatsRequest
+    public function publish(string $channel, EventInterface $event) : TrackedNatsRequest
     {
         return $this->connection->publish(
             $channel,
-            $this->payloadSerializer->serialize($payload, JsonEncoder::FORMAT)
+            $this->payloadSerializer->serialize($event, JsonEncoder::FORMAT)
         );
     }
     
@@ -118,20 +118,20 @@ class StreamingConnection implements StreamingConnectionInterface
     }
     
     /**
-     * @param string $payload
+     * @param string $message
      *
      * @return EventInterface
      */
-    private function deserializeMessage(string $payload) : EventInterface
+    private function deserializeMessage(string $message) : EventInterface
     {
         $msgObject = $this->messageDeserializer->deserialize(
-            $payload,
+            $message,
             Message::class,
             MessageDecoder::FORMAT
         );
         
         if ($msgObject instanceof MessageInterface) {
-            return $this->deserializePayload($msgObject->getData());
+            return $this->deserializeEvent($msgObject->getData());
         }
         
         throw new UnexpectedValueException(
@@ -140,20 +140,20 @@ class StreamingConnection implements StreamingConnectionInterface
     }
     
     /**
-     * @param string $payload
+     * @param string $messageData
      *
      * @return EventInterface
      */
-    private function deserializePayload(string $payload) : EventInterface
+    private function deserializeEvent(string $messageData) : EventInterface
     {
-        $payloadObject = $this->payloadSerializer->deserialize(
-            $payload,
+        $event = $this->payloadSerializer->deserialize(
+            $messageData,
             Event::class,
             EventDecoder::FORMAT
         );
         
-        if ($payloadObject instanceof EventInterface) {
-            return $payloadObject;
+        if ($event instanceof EventInterface) {
+            return $event;
         }
         
         throw new UnexpectedValueException(

@@ -17,7 +17,7 @@ interface SubscriberInterface
 {
     
     /**
-     * @param EventInterface $payload
+     * @param EventInterface $event
      */
-    public function handle(EventInterface $payload) : void;
+    public function handle(EventInterface $event) : void;
 }
