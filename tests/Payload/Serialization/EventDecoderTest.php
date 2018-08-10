@@ -14,10 +14,7 @@ use Symfony\Component\Serializer\Encoder\DecoderInterface;
 class EventDecoderTest extends TestCase
 {
     
-    /**
-     * @var EventProviderFactory
-     */
-    private static $provider;
+    use WithEventProviderFactory;
     
     /**
      * @var DecoderInterface
@@ -46,7 +43,7 @@ class EventDecoderTest extends TestCase
     {
         $actual = $this->decoder->decode($event, EventDecoder::FORMAT);
         
-        $this->assertEquals($expected, $actual, 'Should correctly decode valid message string');
+        $this->assertEquals($expected, $actual, 'Should correctly decode valid event string');
     }
     
     /**
@@ -57,16 +54,16 @@ class EventDecoderTest extends TestCase
     {
         return [
             'minimal, with null entries' => [
-                'event'    => self::provider()->minimal()->eventString(true),
-                'expected' => self::provider()->minimal()->eventContents(true),
+                'event'    => self::factory()->minimal()->eventString(true),
+                'expected' => self::factory()->minimal()->eventContents(true),
             ],
             'minimal, without entries'   => [
-                'event'    => self::provider()->minimal()->eventString(),
-                'expected' => self::provider()->minimal()->eventContents(),
+                'event'    => self::factory()->minimal()->eventString(),
+                'expected' => self::factory()->minimal()->eventContents(),
             ],
             'complete'                   => [
-                'event'    => self::provider()->complete()->eventString(),
-                'expected' => self::provider()->complete()->eventContents(),
+                'event'    => self::factory()->complete()->eventString(),
+                'expected' => self::factory()->complete()->eventContents(),
             ],
         ];
     }
@@ -105,13 +102,5 @@ class EventDecoderTest extends TestCase
                 'expected' => false,
             ],
         ];
-    }
-    
-    /**
-     * @return EventProviderFactory
-     */
-    private static function provider() : EventProviderFactory
-    {
-        return self::$provider ?? self::$provider = new EventProviderFactory();
     }
 }

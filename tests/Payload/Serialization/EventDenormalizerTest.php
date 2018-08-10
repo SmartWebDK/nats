@@ -5,12 +5,11 @@ declare(strict_types = 1);
 namespace SmartWeb\Nats\Tests\Payload\Serialization;
 
 use PHPUnit\Framework\TestCase;
-use SmartWeb\CloudEvents\Nats\Event\Data\ArrayData;
 use SmartWeb\CloudEvents\Nats\Event\Event;
 use SmartWeb\CloudEvents\Nats\Event\EventFields;
 use SmartWeb\CloudEvents\Nats\Event\EventInterface;
-use SmartWeb\Nats\Payload\Serialization\EventDenormalizer;
 use SmartWeb\Nats\Payload\Serialization\EventDecoder;
+use SmartWeb\Nats\Payload\Serialization\EventDenormalizer;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 /**
@@ -18,6 +17,8 @@ use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
  */
 class EventDenormalizerTest extends TestCase
 {
+    
+    use WithEventProviderFactory;
     
     /**
      * @var DenormalizerInterface
@@ -37,17 +38,16 @@ class EventDenormalizerTest extends TestCase
     /**
      * @test
      *
-     * @param array $data
-     * @param array $payload
+     * @param array          $data
+     * @param EventInterface $expected
      *
      * @dataProvider denormalizeValidDataProvider
      */
-    public function shouldDenormalizeValidPayload(array $data, array $payload) : void
+    public function shouldDenormalizeValidValues(array $data, EventInterface $expected) : void
     {
-        $expected = new Event(...\array_values($payload));
         $actual = $this->denormalizer->denormalize($data, Event::class);
         
-        $this->assertEquals($expected, $actual, 'Should correctly denormalize payload');
+        $this->assertEquals($expected, $actual, 'Should correctly denormalize event');
     }
     
     /**
@@ -56,80 +56,18 @@ class EventDenormalizerTest extends TestCase
      */
     public function denormalizeValidDataProvider() : array
     {
-        $eventTime = new \DateTime();
-        
         return [
-            'minimal'  => [
-                'data'    => [
-                    EventFields::EVENT_TYPE           => '',
-                    EventFields::EVENT_TYPE_VERSION   => null,
-                    EventFields::CLOUD_EVENTS_VERSION => '0.1.0',
-                    EventFields::SOURCE               => '',
-                    EventFields::EVENT_ID             => '',
-                    EventFields::EVENT_TIME           => null,
-                    EventFields::SCHEMA_URL           => null,
-                    EventFields::CONTENT_TYPE         => null,
-                    EventFields::EXTENSIONS           => null,
-                    EventFields::DATA                 => null,
-                ],
-                'payload' => [
-                    EventFields::EVENT_TYPE           => '',
-                    EventFields::EVENT_TYPE_VERSION   => null,
-                    EventFields::CLOUD_EVENTS_VERSION => '0.1.0',
-                    EventFields::SOURCE               => '',
-                    EventFields::EVENT_ID             => '',
-                    EventFields::EVENT_TIME           => null,
-                    EventFields::SCHEMA_URL           => null,
-                    EventFields::CONTENT_TYPE         => null,
-                    EventFields::EXTENSIONS           => null,
-                    EventFields::DATA                 => null,
-                ],
+            'minimal, with null entries'    => [
+                'data'     => self::factory()->minimal()->eventContents(true),
+                'expected' => self::factory()->minimal()->event(),
             ],
-            'complete' => [
-                'data'    => [
-                    EventFields::EVENT_TYPE           => '',
-                    EventFields::EVENT_TYPE_VERSION   => '1.0.0',
-                    EventFields::CLOUD_EVENTS_VERSION => '0.1.0',
-                    EventFields::SOURCE               => '',
-                    EventFields::EVENT_ID             => '',
-                    EventFields::EVENT_TIME           => $eventTime,
-                    EventFields::SCHEMA_URL           => 'schemaURL', // Invalid
-                    EventFields::CONTENT_TYPE         => 'contentType', // Invalid
-                    EventFields::EXTENSIONS           => [
-                        'extKey_1' => 'extVal_1',
-                        'extKey_2' => 'extVal_2',
-                    ],
-                    EventFields::DATA                 => [
-                        'dataKey_1' => 'dataVal_1',
-                        'dataKey_2' => [
-                            'dataKey_2.1' => 'dataVal_2.1',
-                            'dataKey_2.2' => 'dataVal_2.2',
-                        ],
-                    ],
-                ],
-                'payload' => [
-                    EventFields::EVENT_TYPE           => '',
-                    EventFields::EVENT_TYPE_VERSION   => '1.0.0',
-                    EventFields::CLOUD_EVENTS_VERSION => '0.1.0',
-                    EventFields::SOURCE               => '',
-                    EventFields::EVENT_ID             => '',
-                    EventFields::EVENT_TIME           => $eventTime,
-                    EventFields::SCHEMA_URL           => 'schemaURL', // Invalid
-                    EventFields::CONTENT_TYPE         => 'contentType', // Invalid
-                    EventFields::EXTENSIONS           => [
-                        'extKey_1' => 'extVal_1',
-                        'extKey_2' => 'extVal_2',
-                    ],
-                    EventFields::DATA                 => new ArrayData(
-                        [
-                            'dataKey_1' => 'dataVal_1',
-                            'dataKey_2' => [
-                                'dataKey_2.1' => 'dataVal_2.1',
-                                'dataKey_2.2' => 'dataVal_2.2',
-                            ],
-                        ]
-                    ),
-                ],
+            'minimal, without null entries' => [
+                'data'     => self::factory()->minimal()->eventContents(false),
+                'expected' => self::factory()->minimal()->event(),
+            ],
+            'complete'                      => [
+                'data'     => self::factory()->complete()->eventContents(true),
+                'expected' => self::factory()->complete()->event(),
             ],
         ];
     }
@@ -156,44 +94,21 @@ class EventDenormalizerTest extends TestCase
      */
     public function supportsDenormalizationDataProvider() : array
     {
-        $eventTime = new \DateTime();
-        
         return [
             'array, minimal'                     => [
-                'data'     => [
-                    EventFields::EVENT_TYPE           => '',
-                    EventFields::CLOUD_EVENTS_VERSION => '0.1.0',
-                    EventFields::SOURCE               => '',
-                    EventFields::EVENT_ID             => '',
-                ],
+                'data'     => self::factory()->minimal()->eventContents(true),
                 'type'     => Event::class,
                 'format'   => EventDecoder::FORMAT,
                 'expected' => true,
             ],
             'array, complete'                    => [
-                'data'     => [
-                    EventFields::EVENT_TYPE           => '',
-                    EventFields::EVENT_TYPE_VERSION   => '1.0.0',
-                    EventFields::CLOUD_EVENTS_VERSION => '0.1.0',
-                    EventFields::SOURCE               => '',
-                    EventFields::EVENT_ID             => '',
-                    EventFields::EVENT_TIME           => $eventTime,
-                    EventFields::SCHEMA_URL           => 'schemaURL', // Invalid
-                    EventFields::CONTENT_TYPE         => 'contentType', // Invalid
-                    EventFields::EXTENSIONS           => [],
-                    EventFields::DATA                 => new ArrayData([]),
-                ],
+                'data'     => self::factory()->complete()->eventContents(true),
                 'type'     => Event::class,
                 'format'   => EventDecoder::FORMAT,
                 'expected' => true,
             ],
             'array, minimal, invalid format'     => [
-                'data'     => [
-                    EventFields::EVENT_TYPE           => '',
-                    EventFields::CLOUD_EVENTS_VERSION => '0.1.0',
-                    EventFields::SOURCE               => '',
-                    EventFields::EVENT_ID             => '',
-                ],
+                'data'     => self::factory()->minimal()->eventContents(true),
                 'type'     => Event::class,
                 'format'   => null,
                 'expected' => false,

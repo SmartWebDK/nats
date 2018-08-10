@@ -5,8 +5,6 @@ declare(strict_types = 1);
 namespace SmartWeb\Nats\Tests\Payload\Serialization;
 
 use SmartWeb\CloudEvents\Nats\Event\EventFields;
-use Symfony\Component\Serializer\Encoder\EncoderInterface;
-use Symfony\Component\Serializer\Encoder\JsonEncode;
 
 /**
  * Creates providers of sample data for CloudEvents event serialization tests.
@@ -15,33 +13,40 @@ use Symfony\Component\Serializer\Encoder\JsonEncode;
  *
  * @internal
  */
-class EventProviderFactory
+final class EventProviderFactory
 {
+    
+    /**
+     * @var self
+     */
+    private static $instance;
     
     /**
      * @var array
      */
-    private static $cachedContentsArray;
+    private $completeEventContents;
     
     /**
      * @var EventProviderInterface[]
      */
-    private static $cachedProviders = [];
-    
-    /**
-     * @var EncoderInterface
-     */
-    private static $jsonEncoder;
+    private $providers = [];
     
     /**
      * @var string
      */
-    private static $dateTimeFormat;
+    private $dateTimeFormat;
     
-    public function __construct()
+    private function __construct()
     {
-        self::$jsonEncoder = self::$jsonEncoder ?? new JsonEncode();
-        self::$dateTimeFormat = self::$dateTimeFormat ?? \DateTime::RFC3339;
+        $this->dateTimeFormat = \DateTime::RFC3339;
+    }
+    
+    /**
+     * @return self
+     */
+    public static function create() : self
+    {
+        return self::$instance ?? self::$instance = new self();
     }
     
     /**
@@ -51,8 +56,7 @@ class EventProviderFactory
     {
         $eventContents = $this->getContents(EventFields::getSupportedFields());
         
-        return self::$cachedProviders['complete'] ??
-               self::$cachedProviders['complete'] = new EventProvider($eventContents);
+        return $this->providers['complete'] ?? $this->providers['complete'] = new EventProvider($eventContents);
     }
     
     /**
@@ -62,8 +66,7 @@ class EventProviderFactory
     {
         $eventContents = $this->getContents(EventFields::getRequiredFields());
         
-        return self::$cachedProviders['minimal'] ??
-               self::$cachedProviders['minimal'] = new EventProvider($eventContents);
+        return $this->providers['minimal'] ?? $this->providers['minimal'] = new EventProvider($eventContents);
     }
     
     /**
@@ -159,7 +162,7 @@ class EventProviderFactory
      */
     private function getCompleteEventContents() : array
     {
-        return self::$cachedContentsArray ?? self::$cachedContentsArray = $this->resolveCompleteEventContents();
+        return $this->completeEventContents ?? $this->completeEventContents = $this->resolveCompleteEventContents();
     }
     
     /**
@@ -173,7 +176,7 @@ class EventProviderFactory
             EventFields::CLOUD_EVENTS_VERSION => '0.1.0',
             EventFields::SOURCE               => 'some.source',
             EventFields::EVENT_ID             => 'some.event.id',
-            EventFields::EVENT_TIME           => $this->getFixedTime()->format(self::$dateTimeFormat),
+            EventFields::EVENT_TIME           => $this->getFixedTime()->format($this->dateTimeFormat),
             EventFields::SCHEMA_URL           => 'https://www.some-schema.org/cloud-events/test.schema?version=2.3.4',
             EventFields::CONTENT_TYPE         => 'application/json',
             EventFields::EXTENSIONS           => [

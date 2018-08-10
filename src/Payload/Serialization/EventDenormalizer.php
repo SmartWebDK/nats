@@ -95,7 +95,23 @@ class EventDenormalizer implements DenormalizerInterface
      */
     private function createEvent(array $data, string $class) : EventInterface
     {
-        return new $class(...\array_values($data));
+        return new $class(...\array_values($this->prepareEventContents($data)));
+    }
+    
+    /**
+     * @param array $contents
+     *
+     * @return array
+     */
+    private function prepareEventContents(array $contents) : array
+    {
+        $padded = [];
+        
+        foreach (EventFields::getSupportedFields() as $field) {
+            $padded[$field] = $contents[$field] ?? null;
+        }
+        
+        return $padded;
     }
     
     /**

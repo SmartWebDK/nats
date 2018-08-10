@@ -5,9 +5,7 @@ declare(strict_types = 1);
 namespace SmartWeb\Nats\Tests\Payload\Serialization;
 
 use PHPUnit\Framework\TestCase;
-use SmartWeb\CloudEvents\Nats\Event\Data\ArrayData;
 use SmartWeb\CloudEvents\Nats\Event\Event;
-use SmartWeb\CloudEvents\Nats\Event\EventFields;
 use SmartWeb\Nats\Payload\Serialization\EventDecoder;
 use SmartWeb\Nats\Payload\Serialization\EventDenormalizer;
 use SmartWeb\Nats\Payload\Serialization\EventNormalizer;
@@ -22,15 +20,12 @@ use Symfony\Component\Serializer\SerializerInterface;
 class EventSerializerTest extends TestCase
 {
     
+    use WithEventProviderFactory;
+    
     /**
      * @var SerializerInterface
      */
     private static $serializer;
-    
-    /**
-     * @var EventProviderFactory
-     */
-    private static $provider;
     
     /**
      * @inheritDoc
@@ -49,81 +44,66 @@ class EventSerializerTest extends TestCase
             [$payloadNormalizer, $payloadDenormalizer],
             [$payloadEncoder, $payloadDecoder]
         );
-        
-        self::$provider = new EventProviderFactory();
     }
     
     /**
      * @test
+     *
+     * @param Event  $event
+     * @param string $eventString
+     *
+     * @dataProvider serializeDataProvider
      */
-    public function checkSerialize() : void
+    public function checkSerialize(Event $event, string $eventString) : void
     {
-        $expected = '{"eventType":"some.event","eventTypeVersion":null,"cloudEventsVersion":"0.1.0","source":"some.source","eventId":"some.event.id","eventTime":null,"schemaURL":null,"contentType":null,"extensions":null,"data":{"foo":"bar"}}';
+        $actual = self::$serializer->serialize($event, JsonEncoder::FORMAT);
         
-        $data = [
-            EventFields::EVENT_TYPE           => 'some.event',
-            EventFields::EVENT_TYPE_VERSION   => null,
-            EventFields::CLOUD_EVENTS_VERSION => '0.1.0',
-            EventFields::SOURCE               => 'some.source',
-            EventFields::EVENT_ID             => 'some.event.id',
-            EventFields::EVENT_TIME           => null,
-            EventFields::SCHEMA_URL           => null,
-            EventFields::CONTENT_TYPE         => null,
-            EventFields::EXTENSIONS           => null,
-            EventFields::DATA                 => new ArrayData(
-                [
-                    'foo' => 'bar',
-                ]
-            ),
-        ];
-        
-        $payload = new Event(...\array_values($data));
-        $actual = self::$serializer->serialize($payload, JsonEncoder::FORMAT);
-        
-        $this->assertSame($expected, $actual);
+        $this->assertSame($eventString, $actual);
     }
     
     /**
      * @test
+     *
+     * @param Event  $event
+     * @param string $eventString
+     *
+     * @dataProvider serializeDataProvider
      */
-    public function checkDeserialize() : void
+    public function checkDeserialize(Event $event, string $eventString) : void
     {
-        $payloadString = self::$provider->complete()->eventString();
+        $actual = self::$serializer->deserialize($eventString, Event::class, EventDecoder::FORMAT);
         
-        $expected = self::$provider->complete()->event();
-        $actual = self::$serializer->deserialize($payloadString, Event::class, EventDecoder::FORMAT);
-        
-        $this->assertEquals($expected, $actual);
+        $this->assertEquals($event, $actual);
     }
     
     /**
      * @test
+     *
+     * @param Event  $event
+     * @param string $eventString
+     *
+     * @dataProvider serializeDataProvider
      */
-    public function checkSerializeDeserialize() : void
+    public function checkSerializeDeserialize(Event $event, string $eventString) : void
     {
-        $data = [
-            EventFields::EVENT_TYPE           => 'some.event',
-            EventFields::EVENT_TYPE_VERSION   => null,
-            EventFields::CLOUD_EVENTS_VERSION => '0.1.0',
-            EventFields::SOURCE               => 'some.source',
-            EventFields::EVENT_ID             => 'some.event.id',
-            EventFields::EVENT_TIME           => null,
-            EventFields::SCHEMA_URL           => null,
-            EventFields::CONTENT_TYPE         => null,
-            EventFields::EXTENSIONS           => null,
-            EventFields::DATA                 => new ArrayData(
-                [
-                    'foo' => 'bar',
-                ]
-            ),
-        ];
-        
-        $payload = new Event(...\array_values($data));
-        
-        $serialized = self::$serializer->serialize($payload, JsonEncoder::FORMAT);
+        $serialized = self::$serializer->serialize($event, JsonEncoder::FORMAT);
         
         $deserialized = self::$serializer->deserialize($serialized, Event::class, EventDecoder::FORMAT);
         
-        $this->assertEquals($payload, $deserialized);
+        $this->assertEquals($event, $deserialized);
+    }
+    
+    /**
+     * @skip
+     * @return array
+     */
+    public function serializeDataProvider() : array
+    {
+        return [
+            'minimal' => [
+                'event'       => self::factory()->minimal()->event(),
+                'eventString' => self::factory()->minimal()->eventString(),
+            ],
+        ];
     }
 }

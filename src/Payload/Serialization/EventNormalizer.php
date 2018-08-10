@@ -18,7 +18,7 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 class EventNormalizer implements NormalizerInterface
 {
     
-    // FIXME: Possibly replace this with a GetSetMethodNormalizer?
+    // FIXME: Possibly replace this with a GetSetMethodNormalizer/PropertyNormalizer?
     
     /**
      * @inheritDoc

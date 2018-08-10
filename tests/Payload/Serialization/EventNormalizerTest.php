@@ -5,9 +5,7 @@ declare(strict_types = 1);
 namespace SmartWeb\Nats\Tests\Payload\Serialization;
 
 use PHPUnit\Framework\TestCase;
-use SmartWeb\CloudEvents\Nats\Event\Data\ArrayData;
 use SmartWeb\CloudEvents\Nats\Event\Event;
-use SmartWeb\CloudEvents\Nats\Event\EventFields;
 use SmartWeb\CloudEvents\Nats\Event\EventInterface;
 use SmartWeb\Nats\Payload\Serialization\EventNormalizer;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -17,6 +15,8 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
  */
 class EventNormalizerTest extends TestCase
 {
+    
+    use WithEventProviderFactory;
     
     /**
      * @var NormalizerInterface
@@ -37,18 +37,15 @@ class EventNormalizerTest extends TestCase
      * @test
      *
      * @param array $data
+     * @param Event $event
      *
      * @dataProvider normalizeValidDataProvider
      */
-    public function shouldNormalizeValidPayload(array $data) : void
+    public function shouldNormalizeValidPayload(array $data, Event $event) : void
     {
-        $expected = $data;
+        $actual = $this->normalizer->normalize($event);
         
-        $payload = new Event(...\array_values($expected));
-        
-        $actual = $this->normalizer->normalize($payload);
-        
-        $this->assertEquals($expected, $actual);
+        $this->assertEquals($data, $actual);
     }
     
     /**
@@ -59,43 +56,12 @@ class EventNormalizerTest extends TestCase
     {
         return [
             'minimal'  => [
-                'data' => [
-                    EventFields::EVENT_TYPE           => '',
-                    EventFields::EVENT_TYPE_VERSION   => null,
-                    EventFields::CLOUD_EVENTS_VERSION => '0.1.0',
-                    EventFields::SOURCE               => '',
-                    EventFields::EVENT_ID             => '',
-                    EventFields::EVENT_TIME           => null,
-                    EventFields::SCHEMA_URL           => null,
-                    EventFields::CONTENT_TYPE         => null,
-                    EventFields::EXTENSIONS           => null,
-                    EventFields::DATA                 => null,
-                ],
+                'data'  => self::factory()->minimal()->eventContents(true),
+                'event' => self::factory()->minimal()->event(),
             ],
             'complete' => [
-                'data' => [
-                    EventFields::EVENT_TYPE           => '',
-                    EventFields::EVENT_TYPE_VERSION   => '1.0.0',
-                    EventFields::CLOUD_EVENTS_VERSION => '0.1.0',
-                    EventFields::SOURCE               => '',
-                    EventFields::EVENT_ID             => '',
-                    EventFields::EVENT_TIME           => new \DateTime(),
-                    EventFields::SCHEMA_URL           => 'schemaURL', // Invalid
-                    EventFields::CONTENT_TYPE         => 'contentType', // Invalid
-                    EventFields::EXTENSIONS           => [
-                        'extKey_1' => 'extVal_1',
-                        'extKey_2' => 'extVal_2',
-                    ],
-                    EventFields::DATA                 => new ArrayData(
-                        [
-                            'dataKey_1' => 'dataVal_1',
-                            'dataKey_2' => [
-                                'dataKey_2.1' => 'dataVal_2.1',
-                                'dataKey_2.2' => 'dataVal_2.2',
-                            ],
-                        ]
-                    ),
-                ],
+                'data'  => self::factory()->complete()->eventContents(true),
+                'event' => self::factory()->complete()->event(),
             ],
         ];
     }

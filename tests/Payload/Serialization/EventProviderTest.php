@@ -13,10 +13,7 @@ use SmartWeb\CloudEvents\Nats\Event\EventFields;
 class EventProviderTest extends TestCase
 {
     
-    /**
-     * @var EventProviderFactory
-     */
-    private static $factory;
+    use WithEventProviderFactory;
     
     /**
      * @test
@@ -160,13 +157,5 @@ class EventProviderTest extends TestCase
                 ],
             ],
         ];
-    }
-    
-    /**
-     * @return EventProviderFactory
-     */
-    private static function factory() : EventProviderFactory
-    {
-        return self::$factory ?? self::$factory = new EventProviderFactory();
     }
 }
