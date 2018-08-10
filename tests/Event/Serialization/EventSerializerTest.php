@@ -2,13 +2,13 @@
 declare(strict_types = 1);
 
 
-namespace SmartWeb\Nats\Tests\Payload\Serialization;
+namespace SmartWeb\Nats\Tests\Event\Serialization;
 
 use PHPUnit\Framework\TestCase;
 use SmartWeb\CloudEvents\Nats\Event\Event;
-use SmartWeb\Nats\Payload\Serialization\EventDecoder;
-use SmartWeb\Nats\Payload\Serialization\EventDenormalizer;
-use SmartWeb\Nats\Payload\Serialization\EventNormalizer;
+use SmartWeb\Nats\Event\Serialization\EventDecoder;
+use SmartWeb\Nats\Event\Serialization\EventDenormalizer;
+use SmartWeb\Nats\Event\Serialization\EventNormalizer;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;

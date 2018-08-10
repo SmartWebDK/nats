@@ -2,14 +2,14 @@
 declare(strict_types = 1);
 
 
-namespace SmartWeb\Nats\Tests\Payload\Serialization;
+namespace SmartWeb\Nats\Tests\Event\Serialization;
 
 use PHPUnit\Framework\TestCase;
 use SmartWeb\CloudEvents\Nats\Event\Event;
 use SmartWeb\CloudEvents\Nats\Event\EventFields;
 use SmartWeb\CloudEvents\Nats\Event\EventInterface;
-use SmartWeb\Nats\Payload\Serialization\EventDecoder;
-use SmartWeb\Nats\Payload\Serialization\EventDenormalizer;
+use SmartWeb\Nats\Event\Serialization\EventDecoder;
+use SmartWeb\Nats\Event\Serialization\EventDenormalizer;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 /**

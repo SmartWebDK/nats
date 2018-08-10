@@ -2,10 +2,10 @@
 declare(strict_types = 1);
 
 
-namespace SmartWeb\Nats\Tests\Payload\Serialization;
+namespace SmartWeb\Nats\Tests\Event\Serialization;
 
 use PHPUnit\Framework\TestCase;
-use SmartWeb\Nats\Payload\Serialization\EventDecoder;
+use SmartWeb\Nats\Event\Serialization\EventDecoder;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 
 /**

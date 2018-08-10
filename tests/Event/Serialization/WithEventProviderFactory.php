@@ -2,7 +2,7 @@
 declare(strict_types = 1);
 
 
-namespace SmartWeb\Nats\Tests\Payload\Serialization;
+namespace SmartWeb\Nats\Tests\Event\Serialization;
 
 /**
  * Provides easy access to an EventProviderFactory.

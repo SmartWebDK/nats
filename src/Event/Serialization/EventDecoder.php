@@ -2,7 +2,7 @@
 declare(strict_types = 1);
 
 
-namespace SmartWeb\Nats\Payload\Serialization;
+namespace SmartWeb\Nats\Event\Serialization;
 
 use SmartWeb\CloudEvents\Nats\Event\EventFields;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
