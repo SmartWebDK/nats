@@ -5,17 +5,17 @@ declare(strict_types = 1);
 namespace SmartWeb\Nats\Tests\Payload\Serialization;
 
 use PHPUnit\Framework\TestCase;
-use SmartWeb\CloudEvents\Nats\Payload\Data\ArrayData;
-use SmartWeb\CloudEvents\Nats\Payload\Payload;
-use SmartWeb\CloudEvents\Nats\Payload\PayloadFields;
-use SmartWeb\CloudEvents\Nats\Payload\PayloadInterface;
-use SmartWeb\Nats\Payload\Serialization\PayloadNormalizer;
+use SmartWeb\CloudEvents\Nats\Event\Data\ArrayData;
+use SmartWeb\CloudEvents\Nats\Event\Event;
+use SmartWeb\CloudEvents\Nats\Event\EventFields;
+use SmartWeb\CloudEvents\Nats\Event\EventInterface;
+use SmartWeb\Nats\Payload\Serialization\EventNormalizer;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
- * Class PayloadNormalizerTest
+ * @author Nicolai Agersbæk <na@smartweb.dk>
  */
-class PayloadNormalizerTest extends TestCase
+class EventNormalizerTest extends TestCase
 {
     
     /**
@@ -30,7 +30,7 @@ class PayloadNormalizerTest extends TestCase
     {
         parent::setUp();
         
-        $this->normalizer = new PayloadNormalizer();
+        $this->normalizer = new EventNormalizer();
     }
     
     /**
@@ -44,7 +44,7 @@ class PayloadNormalizerTest extends TestCase
     {
         $expected = $data;
         
-        $payload = new Payload(...\array_values($expected));
+        $payload = new Event(...\array_values($expected));
         
         $actual = $this->normalizer->normalize($payload);
         
@@ -60,33 +60,33 @@ class PayloadNormalizerTest extends TestCase
         return [
             'minimal'  => [
                 'data' => [
-                    PayloadFields::EVENT_TYPE           => '',
-                    PayloadFields::EVENT_TYPE_VERSION   => null,
-                    PayloadFields::CLOUD_EVENTS_VERSION => '0.1.0',
-                    PayloadFields::SOURCE               => '',
-                    PayloadFields::EVENT_ID             => '',
-                    PayloadFields::EVENT_TIME           => null,
-                    PayloadFields::SCHEMA_URL           => null,
-                    PayloadFields::CONTENT_TYPE         => null,
-                    PayloadFields::EXTENSIONS           => null,
-                    PayloadFields::DATA                 => null,
+                    EventFields::EVENT_TYPE           => '',
+                    EventFields::EVENT_TYPE_VERSION   => null,
+                    EventFields::CLOUD_EVENTS_VERSION => '0.1.0',
+                    EventFields::SOURCE               => '',
+                    EventFields::EVENT_ID             => '',
+                    EventFields::EVENT_TIME           => null,
+                    EventFields::SCHEMA_URL           => null,
+                    EventFields::CONTENT_TYPE         => null,
+                    EventFields::EXTENSIONS           => null,
+                    EventFields::DATA                 => null,
                 ],
             ],
             'complete' => [
                 'data' => [
-                    PayloadFields::EVENT_TYPE           => '',
-                    PayloadFields::EVENT_TYPE_VERSION   => '1.0.0',
-                    PayloadFields::CLOUD_EVENTS_VERSION => '0.1.0',
-                    PayloadFields::SOURCE               => '',
-                    PayloadFields::EVENT_ID             => '',
-                    PayloadFields::EVENT_TIME           => new \DateTime(),
-                    PayloadFields::SCHEMA_URL           => 'schemaURL', // Invalid
-                    PayloadFields::CONTENT_TYPE         => 'contentType', // Invalid
-                    PayloadFields::EXTENSIONS           => [
+                    EventFields::EVENT_TYPE           => '',
+                    EventFields::EVENT_TYPE_VERSION   => '1.0.0',
+                    EventFields::CLOUD_EVENTS_VERSION => '0.1.0',
+                    EventFields::SOURCE               => '',
+                    EventFields::EVENT_ID             => '',
+                    EventFields::EVENT_TIME           => new \DateTime(),
+                    EventFields::SCHEMA_URL           => 'schemaURL', // Invalid
+                    EventFields::CONTENT_TYPE         => 'contentType', // Invalid
+                    EventFields::EXTENSIONS           => [
                         'extKey_1' => 'extVal_1',
                         'extKey_2' => 'extVal_2',
                     ],
-                    PayloadFields::DATA                 => new ArrayData(
+                    EventFields::DATA                 => new ArrayData(
                         [
                             'dataKey_1' => 'dataVal_1',
                             'dataKey_2' => [
@@ -123,12 +123,12 @@ class PayloadNormalizerTest extends TestCase
     {
         return [
             'Payload'          => [
-                'data'     => $this->createMock(Payload::class),
+                'data'     => $this->createMock(Event::class),
                 'format'   => null,
                 'expected' => true,
             ],
             'PayloadInterface' => [
-                'data'     => $this->createMock(PayloadInterface::class),
+                'data'     => $this->createMock(EventInterface::class),
                 'format'   => null,
                 'expected' => true,
             ],

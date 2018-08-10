@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Subscriber;
 
-use SmartWeb\CloudEvents\Nats\Payload\PayloadInterface;
+use SmartWeb\CloudEvents\Nats\Event\EventInterface;
 
 /**
  * Definition of a class capable of subscribing to NATS messages.
@@ -17,7 +17,7 @@ interface SubscriberInterface
 {
     
     /**
-     * @param PayloadInterface $payload
+     * @param EventInterface $payload
      */
-    public function handle(PayloadInterface $payload) : void;
+    public function handle(EventInterface $payload) : void;
 }

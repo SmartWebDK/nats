@@ -8,12 +8,12 @@ use NatsStreaming\Connection;
 use NatsStreaming\Subscription;
 use NatsStreaming\SubscriptionOptions;
 use NatsStreaming\TrackedNatsRequest;
+use SmartWeb\CloudEvents\Nats\Event\Event;
+use SmartWeb\CloudEvents\Nats\Event\EventInterface;
 use SmartWeb\Nats\Message\Message;
 use SmartWeb\Nats\Message\MessageInterface;
 use SmartWeb\Nats\Message\Serialization\MessageDecoder;
-use SmartWeb\CloudEvents\Nats\Payload\Payload;
-use SmartWeb\CloudEvents\Nats\Payload\PayloadInterface;
-use SmartWeb\Nats\Payload\Serialization\PayloadDecoder;
+use SmartWeb\Nats\Payload\Serialization\EventDecoder;
 use SmartWeb\Nats\Subscriber\SubscriberInterface;
 use SmartWeb\Nats\Support\DeserializerInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -65,7 +65,7 @@ class StreamingConnection implements StreamingConnectionInterface
     /**
      * @inheritDoc
      */
-    public function publish(string $channel, PayloadInterface $payload) : TrackedNatsRequest
+    public function publish(string $channel, EventInterface $payload) : TrackedNatsRequest
     {
         return $this->connection->publish(
             $channel,
@@ -120,9 +120,9 @@ class StreamingConnection implements StreamingConnectionInterface
     /**
      * @param string $payload
      *
-     * @return PayloadInterface
+     * @return EventInterface
      */
-    private function deserializeMessage(string $payload) : PayloadInterface
+    private function deserializeMessage(string $payload) : EventInterface
     {
         $msgObject = $this->messageDeserializer->deserialize(
             $payload,
@@ -142,22 +142,22 @@ class StreamingConnection implements StreamingConnectionInterface
     /**
      * @param string $payload
      *
-     * @return PayloadInterface
+     * @return EventInterface
      */
-    private function deserializePayload(string $payload) : PayloadInterface
+    private function deserializePayload(string $payload) : EventInterface
     {
         $payloadObject = $this->payloadSerializer->deserialize(
             $payload,
-            Payload::class,
-            PayloadDecoder::FORMAT
+            Event::class,
+            EventDecoder::FORMAT
         );
         
-        if ($payloadObject instanceof PayloadInterface) {
+        if ($payloadObject instanceof EventInterface) {
             return $payloadObject;
         }
         
         throw new UnexpectedValueException(
-            'The deserialized payload object must be an instance of ' . PayloadInterface::class
+            'The deserialized payload object must be an instance of ' . EventInterface::class
         );
     }
 }

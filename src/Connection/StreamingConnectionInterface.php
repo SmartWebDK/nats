@@ -7,7 +7,7 @@ namespace SmartWeb\Nats\Connection;
 use NatsStreaming\Subscription;
 use NatsStreaming\SubscriptionOptions;
 use NatsStreaming\TrackedNatsRequest;
-use SmartWeb\CloudEvents\Nats\Payload\PayloadInterface;
+use SmartWeb\CloudEvents\Nats\Event\EventInterface;
 use SmartWeb\Nats\Subscriber\SubscriberInterface;
 
 /**
@@ -28,12 +28,12 @@ interface StreamingConnectionInterface
     /**
      * Publish a payload on the given channel.
      *
-     * @param string           $channel
-     * @param PayloadInterface $payload
+     * @param string         $channel
+     * @param EventInterface $payload
      *
      * @return TrackedNatsRequest
      */
-    public function publish(string $channel, PayloadInterface $payload) : TrackedNatsRequest;
+    public function publish(string $channel, EventInterface $payload) : TrackedNatsRequest;
     
     /**
      * Register a subscriber on the given channel.

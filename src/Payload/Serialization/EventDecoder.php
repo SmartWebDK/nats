@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Payload\Serialization;
 
-use SmartWeb\CloudEvents\Nats\Payload\PayloadFields;
+use SmartWeb\CloudEvents\Nats\Event\EventFields;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -12,13 +12,13 @@ use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 
 /**
- * Decoder responsible for decoding payload strings.
+ * Decoder responsible for decoding CloudEvents-formatted strings into arrays.
  *
  * @author Nicolai Agersbæk <na@smartweb.dk>
  *
  * @api
  */
-class PayloadDecoder implements DecoderInterface
+class EventDecoder implements DecoderInterface
 {
     
     /**
@@ -60,7 +60,7 @@ class PayloadDecoder implements DecoderInterface
             );
         }
         
-        return $this->decodePayloadString($data);
+        return $this->decodeEventString($data);
     }
     
     /**
@@ -93,15 +93,15 @@ class PayloadDecoder implements DecoderInterface
     }
     
     /**
-     * @param string $payload
+     * @param string $event
      *
      * @return string[]
      */
-    private function decodePayloadString(string $payload) : array
+    private function decodeEventString(string $event) : array
     {
-        $jsonDecoded = self::getJsonDecoder()->decode($payload, JsonEncoder::FORMAT);
+        $jsonDecoded = self::getJsonDecoder()->decode($event, JsonEncoder::FORMAT);
         
-        return $this->padPayloadArrayWithNullEntries($jsonDecoded);
+        return $this->padEventArrayWithNullEntries($jsonDecoded);
     }
     
     /**
@@ -109,9 +109,9 @@ class PayloadDecoder implements DecoderInterface
      *
      * @return array
      */
-    private function padPayloadArrayWithNullEntries(array $array) : array
+    private function padEventArrayWithNullEntries(array $array) : array
     {
-        foreach (PayloadFields::getSupportedFields() as $field) {
+        foreach (EventFields::getSupportedFields() as $field) {
             $array[$field] = $array[$field] ?? null;
         }
         
@@ -123,6 +123,6 @@ class PayloadDecoder implements DecoderInterface
      */
     private static function getJsonDecoder() : JsonDecode
     {
-        return self::$jsonDecoder = self::$jsonDecoder ?? new JsonDecode(true);
+        return self::$jsonDecoder ?? self::$jsonDecoder = new JsonDecode(true);
     }
 }

@@ -9,7 +9,7 @@ use SmartWeb\Nats\Message\Serialization\MessageDecoder;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 
 /**
- * Class MessageDecoderTest
+ * @author Nicolai Agersbæk <na@smartweb.dk>
  */
 class MessageDecoderTest extends TestCase
 {
@@ -46,12 +46,7 @@ MESSAGE;
         $data = '{"eventType":"some.event","eventTypeVersion":null,"cloudEventsVersion":{"major":0,"minor":1,"patch":0},"source":"some.source","eventId":"some.event.id","eventTime":null,"schemaURL":null,"contentType":null,"extensions":null,"data":{"foo":"bar"}}';
         $timestamp = 1532525124250055719;
         
-        $expected = [
-            'sequence'  => $sequence,
-            'subject'   => $subject,
-            'data'      => $data,
-            'timestamp' => $timestamp,
-        ];
+        $expected = \compact('sequence', 'subject', 'data', 'timestamp');
         
         $actual = $this->decoder->decode($messageString, MessageDecoder::FORMAT);
         

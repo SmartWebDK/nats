@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 /**
- * Class MessageDenormalizerTest
+ * @author Nicolai Agersbæk <na@smartweb.dk>
  */
 class MessageDenormalizerTest extends TestCase
 {

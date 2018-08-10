@@ -4,10 +4,8 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Tests\Payload\Serialization;
 
-use SmartWeb\CloudEvents\Nats\Payload\Data\ArrayData;
-use SmartWeb\CloudEvents\Nats\Payload\Payload;
-use SmartWeb\CloudEvents\Nats\Payload\PayloadFields;
-use SmartWeb\CloudEvents\Nats\Payload\PayloadInterface;
+use SmartWeb\CloudEvents\Nats\Event\Event;
+use SmartWeb\CloudEvents\Nats\Event\EventInterface;
 use Symfony\Component\Serializer\Encoder\EncoderInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -15,13 +13,13 @@ use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
- * Provides payload data for tests.
+ * Provides CloudEvents event data for tests.
  *
  * @author Nicolai Agersbæk <na@smartweb.dk>
  *
  * @internal
  */
-class PayloadProvider implements PayloadProviderInterface
+class EventProvider implements EventProviderInterface
 {
     
     /**
@@ -42,14 +40,14 @@ class PayloadProvider implements PayloadProviderInterface
     /**
      * @var array
      */
-    private $contentsArray;
+    private $eventContents;
     
     /**
-     * @param array $contentsArray
+     * @param array $eventContents
      */
-    public function __construct(array $contentsArray)
+    public function __construct(array $eventContents)
     {
-        $this->contentsArray = $contentsArray;
+        $this->eventContents = $eventContents;
         
         $this->initialize();
     }
@@ -62,11 +60,11 @@ class PayloadProvider implements PayloadProviderInterface
     }
     
     /**
-     * @return PayloadInterface
+     * @return EventInterface
      */
-    public function payload() : PayloadInterface
+    public function event() : EventInterface
     {
-        return new Payload(...\array_values($this->payloadContents()));
+        return new Event(...\array_values($this->eventContents()));
     }
     
     /**
@@ -74,21 +72,9 @@ class PayloadProvider implements PayloadProviderInterface
      *
      * @return array
      */
-    public function payloadContents(?bool $includeNullEntries = null) : array
+    public function eventContents(?bool $includeNullEntries = null) : array
     {
-        return $this->resolvePayloadContents($this->payloadContentsArray($includeNullEntries));
-    }
-    
-    /**
-     * @param array $dataArray
-     *
-     * @return array
-     */
-    private function resolvePayloadContents(array $dataArray) : array
-    {
-        $dataArray[PayloadFields::DATA] = new ArrayData($dataArray[PayloadFields::DATA]);
-        
-        return $dataArray;
+        return $this->resolveContents($includeNullEntries);
     }
     
     /**
@@ -96,23 +82,13 @@ class PayloadProvider implements PayloadProviderInterface
      *
      * @return array
      */
-    public function payloadContentsArray(?bool $includeNullEntries = null) : array
-    {
-        return $this->resolveContentsArray($includeNullEntries);
-    }
-    
-    /**
-     * @param bool|null $includeNullEntries
-     *
-     * @return array
-     */
-    private function resolveContentsArray(?bool $includeNullEntries = null) : array
+    private function resolveContents(?bool $includeNullEntries = null) : array
     {
         $includeNullEntries = $includeNullEntries ?? true;
         
         return $includeNullEntries
-            ? $this->contentsArray
-            : $this->filterNullValues($this->contentsArray);
+            ? $this->eventContents
+            : $this->filterNullValues($this->eventContents);
     }
     
     /**
@@ -135,9 +111,9 @@ class PayloadProvider implements PayloadProviderInterface
      *
      * @return string
      */
-    public function payloadString(?bool $includeNullEntries = null) : string
+    public function eventString(?bool $includeNullEntries = null) : string
     {
-        return $this->resolvePayloadString($this->payloadContentsArray($includeNullEntries));
+        return $this->resolvePayloadString($this->eventContents($includeNullEntries));
     }
     
     /**
@@ -147,9 +123,6 @@ class PayloadProvider implements PayloadProviderInterface
      */
     private function resolvePayloadString(array $dataArray) : string
     {
-        $eventTime = $dataArray[PayloadFields::EVENT_TIME];
-        $dataArray[PayloadFields::EVENT_TIME] = self::$dateTimeNormalizer->normalize($eventTime);
-        
         return self::$jsonEncoder->encode($dataArray, JsonEncoder::FORMAT);
     }
 }

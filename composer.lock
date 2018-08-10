@@ -280,12 +280,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/SmartWebDK/cloud-events-nats.git",
-                "reference": "be69d9ceb3458118cad72ea5f0c2e557e3e75aad"
+                "reference": "d466be19e373fc68611db74faa7627da0168575c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/SmartWebDK/cloud-events-nats/zipball/be69d9ceb3458118cad72ea5f0c2e557e3e75aad",
-                "reference": "be69d9ceb3458118cad72ea5f0c2e557e3e75aad",
+                "url": "https://api.github.com/repos/SmartWebDK/cloud-events-nats/zipball/d466be19e373fc68611db74faa7627da0168575c",
+                "reference": "d466be19e373fc68611db74faa7627da0168575c",
                 "shasum": ""
             },
             "require": {
@@ -308,7 +308,7 @@
                 "source": "https://github.com/SmartWebDK/cloud-events-nats/tree/master",
                 "issues": "https://github.com/SmartWebDK/cloud-events-nats/issues"
             },
-            "time": "2018-08-09 08:45:23"
+            "time": "2018-08-10 10:04:07"
         },
         {
             "name": "symfony/polyfill-ctype",

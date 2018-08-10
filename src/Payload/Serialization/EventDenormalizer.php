@@ -4,29 +4,23 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Payload\Serialization;
 
-use SmartWeb\CloudEvents\Nats\Payload\Data\ArrayData;
-use SmartWeb\CloudEvents\Nats\Payload\Data\PayloadDataInterface;
-use SmartWeb\CloudEvents\Nats\Payload\Data\ScalarData;
-use SmartWeb\CloudEvents\Nats\Payload\Payload;
-use SmartWeb\CloudEvents\Nats\Payload\PayloadFields;
-use SmartWeb\CloudEvents\Nats\Payload\PayloadInterface;
+use SmartWeb\CloudEvents\Nats\Event\Event;
+use SmartWeb\CloudEvents\Nats\Event\EventFields;
+use SmartWeb\CloudEvents\Nats\Event\EventInterface;
 use Symfony\Component\Serializer\Exception\ExtraAttributesException;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\RuntimeException;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
-use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 /**
- * Denormalizer responsible for denormalizing payloads.
- *
- * @todo   Move denormalization of payload data to separate class
+ * Denormalizer responsible for denormalizing CloudEvent events.
  *
  * @author Nicolai Agersbæk <na@smartweb.dk>
  *
  * @api
  */
-class PayloadDenormalizer implements DenormalizerInterface
+class EventDenormalizer implements DenormalizerInterface
 {
     
     // TODO: Match $format parameter against supported schema URLs, mapping schemas to denormalization strategies?
@@ -39,14 +33,14 @@ class PayloadDenormalizer implements DenormalizerInterface
      * @param string $format  Format the given data was extracted from
      * @param array  $context Options available to the denormalizer
      *
-     * @return PayloadInterface
+     * @return EventInterface
      *
      * @throws InvalidArgumentException Occurs when the arguments are not coherent or not supported
      * @throws UnexpectedValueException Occurs when the item cannot be hydrated with the given data
      * @throws ExtraAttributesException Occurs when the item doesn't have attribute to receive given data
      * @throws RuntimeException         Occurs if the class cannot be instantiated
      */
-    public function denormalize($data, $class, $format = null, ?array $context = null) : PayloadInterface
+    public function denormalize($data, $class, $format = null, ?array $context = null) : EventInterface
     {
         if (!$this->targetIsSupported($class)) {
             $this->invalidArgumentException(
@@ -70,7 +64,7 @@ class PayloadDenormalizer implements DenormalizerInterface
             throw new ExtraAttributesException($this->getExtraAttributes($data));
         }
         
-        return $this->createPayload($data, $class);
+        return $this->createEvent($data, $class);
     }
     
     /**
@@ -97,106 +91,11 @@ class PayloadDenormalizer implements DenormalizerInterface
      * @param array  $data
      * @param string $class
      *
-     * @return PayloadInterface
+     * @return EventInterface
      */
-    private function createPayload(array $data, string $class) : PayloadInterface
+    private function createEvent(array $data, string $class) : EventInterface
     {
-        $data[PayloadFields::EVENT_TIME] = $this->denormalizeEventTime($data[PayloadFields::EVENT_TIME]);
-        $data[PayloadFields::DATA] = $this->denormalizePayloadData($data[PayloadFields::DATA]);
-        
         return new $class(...\array_values($data));
-    }
-    
-    /**
-     * @param null|string $date
-     *
-     * @return \DateTimeInterface|null
-     */
-    private function denormalizeEventTime(?string $date) : ?\DateTimeInterface
-    {
-        return $date !== null
-            ? $this->denormalizeDate($date)
-            : null;
-    }
-    
-    /**
-     * @param string $date
-     *
-     * @return \DateTimeInterface
-     */
-    private function denormalizeDate(string $date) : \DateTimeInterface
-    {
-        $denormalizer = new DateTimeNormalizer(\DateTime::RFC3339);
-        
-        return $denormalizer->denormalize($date, \DateTimeImmutable::class);
-    }
-    
-    /**
-     * @param $payloadData
-     *
-     * @return null|PayloadDataInterface
-     */
-    private function denormalizePayloadData($payloadData) : ?PayloadDataInterface
-    {
-        // FIXME: Refactor to separate class.
-        $format = $this->getPayloadDataFormat($payloadData);
-        
-        return $this->getPayloadDataDenormalizer($format)($payloadData);
-    }
-    
-    /**
-     * @param mixed $payloadData
-     *
-     * @return string
-     */
-    private function getPayloadDataFormat($payloadData) : string
-    {
-        static $payloadDataFormatToTypeMapping = [
-            'NULL'   => 'null',
-            'array'  => 'array',
-            'bool'   => 'scalar',
-            'float'  => 'scalar',
-            'int'    => 'scalar',
-            'string' => 'scalar',
-        ];
-        
-        $type = \gettype($payloadData);
-        
-        return $payloadDataFormatToTypeMapping[$type] ?? $type;
-    }
-    
-    /**
-     * @param string $format
-     *
-     * @return callable
-     */
-    private function getPayloadDataDenormalizer(string $format) : callable
-    {
-        $denormalizer = $this->getPayloadDataDenormalizers()[$format] ?? null;
-        
-        if ($denormalizer === null) {
-            throw new UnexpectedValueException("No payload data denormalizer found for format '{$format}'");
-        }
-        
-        return $denormalizer;
-    }
-    
-    /**
-     * @return callable[]
-     */
-    private function getPayloadDataDenormalizers() : array
-    {
-        return [
-            'null'   => function () : ?PayloadDataInterface {
-                return null;
-            },
-            'array'  => function (array $payloadData) : PayloadDataInterface {
-                return new ArrayData($payloadData);
-            },
-            'scalar' => function ($payloadData) : PayloadDataInterface {
-                return new ScalarData($payloadData);
-            },
-        ];
     }
     
     /**
@@ -228,7 +127,7 @@ class PayloadDenormalizer implements DenormalizerInterface
     private function getSupportedFormats() : array
     {
         return [
-            PayloadDecoder::FORMAT,
+            EventDecoder::FORMAT,
         ];
     }
     
@@ -248,7 +147,7 @@ class PayloadDenormalizer implements DenormalizerInterface
     private function getSupportedTargets() : array
     {
         return [
-            Payload::class,
+            Event::class,
         ];
     }
     
@@ -279,7 +178,7 @@ class PayloadDenormalizer implements DenormalizerInterface
      */
     private function getMissingFields(array $data) : array
     {
-        return \array_diff(PayloadFields::getRequiredFields(), \array_keys($data));
+        return \array_diff(EventFields::getRequiredFields(), \array_keys($data));
     }
     
     /**
@@ -299,6 +198,6 @@ class PayloadDenormalizer implements DenormalizerInterface
      */
     private function getExtraAttributes(array $data) : array
     {
-        return \array_diff(\array_keys($data), PayloadFields::getSupportedFields());
+        return \array_diff(\array_keys($data), EventFields::getSupportedFields());
     }
 }
