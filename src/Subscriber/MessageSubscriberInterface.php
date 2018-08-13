@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Subscriber;
 
-use NatsStreaming\Msg;
+use SmartWeb\Nats\Message\MessageInterface;
 
 /**
  * Definition of a class capable of subscribing to raw NATS messages.
@@ -13,11 +13,11 @@ use NatsStreaming\Msg;
  *
  * @api
  */
-interface ManualSubscriberInterface
+interface MessageSubscriberInterface
 {
     
     /**
-     * @param Msg $message
+     * @param MessageInterface $message
      */
-    public function handle(Msg $message) : void;
+    public function handle(MessageInterface $message) : void;
 }

@@ -14,10 +14,8 @@ use SmartWeb\CloudEvents\Nats\Event\EventInterface;
 use SmartWeb\Nats\Event\Serialization\EventDecoder;
 use SmartWeb\Nats\Message\Message;
 use SmartWeb\Nats\Message\MessageInterface;
-use SmartWeb\Nats\Message\Serialization\MessageDecoder;
-use SmartWeb\Nats\Subscriber\ManualSubscriberInterface;
-use SmartWeb\Nats\Subscriber\SubscriberInterface;
-use SmartWeb\Nats\Support\DeserializerInterface;
+use SmartWeb\Nats\Subscriber\EventSubscriberInterface;
+use SmartWeb\Nats\Subscriber\MessageSubscriberInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -38,11 +36,6 @@ class StreamingConnection implements StreamingConnectionInterface
     private $connection;
     
     /**
-     * @var DeserializerInterface
-     */
-    private $messageDeserializer;
-    
-    /**
      * @var SerializerInterface
      */
     private $payloadSerializer;
@@ -50,17 +43,14 @@ class StreamingConnection implements StreamingConnectionInterface
     /**
      * StreamingConnectionAdapter constructor.
      *
-     * @param Connection            $connection
-     * @param DeserializerInterface $messageDeserializer
-     * @param SerializerInterface   $payloadSerializer
+     * @param Connection          $connection
+     * @param SerializerInterface $payloadSerializer
      */
     public function __construct(
         Connection $connection,
-        DeserializerInterface $messageDeserializer,
         SerializerInterface $payloadSerializer
     ) {
         $this->connection = $connection;
-        $this->messageDeserializer = $messageDeserializer;
         $this->payloadSerializer = $payloadSerializer;
     }
     
@@ -80,7 +70,7 @@ class StreamingConnection implements StreamingConnectionInterface
      */
     public function subscribe(
         string $channel,
-        SubscriberInterface $subscriber,
+        EventSubscriberInterface $subscriber,
         SubscriptionOptions $subscriptionOptions
     ) : Subscription {
         return $this->connection->subscribe(
@@ -93,25 +83,10 @@ class StreamingConnection implements StreamingConnectionInterface
     /**
      * @inheritDoc
      */
-    public function manualSubscribe(
-        string $channel,
-        ManualSubscriberInterface $subscriber,
-        SubscriptionOptions $subscriptionOptions
-    ) : Subscription {
-        return $this->connection->subscribe(
-            $channel,
-            $this->createManualSubscriberCallback($subscriber),
-            $subscriptionOptions
-        );
-    }
-    
-    /**
-     * @inheritDoc
-     */
     public function groupSubscribe(
         string $channel,
         string $group,
-        SubscriberInterface $subscriber,
+        EventSubscriberInterface $subscriber,
         SubscriptionOptions $subscriptionOptions
     ) : Subscription {
         return $this->connection->queueSubscribe(
@@ -123,49 +98,69 @@ class StreamingConnection implements StreamingConnectionInterface
     }
     
     /**
-     * @param ManualSubscriberInterface $subscriber
+     * @inheritDoc
+     */
+    public function messageSubscribe(
+        string $channel,
+        MessageSubscriberInterface $subscriber,
+        SubscriptionOptions $subscriptionOptions
+    ) : Subscription {
+        return $this->connection->subscribe(
+            $channel,
+            $this->createMessageSubscriberCallback($subscriber),
+            $subscriptionOptions
+        );
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function messageGroupSubscribe(
+        string $channel,
+        string $group,
+        MessageSubscriberInterface $subscriber,
+        SubscriptionOptions $subscriptionOptions
+    ) : Subscription {
+        return $this->connection->queueSubscribe(
+            $channel,
+            $group,
+            $this->createMessageSubscriberCallback($subscriber),
+            $subscriptionOptions
+        );
+    }
+    
+    /**
+     * @param MessageSubscriberInterface $subscriber
      *
      * @return callable
      */
-    private function createManualSubscriberCallback(ManualSubscriberInterface $subscriber) : callable
+    private function createMessageSubscriberCallback(MessageSubscriberInterface $subscriber) : callable
     {
         return function (Msg $message) use ($subscriber): void {
-            $subscriber->handle($message);
+            $subscriber->handle(new Message($message));
         };
     }
     
     /**
-     * @param SubscriberInterface $subscriber
+     * @param EventSubscriberInterface $subscriber
      *
      * @return callable
      */
-    private function createSubscriberCallback(SubscriberInterface $subscriber) : callable
+    private function createSubscriberCallback(EventSubscriberInterface $subscriber) : callable
     {
-        return function (string $message) use ($subscriber): void {
-            $subscriber->handle($this->deserializeMessage($message));
+        return function (Msg $message) use ($subscriber): void {
+            $subscriber->handle($this->deserializeMessage(new Message($message)));
         };
     }
     
     /**
-     * @param string $message
+     * @param MessageInterface $message
      *
      * @return EventInterface
      */
-    private function deserializeMessage(string $message) : EventInterface
+    private function deserializeMessage(MessageInterface $message) : EventInterface
     {
-        $msgObject = $this->messageDeserializer->deserialize(
-            $message,
-            Message::class,
-            MessageDecoder::FORMAT
-        );
-        
-        if ($msgObject instanceof MessageInterface) {
-            return $this->deserializeEvent($msgObject->getData());
-        }
-        
-        throw new UnexpectedValueException(
-            'The deserialized message object must be an instance of ' . MessageInterface::class
-        );
+        return $this->deserializeEvent($message->getData());
     }
     
     /**

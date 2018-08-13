@@ -4,6 +4,8 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Message;
 
+use NatsStreaming\Msg;
+
 /**
  * Message received from a NATS connection.
  *
@@ -35,19 +37,22 @@ class Message implements MessageInterface
     private $timestamp;
     
     /**
+     * @var Msg
+     */
+    private $msg;
+    
+    /**
      * Message constructor.
      *
-     * @param int    $sequence
-     * @param string $subject
-     * @param string $data
-     * @param int    $timestamp
+     * @param Msg $msg
      */
-    public function __construct(int $sequence, string $subject, string $data, int $timestamp)
+    public function __construct(Msg $msg)
     {
-        $this->sequence = $sequence;
-        $this->subject = $subject;
-        $this->data = $data;
-        $this->timestamp = $timestamp;
+        $this->sequence = $msg->getSequence();
+        $this->subject = $msg->getSubject();
+        $this->data = $msg->getData()->getContents();
+        $this->timestamp = $msg->getTimestamp();
+        $this->msg = $msg;
     }
     
     /**
@@ -80,5 +85,10 @@ class Message implements MessageInterface
     public function getTimestamp() : int
     {
         return $this->timestamp;
+    }
+    
+    public function acknowledge() : void
+    {
+        $this->msg->ack();
     }
 }

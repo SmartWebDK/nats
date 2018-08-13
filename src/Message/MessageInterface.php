@@ -41,4 +41,9 @@ interface MessageInterface
      * @return int
      */
     public function getTimestamp() : int;
+    
+    /**
+     * Send an Acknowledgement that the message was received.
+     */
+    public function acknowledge() : void;
 }
