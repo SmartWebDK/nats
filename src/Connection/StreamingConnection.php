@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace SmartWeb\Nats\Connection;
 
 use NatsStreaming\Connection;
+use NatsStreaming\Msg;
 use NatsStreaming\Subscription;
 use NatsStreaming\SubscriptionOptions;
 use NatsStreaming\TrackedNatsRequest;
@@ -14,6 +15,7 @@ use SmartWeb\Nats\Event\Serialization\EventDecoder;
 use SmartWeb\Nats\Message\Message;
 use SmartWeb\Nats\Message\MessageInterface;
 use SmartWeb\Nats\Message\Serialization\MessageDecoder;
+use SmartWeb\Nats\Subscriber\ManualSubscriberInterface;
 use SmartWeb\Nats\Subscriber\SubscriberInterface;
 use SmartWeb\Nats\Support\DeserializerInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -91,6 +93,21 @@ class StreamingConnection implements StreamingConnectionInterface
     /**
      * @inheritDoc
      */
+    public function manualSubscribe(
+        string $channel,
+        ManualSubscriberInterface $subscriber,
+        SubscriptionOptions $subscriptionOptions
+    ) : Subscription {
+        return $this->connection->subscribe(
+            $channel,
+            $this->createManualSubscriberCallback($subscriber),
+            $subscriptionOptions
+        );
+    }
+    
+    /**
+     * @inheritDoc
+     */
     public function groupSubscribe(
         string $channel,
         string $group,
@@ -103,6 +120,18 @@ class StreamingConnection implements StreamingConnectionInterface
             $this->createSubscriberCallback($subscriber),
             $subscriptionOptions
         );
+    }
+    
+    /**
+     * @param ManualSubscriberInterface $subscriber
+     *
+     * @return callable
+     */
+    private function createManualSubscriberCallback(ManualSubscriberInterface $subscriber) : callable
+    {
+        return function (Msg $message) use ($subscriber): void {
+            $subscriber->handle($message);
+        };
     }
     
     /**

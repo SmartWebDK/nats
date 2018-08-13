@@ -8,6 +8,7 @@ use NatsStreaming\Subscription;
 use NatsStreaming\SubscriptionOptions;
 use NatsStreaming\TrackedNatsRequest;
 use SmartWeb\CloudEvents\Nats\Event\EventInterface;
+use SmartWeb\Nats\Subscriber\ManualSubscriberInterface;
 use SmartWeb\Nats\Subscriber\SubscriberInterface;
 
 /**
@@ -47,6 +48,21 @@ interface StreamingConnectionInterface
     public function subscribe(
         string $channel,
         SubscriberInterface $subscriber,
+        SubscriptionOptions $subscriptionOptions
+    ) : Subscription;
+    
+    /**
+     * Register a manual subscriber on the given channel.
+     *
+     * @param string                    $channel
+     * @param ManualSubscriberInterface $subscriber
+     * @param SubscriptionOptions       $subscriptionOptions
+     *
+     * @return Subscription
+     */
+    public function manualSubscribe(
+        string $channel,
+        ManualSubscriberInterface $subscriber,
         SubscriptionOptions $subscriptionOptions
     ) : Subscription;
     
