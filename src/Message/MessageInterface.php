@@ -15,6 +15,26 @@ interface MessageInterface
 {
     
     /**
+     * The key used for storing the 'sequence' data of this message.
+     */
+    public const SEQUENCE = 'sequence';
+    
+    /**
+     * The key used for storing the 'subject' data of this message.
+     */
+    public const SUBJECT = 'subject';
+    
+    /**
+     * The key used for storing the 'data' data of this message.
+     */
+    public const DATA = 'data';
+    
+    /**
+     * The key used for storing the 'timestamp' data of this message.
+     */
+    public const TIMESTAMP = 'timestamp';
+    
+    /**
      * The sequential index of this message.
      *
      * @return int
@@ -41,9 +61,4 @@ interface MessageInterface
      * @return int
      */
     public function getTimestamp() : int;
-    
-    /**
-     * Send an Acknowledgement that the message was received.
-     */
-    public function acknowledge() : void;
 }

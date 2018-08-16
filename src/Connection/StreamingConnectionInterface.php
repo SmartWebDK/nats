@@ -9,7 +9,6 @@ use NatsStreaming\SubscriptionOptions;
 use NatsStreaming\TrackedNatsRequest;
 use SmartWeb\CloudEvents\Nats\Event\EventInterface;
 use SmartWeb\Nats\Subscriber\EventSubscriberInterface;
-use SmartWeb\Nats\Subscriber\MessageSubscriberInterface;
 
 /**
  * Definition of a NATS streaming connection enabling interaction using CloudEvents event specification.
@@ -65,38 +64,6 @@ interface StreamingConnectionInterface
         string $channel,
         string $group,
         EventSubscriberInterface $subscriber,
-        SubscriptionOptions $subscriptionOptions
-    ) : Subscription;
-    
-    /**
-     * Register a message subscriber on the given channel.
-     *
-     * @param string                     $channel
-     * @param MessageSubscriberInterface $subscriber
-     * @param SubscriptionOptions        $subscriptionOptions
-     *
-     * @return Subscription
-     */
-    public function messageSubscribe(
-        string $channel,
-        MessageSubscriberInterface $subscriber,
-        SubscriptionOptions $subscriptionOptions
-    ) : Subscription;
-    
-    /**
-     * Register a message subscriber on the given channel in the given queue group.
-     *
-     * @param string                     $channel
-     * @param string                     $group
-     * @param MessageSubscriberInterface $subscriber
-     * @param SubscriptionOptions        $subscriptionOptions
-     *
-     * @return Subscription
-     */
-    public function messageGroupSubscribe(
-        string $channel,
-        string $group,
-        MessageSubscriberInterface $subscriber,
         SubscriptionOptions $subscriptionOptions
     ) : Subscription;
 }

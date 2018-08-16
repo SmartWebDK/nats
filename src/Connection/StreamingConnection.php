@@ -12,10 +12,10 @@ use NatsStreaming\TrackedNatsRequest;
 use SmartWeb\CloudEvents\Nats\Event\Event;
 use SmartWeb\CloudEvents\Nats\Event\EventInterface;
 use SmartWeb\Nats\Event\Serialization\EventDecoder;
+use SmartWeb\Nats\Message\Acknowledge;
 use SmartWeb\Nats\Message\Message;
 use SmartWeb\Nats\Message\MessageInterface;
 use SmartWeb\Nats\Subscriber\EventSubscriberInterface;
-use SmartWeb\Nats\Subscriber\MessageSubscriberInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -98,58 +98,24 @@ class StreamingConnection implements StreamingConnectionInterface
     }
     
     /**
-     * @inheritDoc
-     */
-    public function messageSubscribe(
-        string $channel,
-        MessageSubscriberInterface $subscriber,
-        SubscriptionOptions $subscriptionOptions
-    ) : Subscription {
-        return $this->connection->subscribe(
-            $channel,
-            $this->createMessageSubscriberCallback($subscriber),
-            $subscriptionOptions
-        );
-    }
-    
-    /**
-     * @inheritDoc
-     */
-    public function messageGroupSubscribe(
-        string $channel,
-        string $group,
-        MessageSubscriberInterface $subscriber,
-        SubscriptionOptions $subscriptionOptions
-    ) : Subscription {
-        return $this->connection->queueSubscribe(
-            $channel,
-            $group,
-            $this->createMessageSubscriberCallback($subscriber),
-            $subscriptionOptions
-        );
-    }
-    
-    /**
-     * @param MessageSubscriberInterface $subscriber
-     *
-     * @return callable
-     */
-    private function createMessageSubscriberCallback(MessageSubscriberInterface $subscriber) : callable
-    {
-        return function (Msg $message) use ($subscriber): void {
-            $subscriber->handle(new Message($message));
-        };
-    }
-    
-    /**
      * @param EventSubscriberInterface $subscriber
      *
      * @return callable
      */
     private function createSubscriberCallback(EventSubscriberInterface $subscriber) : callable
     {
-        return function (Msg $message) use ($subscriber): void {
-            $subscriber->handle($this->deserializeMessage(new Message($message)));
+        return function (Msg $msg) use ($subscriber): void {
+            $message = new Message($msg);
+            
+            if ($subscriber->acknowledge() === Acknowledge::before()) {
+                $msg->ack();
+            }
+            
+            $subscriber->handle($this->deserializeMessage($message));
+            
+            if ($subscriber->acknowledge() === Acknowledge::after()) {
+                $msg->ack();
+            }
         };
     }
     

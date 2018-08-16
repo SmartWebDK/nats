@@ -37,11 +37,6 @@ class Message implements MessageInterface
     private $timestamp;
     
     /**
-     * @var Msg
-     */
-    private $msg;
-    
-    /**
      * Message constructor.
      *
      * @param Msg $msg
@@ -52,7 +47,6 @@ class Message implements MessageInterface
         $this->subject = $msg->getSubject();
         $this->data = $msg->getData()->getContents();
         $this->timestamp = $msg->getTimestamp();
-        $this->msg = $msg;
     }
     
     /**
@@ -85,10 +79,5 @@ class Message implements MessageInterface
     public function getTimestamp() : int
     {
         return $this->timestamp;
-    }
-    
-    public function acknowledge() : void
-    {
-        $this->msg->ack();
     }
 }
