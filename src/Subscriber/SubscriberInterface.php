@@ -8,13 +8,13 @@ use SmartWeb\CloudEvents\Nats\Event\EventInterface;
 use SmartWeb\Nats\Message\Acknowledge;
 
 /**
- * Definition of a class capable of subscribing to CloudEvents events from NATS.
+ * Definition of a subscriber of CloudEvents events from NATS.
  *
  * @author Nicolai Agersbæk <na@smartweb.dk>
  *
  * @api
  */
-interface EventSubscriberInterface
+interface SubscriberInterface
 {
     
     /**

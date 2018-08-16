@@ -15,7 +15,7 @@ use SmartWeb\Nats\Event\Serialization\EventDecoder;
 use SmartWeb\Nats\Message\Acknowledge;
 use SmartWeb\Nats\Message\Message;
 use SmartWeb\Nats\Message\MessageInterface;
-use SmartWeb\Nats\Subscriber\EventSubscriberInterface;
+use SmartWeb\Nats\Subscriber\SubscriberInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -70,7 +70,7 @@ class StreamingConnection implements StreamingConnectionInterface
      */
     public function subscribe(
         string $channel,
-        EventSubscriberInterface $subscriber,
+        SubscriberInterface $subscriber,
         SubscriptionOptions $subscriptionOptions
     ) : Subscription {
         return $this->connection->subscribe(
@@ -86,7 +86,7 @@ class StreamingConnection implements StreamingConnectionInterface
     public function groupSubscribe(
         string $channel,
         string $group,
-        EventSubscriberInterface $subscriber,
+        SubscriberInterface $subscriber,
         SubscriptionOptions $subscriptionOptions
     ) : Subscription {
         return $this->connection->queueSubscribe(
@@ -98,11 +98,11 @@ class StreamingConnection implements StreamingConnectionInterface
     }
     
     /**
-     * @param EventSubscriberInterface $subscriber
+     * @param SubscriberInterface $subscriber
      *
      * @return callable
      */
-    private function createSubscriberCallback(EventSubscriberInterface $subscriber) : callable
+    private function createSubscriberCallback(SubscriberInterface $subscriber) : callable
     {
         return function (Msg $msg) use ($subscriber): void {
             $message = new Message($msg);
