@@ -25,11 +25,6 @@ final class Acknowledge
     private const AFTER = 'after';
     
     /**
-     * Acknowledge manually in handler.
-     */
-    private const MANUAL = 'manual';
-    
-    /**
      * @var self[]
      */
     private static $instances = [];
@@ -61,14 +56,6 @@ final class Acknowledge
     public static function after() : self
     {
         return self::getInstance(self::AFTER);
-    }
-    
-    /**
-     * @return self
-     */
-    public static function manual() : self
-    {
-        return self::getInstance(self::MANUAL);
     }
     
     /**
