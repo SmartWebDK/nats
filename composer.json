@@ -17,8 +17,6 @@
     "require": {
         "php": ">=7.1",
         "smartweb/cloud-events-nats": "^1.1",
-        "repejota/nats": "dev-develop as 0.8.7",
-        "byrnedo/php-nats-streaming": "^0.2.4",
         "symfony/serializer": "^4.1",
         "symfony/options-resolver": "^4.1"
     },
