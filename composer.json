@@ -17,6 +17,8 @@
     "require": {
         "php": ">=7.1",
         "smartweb/cloud-events-nats": "^1.1",
+        "smartweb/phpnats": "^0.9",
+        "smartweb/php-nats-streaming": "^0.3",
         "symfony/serializer": "^4.1",
         "symfony/options-resolver": "^4.1"
     },

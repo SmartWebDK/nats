@@ -4,48 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cb6866a51cfe89e78a8675db277e39b9",
+    "content-hash": "0962a2a7d12f75f0c41e5f55ff40faa9",
     "packages": [
-        {
-            "name": "byrnedo/php-nats-streaming",
-            "version": "0.2.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/byrnedo/php-nats-streaming.git",
-                "reference": "4b31091c7152fc2e2391d016d828c25230a84508"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/byrnedo/php-nats-streaming/zipball/4b31091c7152fc2e2391d016d828c25230a84508",
-                "reference": "4b31091c7152fc2e2391d016d828c25230a84508",
-                "shasum": ""
-            },
-            "require": {
-                "protobuf-php/protobuf": "^0.1.3",
-                "repejota/nats": "^0.8.6"
-            },
-            "require-dev": {
-                "github.com/gogo/protobuf": "dev-master",
-                "phpunit/phpunit": "5.3.*",
-                "protobuf-php/protobuf-plugin": "^0.1.2",
-                "satooshi/php-coveralls": "dev-master",
-                "squizlabs/php_codesniffer": "~2.0",
-                "symfony/console": "^2.8@dev"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "NatsStreaming\\": "src/NatsStreaming",
-                    "NatsStreamingProtos\\": "gen/NatsStreamingProtos"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "PHP Client for nats-streaming-server.",
-            "time": "2017-12-04T15:37:26+00:00"
-        },
         {
             "name": "ircmaxell/random-lib",
             "version": "v1.2.0",
@@ -212,68 +172,6 @@
             "time": "2016-09-21T23:47:34+00:00"
         },
         {
-            "name": "repejota/nats",
-            "version": "dev-develop",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/repejota/phpnats.git",
-                "reference": "bd089ea66ef41f557830449872389750dd12a99f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/repejota/phpnats/zipball/bd089ea66ef41f557830449872389750dd12a99f",
-                "reference": "bd089ea66ef41f557830449872389750dd12a99f",
-                "shasum": ""
-            },
-            "require": {
-                "ircmaxell/random-lib": "^1.2"
-            },
-            "require-dev": {
-                "leanphp/phpspec-code-coverage": "^3.2@dev",
-                "phpspec/phpspec": "^3.0",
-                "phpunit/phpunit": "5.*",
-                "satooshi/php-coveralls": "2.0.x-dev"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Nats": "src",
-                    "Nats\\Test": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Raül Pérez",
-                    "email": "repejota@gmail.com",
-                    "homepage": "http://www.repejota.com",
-                    "role": "Developer"
-                },
-                {
-                    "name": "Adrià Cidre",
-                    "email": "adria.cidre@gmail.com",
-                    "homepage": "http://oridoki.com",
-                    "role": "Developer"
-                },
-                {
-                    "name": "José Gil",
-                    "email": "josgilmo@gmail.com",
-                    "role": "Developer"
-                },
-                {
-                    "name": "Gorka López de Torre",
-                    "email": "glopezdetorre@gmail.com",
-                    "homepage": "http://gorka.io",
-                    "role": "Developer"
-                }
-            ],
-            "description": "A nats.io client in PHP",
-            "time": "2018-09-05T22:26:53+00:00"
-        },
-        {
             "name": "smartweb/cloud-events-nats",
             "version": "v1.1.0",
             "source": {
@@ -308,6 +206,109 @@
                 "issues": "https://github.com/SmartWebDK/cloud-events-nats/issues"
             },
             "time": "2018-10-11T07:27:43+00:00"
+        },
+        {
+            "name": "smartweb/php-nats-streaming",
+            "version": "0.3.0",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:SmartWebDK/php-nats-streaming.git",
+                "reference": "2bee3fd41fcb24645ea7a27556dad6b855934cec"
+            },
+            "require": {
+                "protobuf-php/protobuf": "^0.1.3",
+                "smartweb/phpnats": "^0.9"
+            },
+            "require-dev": {
+                "github.com/gogo/protobuf": "dev-master",
+                "php-coveralls/php-coveralls": "2.0.0",
+                "phpunit/phpunit": "5.3.*",
+                "protobuf-php/protobuf-plugin": "^0.1.2",
+                "squizlabs/php_codesniffer": "~2.0",
+                "symfony/console": "^2.8@dev"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "NatsStreaming\\": "src/NatsStreaming",
+                    "NatsStreamingProtos\\": "gen/NatsStreamingProtos"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolai Agersbæk",
+                    "email": "na@zitcom.dk"
+                }
+            ],
+            "description": "PHP Client for nats-streaming-server.",
+            "time": "2018-11-29T08:17:11+00:00"
+        },
+        {
+            "name": "smartweb/phpnats",
+            "version": "v0.9.1",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:SmartWebDK/phpnats.git",
+                "reference": "f54b0a2c9719d6964dfaa6da7551bb59e063b9e1"
+            },
+            "require": {
+                "ircmaxell/random-lib": "^1.2"
+            },
+            "require-dev": {
+                "leanphp/phpspec-code-coverage": "^3.2@dev",
+                "php-coveralls/php-coveralls": "2.0.0",
+                "phpspec/phpspec": "^3.0",
+                "phpunit/phpunit": "5.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Nats": "src",
+                    "Nats\\Test": "src"
+                },
+                "psr-4": {
+                    "Nats\\": "src",
+                    "Nats\\Test\\": "test"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Raül Pérez",
+                    "email": "repejota@gmail.com",
+                    "homepage": "http://www.repejota.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Adrià Cidre",
+                    "email": "adria.cidre@gmail.com",
+                    "homepage": "http://oridoki.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "José Gil",
+                    "email": "josgilmo@gmail.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Gorka López de Torre",
+                    "email": "glopezdetorre@gmail.com",
+                    "homepage": "http://gorka.io",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Nicolai Agersbæk",
+                    "email": "na@zitcom.dk",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A nats.io client in PHP",
+            "time": "2018-11-27T14:43:01+00:00"
         },
         {
             "name": "symfony/options-resolver",
@@ -1389,7 +1390,7 @@
                 "symfony/yaml": ">=2,<2.0.22|>=2.1,<2.1.7",
                 "tecnickcom/tcpdf": "<6.2.22",
                 "thelia/backoffice-default-template": ">=2.1,<2.1.2",
-                "thelia/thelia": ">=2.1.0-beta1,<2.1.3|>=2.1,<2.1.2",
+                "thelia/thelia": ">=2.1,<2.1.2|>=2.1.0-beta1,<2.1.3",
                 "theonedemon/phpwhois": "<=4.2.5",
                 "titon/framework": ">=0,<9.9.99",
                 "truckersmp/phpwhois": "<=4.3.1",
@@ -1446,7 +1447,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2018-11-26T13:50:48+00:00"
+            "time": "2018-11-27T12:50:30+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -2102,17 +2103,9 @@
             "time": "2018-01-29T19:49:41+00:00"
         }
     ],
-    "aliases": [
-        {
-            "alias": "0.8.7",
-            "alias_normalized": "0.8.7.0",
-            "version": "dev-develop",
-            "package": "repejota/nats"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "repejota/nats": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": false,
