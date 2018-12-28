@@ -15,7 +15,9 @@
     ],
     "type": "project",
     "require": {
+        "ext-bcmath": "*",
         "php": ">=7.1",
+        "google/protobuf": "^3.6",
         "smartweb/cloud-events-nats": "^2.0",
         "smartweb/phpnats": "^0.9",
         "smartweb/php-nats-streaming": "^0.3",
@@ -43,6 +45,7 @@
         "sort-packages": true,
         "platform": {
             "php": "7.1.20",
+            "ext-bcmath": "0.1",
             "ext-curl": "0.1",
             "ext-mbstring": "0.1"
         }

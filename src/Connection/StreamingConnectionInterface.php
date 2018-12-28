@@ -7,11 +7,11 @@ namespace SmartWeb\Nats\Connection;
 use NatsStreaming\Subscription;
 use NatsStreaming\SubscriptionOptions;
 use NatsStreaming\TrackedNatsRequest;
-use SmartWeb\CloudEvents\Nats\Event\EventInterface;
 use SmartWeb\Nats\Subscriber\SubscriberInterface;
 
 /**
- * Definition of a NATS streaming connection enabling interaction using CloudEvents event specification.
+ * Definition of a NATS streaming connection enabling interaction using events
+ * compatible with the SmartWeb application environment.
  *
  * @author Nicolai Agersbæk <na@smartweb.dk>
  *
@@ -28,12 +28,12 @@ interface StreamingConnectionInterface
     /**
      * Publish a payload on the given channel.
      *
-     * @param string         $channel
-     * @param EventInterface $event
+     * @param string $channel Channel to publish the payload on.
+     * @param object $event   Concrete event to use as payload for the message.
      *
      * @return TrackedNatsRequest
      */
-    public function publish(string $channel, EventInterface $event) : TrackedNatsRequest;
+    public function publish(string $channel, $event) : TrackedNatsRequest;
     
     /**
      * Register an event subscriber on the given channel.
