@@ -9,15 +9,12 @@ use NatsStreaming\Msg;
 use NatsStreaming\Subscription;
 use NatsStreaming\SubscriptionOptions;
 use NatsStreaming\TrackedNatsRequest;
-use SmartWeb\CloudEvents\Nats\Event\Event;
-use SmartWeb\CloudEvents\Nats\Event\EventInterface;
 use SmartWeb\Nats\Event\Serialization\EventDecoder;
 use SmartWeb\Nats\Message\Acknowledge;
 use SmartWeb\Nats\Message\Message;
 use SmartWeb\Nats\Message\MessageInterface;
 use SmartWeb\Nats\Subscriber\SubscriberInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
@@ -55,18 +52,28 @@ class StreamingConnection implements StreamingConnectionInterface
     }
     
     /**
-     * @inheritDoc
+     * Publish a payload on the given channel.
+     *
+     * @param string $channel Channel to publish the payload on.
+     * @param object $event   Concrete event to use as payload for the message.
+     *
+     * @return TrackedNatsRequest
      */
-    public function publish(string $channel, EventInterface $event) : TrackedNatsRequest
+    public function publish(string $channel, $event) : TrackedNatsRequest
     {
-        return $this->connection->publish(
-            $channel,
-            $this->payloadSerializer->serialize($event, JsonEncoder::FORMAT)
-        );
+        $payload = $this->payloadSerializer->serialize($event, JsonEncoder::FORMAT);
+        
+        return $this->connection->publish($channel, $payload);
     }
     
     /**
-     * @inheritDoc
+     * Register an event subscriber on the given channel.
+     *
+     * @param string              $channel
+     * @param SubscriberInterface $subscriber
+     * @param SubscriptionOptions $subscriptionOptions
+     *
+     * @return Subscription
      */
     public function subscribe(
         string $channel,
@@ -81,7 +88,14 @@ class StreamingConnection implements StreamingConnectionInterface
     }
     
     /**
-     * @inheritDoc
+     * Register an event subscriber on the given channel in the given queue group.
+     *
+     * @param string              $channel
+     * @param string              $group
+     * @param SubscriberInterface $subscriber
+     * @param SubscriptionOptions $subscriptionOptions
+     *
+     * @return Subscription
      */
     public function groupSubscribe(
         string $channel,
@@ -100,9 +114,9 @@ class StreamingConnection implements StreamingConnectionInterface
     /**
      * @param SubscriberInterface $subscriber
      *
-     * @return callable
+     * @return \Closure
      */
-    private function createSubscriberCallback(SubscriberInterface $subscriber) : callable
+    private function createSubscriberCallback(SubscriberInterface $subscriber) : \Closure
     {
         return function (Msg $msg) use ($subscriber): void {
             $message = new Message($msg);
@@ -111,7 +125,8 @@ class StreamingConnection implements StreamingConnectionInterface
                 $msg->ack();
             }
             
-            $subscriber->handle($this->deserializeMessage($message));
+            $event = $this->deserializeMessage($message, $subscriber);
+            $subscriber->handle($event);
             
             if ($subscriber->acknowledge() === Acknowledge::after()) {
                 $msg->ack();
@@ -120,34 +135,36 @@ class StreamingConnection implements StreamingConnectionInterface
     }
     
     /**
-     * @param MessageInterface $message
+     * @param MessageInterface    $message
+     * @param SubscriberInterface $subscriber
      *
-     * @return EventInterface
+     * @return object
      */
-    private function deserializeMessage(MessageInterface $message) : EventInterface
+    public function deserializeMessage(MessageInterface $message, SubscriberInterface $subscriber)
     {
-        return $this->deserializeEvent($message->getData());
+        return $this->deserializeEvent($message->getData(), $subscriber->expects());
     }
     
     /**
      * @param string $messageData
+     * @param string $type
      *
-     * @return EventInterface
+     * @return object
      */
-    private function deserializeEvent(string $messageData) : EventInterface
+    public function deserializeEvent(string $messageData, string $type)
     {
-        $event = $this->payloadSerializer->deserialize(
+        return $this->payloadSerializer->deserialize(
             $messageData,
-            Event::class,
+            $type,
             EventDecoder::FORMAT
         );
-        
-        if ($event instanceof EventInterface) {
-            return $event;
-        }
-        
-        throw new UnexpectedValueException(
-            'The deserialized payload object must be an instance of ' . EventInterface::class
-        );
+
+//        if ($event instanceof EventInterface) {
+//            return $event;
+//        }
+//
+//        throw new UnexpectedValueException(
+//            'The deserialized payload object must be an instance of ' . EventInterface::class
+//        );
     }
 }
