@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Connection;
 
+use Google\Protobuf\Internal\Message as ProtobufMessage;
 use NatsStreaming\Connection;
 use NatsStreaming\Msg;
 use NatsStreaming\Subscription;
@@ -61,9 +62,21 @@ class StreamingConnection implements StreamingConnectionInterface
      */
     public function publish(string $channel, $event) : TrackedNatsRequest
     {
-        $payload = $this->payloadSerializer->serialize($event, JsonEncoder::FORMAT);
+        $payload = $this->serializeEvent($event);
         
         return $this->connection->publish($channel, $payload);
+    }
+    
+    /**
+     * @param object $event
+     *
+     * @return string
+     */
+    private function serializeEvent($event) : string
+    {
+        return $event instanceof ProtobufMessage
+            ? $event->serializeToJsonString()
+            : $this->payloadSerializer->serialize($event, JsonEncoder::FORMAT);
     }
     
     /**
@@ -153,18 +166,19 @@ class StreamingConnection implements StreamingConnectionInterface
      */
     public function deserializeEvent(string $messageData, string $type)
     {
+        if (\is_a($type, ProtobufMessage::class, true)) {
+            /** @var ProtobufMessage $msg */
+            $msg = new $type();
+            
+            $msg->mergeFromJsonString($messageData);
+            
+            return $msg;
+        }
+        
         return $this->payloadSerializer->deserialize(
             $messageData,
             $type,
             EventDecoder::FORMAT
         );
-
-//        if ($event instanceof EventInterface) {
-//            return $event;
-//        }
-//
-//        throw new UnexpectedValueException(
-//            'The deserialized payload object must be an instance of ' . EventInterface::class
-//        );
     }
 }
