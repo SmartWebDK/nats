@@ -166,13 +166,8 @@ class StreamingConnection implements StreamingConnectionInterface
      */
     public function deserializeEvent(string $messageData, string $type)
     {
-        if (\is_a($type, ProtobufMessage::class, true)) {
-            /** @var ProtobufMessage $msg */
-            $msg = new $type();
-            
-            $msg->mergeFromJsonString($messageData);
-            
-            return $msg;
+        if ($this->shouldDeserializeAsProtobuf($type)) {
+            return $this->deserializeProtobufMessage($messageData, $type);
         }
         
         return $this->payloadSerializer->deserialize(
@@ -180,5 +175,31 @@ class StreamingConnection implements StreamingConnectionInterface
             $type,
             EventDecoder::FORMAT
         );
+    }
+    
+    /**
+     * @param string $type
+     *
+     * @return bool
+     */
+    public function shouldDeserializeAsProtobuf(string $type) : bool
+    {
+        return \is_a($type, ProtobufMessage::class, true);
+    }
+    
+    /**
+     * @param string $messageData
+     * @param string $type
+     *
+     * @return object
+     */
+    public function deserializeProtobufMessage(string $messageData, string $type)
+    {
+        /** @var ProtobufMessage $msg */
+        $msg = new $type();
+        
+        $msg->mergeFromJsonString($messageData);
+        
+        return $msg;
     }
 }
