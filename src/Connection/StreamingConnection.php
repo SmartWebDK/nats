@@ -10,6 +10,8 @@ use NatsStreaming\Msg;
 use NatsStreaming\Subscription;
 use NatsStreaming\SubscriptionOptions;
 use NatsStreaming\TrackedNatsRequest;
+use NatsStreamingProtos\StartPosition;
+use SmartWeb\Events\EventInterface;
 use SmartWeb\Nats\Event\Serialization\EventDecoder;
 use SmartWeb\Nats\Message\Acknowledge;
 use SmartWeb\Nats\Message\Message;
@@ -19,7 +21,8 @@ use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
- * Adapter for {@link NatsStreaming\Connection}, enabling interaction using CloudEvents event specification.
+ * Adapter for {@link NatsStreaming\Connection}, which makes interaction with NATS
+ * using CloudEvents or ProtoBuf event specifications easier.
  *
  * @author Nicolai Agersbæk <na@smartweb.dk>
  *
@@ -125,11 +128,62 @@ class StreamingConnection implements StreamingConnectionInterface
     }
     
     /**
+     * Performs a synchronous request, which expects a reply.
+     *
+     * @param EventInterface      $event
+     * @param SubscriberInterface $responseHandler
+     *
+     * @throws \RuntimeException Occurs if the request could not be published to NATS
+     */
+    public function request(EventInterface $event, SubscriberInterface $responseHandler) : void
+    {
+        // Set appropriate subscription options for a request/reply operation
+        $subOptions = new SubscriptionOptions();
+        $subOptions->setStartAt(StartPosition::NewOnly());
+        $subOptions->setAckWaitSecs(5);
+        $subOptions->setManualAck(true);
+        
+        // Register response handler
+        $sub = $this->subscribe(
+            $this->getResponseChannel($event),
+            $responseHandler,
+            $subOptions
+        );
+        
+        // Perform request
+        $trR = $this->publish($event->getEventType(), $event);
+        
+        // If publishing the request fails, we unregister the response handler
+        // and throw to ensure client code is made aware of the issue.
+        if (!$trR->wait()) {
+            $sub->unsubscribe();
+            
+            $errMsg = \sprintf('Failed to publish event: %s (%s)', $event->getEventType(), $event->getEventId());
+            throw new \RuntimeException($errMsg);
+        }
+        
+        // To guard against possible future updates to the underlying NATS
+        // package, we explicitly provide the number of message to wait for.
+        /** @noinspection ArgumentEqualsDefaultValueInspection */
+        $sub->wait(1);
+    }
+    
+    /**
+     * @param EventInterface $event
+     *
+     * @return string
+     */
+    public function getResponseChannel(EventInterface $event) : string
+    {
+        return "{$event->getEventType()}.{$event->getEventId()}";
+    }
+    
+    /**
      * @param SubscriberInterface $subscriber
      *
      * @return \Closure
      */
-    private function createSubscriberCallback(SubscriberInterface $subscriber) : \Closure
+    public function createSubscriberCallback(SubscriberInterface $subscriber) : \Closure
     {
         return function (Msg $msg) use ($subscriber): void {
             $message = new Message($msg);
