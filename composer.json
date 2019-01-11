@@ -21,7 +21,7 @@
         "php": ">=7.1",
         "google/protobuf": "^3.6",
         "smartweb/cloud-events-nats": "^2.0",
-        "smartweb/events": "dev-master",
+        "smartweb/events": "dev-develop",
         "smartweb/phpnats": "^0.9",
         "smartweb/php-nats-streaming": "^0.3",
         "symfony/serializer": "^4.1",
