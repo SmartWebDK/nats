@@ -16,7 +16,10 @@ use SmartWeb\Nats\Event\Serialization\EventDecoder;
 use SmartWeb\Nats\Message\Acknowledge;
 use SmartWeb\Nats\Message\Message;
 use SmartWeb\Nats\Message\MessageInterface;
+use SmartWeb\Nats\Subscriber\MessageInitializer;
+use SmartWeb\Nats\Subscriber\MessageInitializerInterface;
 use SmartWeb\Nats\Subscriber\SubscriberInterface;
+use SmartWeb\Nats\Subscriber\UsesProtobufAnyInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -42,17 +45,25 @@ class StreamingConnection implements StreamingConnectionInterface
     private $payloadSerializer;
     
     /**
+     * @var MessageInitializerInterface
+     */
+    private $initializer;
+    
+    /**
      * StreamingConnectionAdapter constructor.
      *
-     * @param Connection          $connection
-     * @param SerializerInterface $payloadSerializer
+     * @param Connection                       $connection
+     * @param SerializerInterface              $payloadSerializer
+     * @param MessageInitializerInterface|null $initializer
      */
     public function __construct(
         Connection $connection,
-        SerializerInterface $payloadSerializer
+        SerializerInterface $payloadSerializer,
+        ?MessageInitializerInterface $initializer = null
     ) {
         $this->connection = $connection;
         $this->payloadSerializer = $payloadSerializer;
+        $this->initializer = $initializer ?? new MessageInitializer();
     }
     
     /**
@@ -209,18 +220,12 @@ class StreamingConnection implements StreamingConnectionInterface
      */
     public function deserializeMessage(MessageInterface $message, SubscriberInterface $subscriber)
     {
-        return $this->deserializeEvent($message->getData(), $subscriber->expects());
-    }
-    
-    /**
-     * @param string $messageData
-     * @param string $type
-     *
-     * @return object
-     */
-    public function deserializeEvent(string $messageData, string $type)
-    {
+        $messageData = $message->getData();
+        $type = $subscriber->expects();
+        
         if ($this->shouldDeserializeAsProtobuf($type)) {
+            $this->initializeUses($subscriber);
+            
             return $this->deserializeProtobufMessage($messageData, $type);
         }
         
@@ -229,6 +234,18 @@ class StreamingConnection implements StreamingConnectionInterface
             $type,
             EventDecoder::FORMAT
         );
+    }
+    
+    /**
+     * @param SubscriberInterface $subscriber
+     */
+    private function initializeUses(SubscriberInterface $subscriber) : void
+    {
+        $uses = $subscriber instanceof UsesProtobufAnyInterface
+            ? $subscriber->uses()
+            : [];
+        
+        $this->initializer->initialize($uses);
     }
     
     /**
