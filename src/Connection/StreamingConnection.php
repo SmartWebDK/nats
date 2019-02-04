@@ -89,7 +89,7 @@ class StreamingConnection implements StreamingConnectionInterface
     private function serializeEvent($event) : string
     {
         return $event instanceof ProtobufMessage
-            ? $event->serializeToJsonString()
+            ? $event->serializeToString()
             : $this->payloadSerializer->serialize($event, JsonEncoder::FORMAT);
     }
     
@@ -268,8 +268,8 @@ class StreamingConnection implements StreamingConnectionInterface
     {
         /** @var ProtobufMessage $msg */
         $msg = new $type();
-        
-        $msg->mergeFromJsonString($messageData);
+    
+        $msg->mergeFromString($messageData);
         
         return $msg;
     }
