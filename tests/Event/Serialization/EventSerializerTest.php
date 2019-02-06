@@ -76,6 +76,8 @@ class EventSerializerTest extends TestCase
         $this->assertEquals($event, $actual);
     }
     
+    /** @noinspection PhpUnusedParameterInspection */
+    
     /**
      * @test
      *

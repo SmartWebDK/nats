@@ -51,6 +51,8 @@ final class EventProviderFactory
     
     /**
      * @return EventProviderInterface
+     *
+     * @throws \Exception
      */
     public function complete() : EventProviderInterface
     {
@@ -61,6 +63,8 @@ final class EventProviderFactory
     
     /**
      * @return EventProviderInterface
+     *
+     * @throws \Exception
      */
     public function minimal() : EventProviderInterface
     {
@@ -73,6 +77,8 @@ final class EventProviderFactory
      * @param string[] $includedFields
      *
      * @return EventProviderInterface
+     *
+     * @throws \Exception
      */
     public function custom(array $includedFields) : EventProviderInterface
     {
@@ -85,6 +91,8 @@ final class EventProviderFactory
      * @param string[] $includedFields
      *
      * @return array
+     *
+     * @throws \Exception
      */
     private function getContents(array $includedFields) : array
     {
@@ -159,6 +167,8 @@ final class EventProviderFactory
     
     /**
      * @return array
+     *
+     * @throws \Exception
      */
     private function getCompleteEventContents() : array
     {
@@ -167,6 +177,8 @@ final class EventProviderFactory
     
     /**
      * @return array
+     *
+     * @throws \Exception
      */
     private function resolveCompleteEventContents() : array
     {
@@ -190,6 +202,8 @@ final class EventProviderFactory
     
     /**
      * @return \DateTimeInterface
+     *
+     * @throws \Exception
      */
     private function getFixedTime() : \DateTimeInterface
     {

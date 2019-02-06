@@ -17,15 +17,15 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "ext-bcmath": "*",
         "php": ">=7.1",
+        "ext-bcmath": "*",
         "google/protobuf": "^3.6",
         "smartweb/cloud-events-nats": "^2.0",
-        "smartweb/events": "dev-master",
-        "smartweb/phpnats": "^0.9",
+        "smartweb/php-events-base": "^1.0",
         "smartweb/php-nats-streaming": "^0.3",
-        "symfony/serializer": "^4.1",
-        "symfony/options-resolver": "^4.1"
+        "smartweb/phpnats": "^0.9",
+        "symfony/options-resolver": "^4.1",
+        "symfony/serializer": "^4.1"
     },
     "require-dev": {
         "ext-curl": "*",
