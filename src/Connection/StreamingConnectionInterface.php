@@ -7,6 +7,7 @@ namespace SmartWeb\Nats\Connection;
 use NatsStreaming\Subscription;
 use NatsStreaming\SubscriptionOptions;
 use NatsStreaming\TrackedNatsRequest;
+use SmartWeb\Events\EventInterface;
 use SmartWeb\Nats\Subscriber\SubscriberInterface;
 
 /**
@@ -66,4 +67,12 @@ interface StreamingConnectionInterface
         SubscriberInterface $subscriber,
         SubscriptionOptions $subscriptionOptions
     ) : Subscription;
+    
+    /**
+     * Performs a synchronous request, which expects a reply.
+     *
+     * @param EventInterface      $event
+     * @param SubscriberInterface $responseHandler
+     */
+    public function request(EventInterface $event, SubscriberInterface $responseHandler) : void;
 }
