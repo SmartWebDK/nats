@@ -1,4 +1,5 @@
 <?php
+/** @noinspection EfferentObjectCouplingInspection */
 declare(strict_types = 1);
 
 
@@ -18,6 +19,7 @@ use SmartWeb\Nats\Message\Message;
 use SmartWeb\Nats\Message\MessageInterface;
 use SmartWeb\Nats\Subscriber\MessageInitializer;
 use SmartWeb\Nats\Subscriber\MessageInitializerInterface;
+use SmartWeb\Nats\Subscriber\ResponseHandlerWrapper;
 use SmartWeb\Nats\Subscriber\SubscriberInterface;
 use SmartWeb\Nats\Subscriber\UsesProtobufAnyInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -157,7 +159,7 @@ class StreamingConnection implements StreamingConnectionInterface
         // Register response handler
         $sub = $this->subscribe(
             $this->getResponseChannel($event),
-            $responseHandler,
+            $this->wrapResponseHandler($event, $responseHandler),
             $subOptions
         );
         
@@ -180,13 +182,25 @@ class StreamingConnection implements StreamingConnectionInterface
     }
     
     /**
+     * @param EventInterface      $event
+     * @param SubscriberInterface $subscriber
+     *
+     * @return SubscriberInterface
+     */
+    private function wrapResponseHandler(EventInterface $event, SubscriberInterface $subscriber) : SubscriberInterface
+    {
+        return new ResponseHandlerWrapper($event, $subscriber);
+    }
+    
+    /**
      * @param EventInterface $event
      *
      * @return string
      */
     public function getResponseChannel(EventInterface $event) : string
     {
-        return "{$event->getEventType()}.{$event->getEventId()}";
+        return "{$event->getEventType()}.response";
+//        return "{$event->getEventType()}.response.{$event->getEventId()}";
     }
     
     /**
