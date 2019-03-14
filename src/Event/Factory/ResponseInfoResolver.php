@@ -4,7 +4,10 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Event\Factory;
 
+use Google\Protobuf\Timestamp;
 use SmartWeb\Events\EventInterface;
+use SmartWeb\Events\Generator\EventIdGeneratorInterface;
+use SmartWeb\Events\Generator\EventTimeGeneratorInterface;
 
 /**
  * Provides functionality for resolving response information for request events.
@@ -14,7 +17,25 @@ use SmartWeb\Events\EventInterface;
 class ResponseInfoResolver implements ResponseInfoResolverInterface
 {
     
-    // FIXME: Missing tests!
+    /**
+     * @var EventIdGeneratorInterface
+     */
+    private $idGenerator;
+    
+    /**
+     * @var EventTimeGeneratorInterface
+     */
+    private $timeGenerator;
+    
+    /**
+     * @param EventIdGeneratorInterface   $idGenerator
+     * @param EventTimeGeneratorInterface $timeGenerator
+     */
+    public function __construct(EventIdGeneratorInterface $idGenerator, EventTimeGeneratorInterface $timeGenerator)
+    {
+        $this->idGenerator = $idGenerator;
+        $this->timeGenerator = $timeGenerator;
+    }
     
     /**
      * Resolves the event type to use for a response to the given request.
@@ -30,6 +51,28 @@ class ResponseInfoResolver implements ResponseInfoResolverInterface
     public function getResponseEventType(EventInterface $request) : string
     {
         return "{$request->getEventType()}.response";
+    }
+    
+    /**
+     * Resolves the event ID to use for a response to the given request.
+     *
+     * @param EventInterface $request
+     *
+     * @return string
+     */
+    public function getResponseEventId(EventInterface $request) : string
+    {
+        return $this->idGenerator->generate();
+    }
+    
+    /**
+     * Resolves the event time to use for a response.
+     *
+     * @return Timestamp
+     */
+    public function getResponseEventTime() : Timestamp
+    {
+        return $this->timeGenerator->generate();
     }
     
     /**

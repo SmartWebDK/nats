@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace SmartWeb\Nats\Event\Factory;
 
+use Google\Protobuf\Timestamp;
 use SmartWeb\Events\EventInterface;
 
 /**
@@ -28,6 +29,22 @@ interface ResponseInfoResolverInterface
      * @return string
      */
     public function getResponseEventType(EventInterface $request) : string;
+    
+    /**
+     * Resolves the event ID to use for a response to the given request.
+     *
+     * @param EventInterface $request
+     *
+     * @return string
+     */
+    public function getResponseEventId(EventInterface $request) : string;
+    
+    /**
+     * Resolves the event time to use for a response.
+     *
+     * @return Timestamp
+     */
+    public function getResponseEventTime() : Timestamp;
     
     /**
      * Resolves the response channel to use when publishing a response to the given request.
