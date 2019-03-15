@@ -13,13 +13,14 @@ use NatsStreaming\SubscriptionOptions;
 use NatsStreaming\TrackedNatsRequest;
 use NatsStreamingProtos\StartPosition;
 use SmartWeb\Events\EventInterface;
+use SmartWeb\Nats\Event\Factory\ResponseInfoResolver;
+use SmartWeb\Nats\Event\Factory\ResponseInfoResolverInterface;
 use SmartWeb\Nats\Event\Serialization\EventDecoder;
 use SmartWeb\Nats\Message\Acknowledge;
 use SmartWeb\Nats\Message\Message;
 use SmartWeb\Nats\Message\MessageInterface;
 use SmartWeb\Nats\Subscriber\MessageInitializer;
 use SmartWeb\Nats\Subscriber\MessageInitializerInterface;
-use SmartWeb\Nats\Subscriber\ResponseHandlerWrapper;
 use SmartWeb\Nats\Subscriber\SubscriberInterface;
 use SmartWeb\Nats\Subscriber\UsesProtobufAnyInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -52,20 +53,28 @@ class StreamingConnection implements StreamingConnectionInterface
     private $initializer;
     
     /**
+     * @var ResponseInfoResolverInterface
+     */
+    private $responseInfoResolver;
+    
+    /**
      * StreamingConnectionAdapter constructor.
      *
-     * @param Connection                       $connection
-     * @param SerializerInterface              $payloadSerializer
-     * @param MessageInitializerInterface|null $initializer
+     * @param Connection                         $connection
+     * @param SerializerInterface                $payloadSerializer
+     * @param MessageInitializerInterface|null   $initializer
+     * @param ResponseInfoResolverInterface|null $responseInfoResolver
      */
     public function __construct(
         Connection $connection,
         SerializerInterface $payloadSerializer,
-        ?MessageInitializerInterface $initializer = null
+        ?MessageInitializerInterface $initializer = null,
+        ?ResponseInfoResolverInterface $responseInfoResolver = null
     ) {
         $this->connection = $connection;
         $this->payloadSerializer = $payloadSerializer;
         $this->initializer = $initializer ?? new MessageInitializer();
+        $this->responseInfoResolver = $responseInfoResolver ?? ResponseInfoResolver::default();
     }
     
     /**
@@ -158,8 +167,8 @@ class StreamingConnection implements StreamingConnectionInterface
         
         // Register response handler
         $sub = $this->subscribe(
-            $this->getResponseChannel($event),
-            $this->wrapResponseHandler($event, $responseHandler),
+            $this->responseInfoResolver->getResponseChannel($event),
+            $responseHandler,
             $subOptions
         );
         
@@ -179,28 +188,6 @@ class StreamingConnection implements StreamingConnectionInterface
         // package, we explicitly provide the number of message to wait for.
         /** @noinspection ArgumentEqualsDefaultValueInspection */
         $sub->wait(1);
-    }
-    
-    /**
-     * @param EventInterface      $event
-     * @param SubscriberInterface $subscriber
-     *
-     * @return SubscriberInterface
-     */
-    private function wrapResponseHandler(EventInterface $event, SubscriberInterface $subscriber) : SubscriberInterface
-    {
-        return new ResponseHandlerWrapper($event, $subscriber);
-    }
-    
-    /**
-     * @param EventInterface $event
-     *
-     * @return string
-     */
-    public function getResponseChannel(EventInterface $event) : string
-    {
-        return "{$event->getEventType()}.response";
-//        return "{$event->getEventType()}.response.{$event->getEventId()}";
     }
     
     /**

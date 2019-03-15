@@ -6,7 +6,9 @@ namespace SmartWeb\Nats\Event\Factory;
 
 use Google\Protobuf\Timestamp;
 use SmartWeb\Events\EventInterface;
+use SmartWeb\Events\Generator\EventIdGenerator;
 use SmartWeb\Events\Generator\EventIdGeneratorInterface;
+use SmartWeb\Events\Generator\EventTimeGenerator;
 use SmartWeb\Events\Generator\EventTimeGeneratorInterface;
 
 /**
@@ -16,6 +18,11 @@ use SmartWeb\Events\Generator\EventTimeGeneratorInterface;
  */
 class ResponseInfoResolver implements ResponseInfoResolverInterface
 {
+    
+    /**
+     * @var self|null
+     */
+    private static $defaultInstance;
     
     /**
      * @var EventIdGeneratorInterface
@@ -35,6 +42,25 @@ class ResponseInfoResolver implements ResponseInfoResolverInterface
     {
         $this->idGenerator = $idGenerator;
         $this->timeGenerator = $timeGenerator;
+    }
+    
+    /**
+     * @return ResponseInfoResolver
+     */
+    final public static function default() : ResponseInfoResolver
+    {
+        return self::$defaultInstance ?? self::$defaultInstance = self::createDefault();
+    }
+    
+    /**
+     * @return ResponseInfoResolver
+     */
+    private static function createDefault() : ResponseInfoResolver
+    {
+        return new self(
+            new EventIdGenerator(),
+            new EventTimeGenerator()
+        );
     }
     
     /**
