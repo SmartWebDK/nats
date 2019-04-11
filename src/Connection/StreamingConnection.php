@@ -26,7 +26,7 @@ use SmartWeb\Nats\Subscriber\UsesProtobufAnyInterface;
 
 /**
  * Adapter for {@link NatsStreaming\Connection}, which makes interaction with NATS
- * using CloudEvents or ProtoBuf event specifications easier.
+ * using Protobuf-compatible events easier.
  *
  * @author Nicolai Agersbæk <na@smartweb.dk>
  *
