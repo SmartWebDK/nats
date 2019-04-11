@@ -19,8 +19,6 @@ use SmartWeb\Nats\Error\RequestFailedException;
 use SmartWeb\Nats\Event\Factory\ResponseInfoResolver;
 use SmartWeb\Nats\Event\Factory\ResponseInfoResolverInterface;
 use SmartWeb\Nats\Message\Acknowledge;
-use SmartWeb\Nats\Message\Message;
-use SmartWeb\Nats\Message\MessageInterface;
 use SmartWeb\Nats\Subscriber\MessageInitializer;
 use SmartWeb\Nats\Subscriber\MessageInitializerInterface;
 use SmartWeb\Nats\Subscriber\SubscriberInterface;
@@ -251,13 +249,11 @@ class StreamingConnection implements StreamingConnectionInterface
     public function createSubscriberCallback(SubscriberInterface $subscriber) : \Closure
     {
         return function (Msg $msg) use ($subscriber): void {
-            $message = new Message($msg);
-            
             if ($subscriber->acknowledge() === Acknowledge::before()) {
                 $msg->ack();
             }
-            
-            $event = $this->deserializeMessage($message, $subscriber);
+    
+            $event = $this->deserializeMessage($msg, $subscriber);
             $subscriber->handle($event);
             
             if ($subscriber->acknowledge() === Acknowledge::after()) {
@@ -267,22 +263,22 @@ class StreamingConnection implements StreamingConnectionInterface
     }
     
     /**
-     * @param MessageInterface    $message
+     * @param Msg                 $message
      * @param SubscriberInterface $subscriber
      *
      * @return object
      *
      * @throws InvalidTypeException Occurs if the given type is not Protobuf-compatible.
      */
-    public function deserializeMessage(MessageInterface $message, SubscriberInterface $subscriber)
+    public function deserializeMessage(Msg $message, SubscriberInterface $subscriber)
     {
         // FIXME: Missing tests!
         $type = $subscriber->expects();
     
         $this->validateMessageType($type);
-        
-        $messageData = $message->getData();
     
+        $messageData = $message->getData()->getContents();
+        
         $this->initializeUses($subscriber);
     
         return $this->deserializeProtobufMessage($messageData, $type);
