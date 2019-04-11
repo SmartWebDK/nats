@@ -25,7 +25,6 @@ use SmartWeb\Nats\Subscriber\MessageInitializer;
 use SmartWeb\Nats\Subscriber\MessageInitializerInterface;
 use SmartWeb\Nats\Subscriber\SubscriberInterface;
 use SmartWeb\Nats\Subscriber\UsesProtobufAnyInterface;
-use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * Adapter for {@link NatsStreaming\Connection}, which makes interaction with NATS
@@ -59,11 +58,6 @@ class StreamingConnection implements StreamingConnectionInterface
     private $connection;
     
     /**
-     * @var SerializerInterface
-     */
-    private $payloadSerializer;
-    
-    /**
      * @var MessageInitializerInterface
      */
     private $initializer;
@@ -74,21 +68,16 @@ class StreamingConnection implements StreamingConnectionInterface
     private $responseInfoResolver;
     
     /**
-     * StreamingConnectionAdapter constructor.
-     *
      * @param Connection                         $connection
-     * @param SerializerInterface                $payloadSerializer
      * @param MessageInitializerInterface|null   $initializer
      * @param ResponseInfoResolverInterface|null $responseInfoResolver
      */
     public function __construct(
         Connection $connection,
-        SerializerInterface $payloadSerializer,
         ?MessageInitializerInterface $initializer = null,
         ?ResponseInfoResolverInterface $responseInfoResolver = null
     ) {
         $this->connection = $connection;
-        $this->payloadSerializer = $payloadSerializer;
         $this->initializer = $initializer ?? new MessageInitializer();
         $this->responseInfoResolver = $responseInfoResolver ?? ResponseInfoResolver::default();
     }
@@ -226,7 +215,7 @@ class StreamingConnection implements StreamingConnectionInterface
         // and throw to ensure client code is made aware of the issue.
         if (!$request->wait()) {
             $sub->unsubscribe();
-        
+    
             throw $this->publishFailedException($event);
         }
         
