@@ -19,9 +19,11 @@ interface SubscriberInterface
     /**
      * Handle the event.
      * The class of the provided event **MUST** be an instance of the expected
-     * event class for this subscriber, given by {@see \SmartWeb\Nats\Subscriber\SubscriberInterface::expects() expects}.
+     * event class for this subscriber, given by `SubscriberInterface::expects()`.
      *
      * @param object $event Event to handle.
+     *
+     * @see \SmartWeb\Nats\Subscriber\SubscriberInterface::expects()
      */
     public function handle($event) : void;
     
