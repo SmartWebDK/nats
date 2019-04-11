@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f2b338aac2f858f67f88713fc60c667c",
+    "content-hash": "1d2ff25c8036d01b911527e3e30f55cd",
     "packages": [
         {
             "name": "google/protobuf",
@@ -211,32 +211,6 @@
                 "serializing"
             ],
             "time": "2016-09-21T23:47:34+00:00"
-        },
-        {
-            "name": "smartweb/cloud-events-nats",
-            "version": "v2.1.0",
-            "source": {
-                "type": "git",
-                "url": "git@github.com:SmartWebDK/cloud-events-nats.git",
-                "reference": "81ff7b0f1de4e0379eb03eedd312a2f763472f3c"
-            },
-            "require": {
-                "php": ">=7.1"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "SmartWeb\\CloudEvents\\Nats\\": "src/"
-                }
-            },
-            "authors": [
-                {
-                    "name": "Nicolai Agersbæk",
-                    "email": "na@smartweb.dk"
-                }
-            ],
-            "description": "PHP implementation of the NATS Transport Binding for CloudEvents specification.",
-            "time": "2018-12-20T07:11:00+00:00"
         },
         {
             "name": "smartweb/php-events-base",
