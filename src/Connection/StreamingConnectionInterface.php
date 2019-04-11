@@ -8,6 +8,9 @@ use NatsStreaming\Subscription;
 use NatsStreaming\SubscriptionOptions;
 use NatsStreaming\TrackedNatsRequest;
 use SmartWeb\Events\EventInterface;
+use SmartWeb\Nats\Error\InvalidEventException;
+use SmartWeb\Nats\Error\InvalidTypeException;
+use SmartWeb\Nats\Error\RequestFailedException;
 use SmartWeb\Nats\Subscriber\SubscriberInterface;
 
 /**
@@ -29,12 +32,13 @@ interface StreamingConnectionInterface
     /**
      * Publish a payload on the given channel.
      *
-     * @param string $channel Channel to publish the payload on.
-     * @param object $event   Concrete event to use as payload for the message.
+     * @param EventInterface $event Concrete event to publish.
      *
      * @return TrackedNatsRequest
+     *
+     * @throws InvalidEventException Occurs when the given event is not a valid Protobuf message.
      */
-    public function publish(string $channel, $event) : TrackedNatsRequest;
+    public function publish(EventInterface $event) : TrackedNatsRequest;
     
     /**
      * Register an event subscriber on the given channel.
@@ -44,6 +48,9 @@ interface StreamingConnectionInterface
      * @param SubscriptionOptions $subscriptionOptions
      *
      * @return Subscription
+     *
+     * @throws InvalidTypeException Occurs if the expected type of the given
+     *                              subscriber is not Protobuf-compatible.
      */
     public function subscribe(
         string $channel,
@@ -60,6 +67,9 @@ interface StreamingConnectionInterface
      * @param SubscriptionOptions $subscriptionOptions
      *
      * @return Subscription
+     *
+     * @throws InvalidTypeException Occurs if the expected type of the given
+     *                              subscriber is not Protobuf-compatible.
      */
     public function groupSubscribe(
         string $channel,
@@ -73,6 +83,8 @@ interface StreamingConnectionInterface
      *
      * @param EventInterface      $event
      * @param SubscriberInterface $responseHandler
+     *
+     * @throws RequestFailedException Occurs if the request could not be published to NATS.
      */
     public function request(EventInterface $event, SubscriberInterface $responseHandler) : void;
 }
