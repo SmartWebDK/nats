@@ -22,9 +22,7 @@
         "google/protobuf": "^3.6",
         "smartweb/php-events-base": "^1.1.1",
         "smartweb/php-nats-streaming": "^0.3",
-        "smartweb/phpnats": "^0.9",
-        "symfony/options-resolver": "^4.1",
-        "symfony/serializer": "^4.1"
+        "smartweb/phpnats": "^0.9"
     },
     "require-dev": {
         "ext-curl": "*",
