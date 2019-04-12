@@ -19,6 +19,7 @@ use SmartWeb\Nats\Error\RequestFailedException;
 use SmartWeb\Nats\Event\Factory\ResponseInfoResolver;
 use SmartWeb\Nats\Event\Factory\ResponseInfoResolverInterface;
 use SmartWeb\Nats\Message\Acknowledge;
+use SmartWeb\Nats\Message\DeserializerInterface;
 use SmartWeb\Nats\Subscriber\MessageInitializer;
 use SmartWeb\Nats\Subscriber\MessageInitializerInterface;
 use SmartWeb\Nats\Subscriber\SubscriberInterface;
@@ -46,14 +47,19 @@ class StreamingConnection implements StreamingConnectionInterface
     private const PUBLISH_FAILED_MSG = 'Failed to publish event: %s (%s)';
     
     /**
-     * Error message used when receiving an event not compatible with Protobuf.
+     * @var SubscriptionOptions
      */
-    private const INVALID_MSG_TYPE_MSG = 'Invalid message type; expected instance of ' . ProtobufMessage::class;
+    private static $requestSubOptions;
     
     /**
      * @var Connection
      */
     private $connection;
+    
+    /**
+     * @var DeserializerInterface
+     */
+    private $deserializer;
     
     /**
      * @var MessageInitializerInterface
@@ -67,15 +73,18 @@ class StreamingConnection implements StreamingConnectionInterface
     
     /**
      * @param Connection                         $connection
+     * @param DeserializerInterface              $deserializer
      * @param MessageInitializerInterface|null   $initializer
      * @param ResponseInfoResolverInterface|null $responseInfoResolver
      */
     public function __construct(
         Connection $connection,
+        DeserializerInterface $deserializer,
         ?MessageInitializerInterface $initializer = null,
         ?ResponseInfoResolverInterface $responseInfoResolver = null
     ) {
         $this->connection = $connection;
+        $this->deserializer = $deserializer;
         $this->initializer = $initializer ?? new MessageInitializer();
         $this->responseInfoResolver = $responseInfoResolver ?? ResponseInfoResolver::default();
     }
@@ -91,7 +100,6 @@ class StreamingConnection implements StreamingConnectionInterface
      */
     public function publish(EventInterface $event) : TrackedNatsRequest
     {
-        // FIXME: Missing tests!
         return $this->connection->publish(
             $event->getEventType(),
             $this->serializeEvent($event)
@@ -105,9 +113,8 @@ class StreamingConnection implements StreamingConnectionInterface
      *
      * @throws InvalidEventException
      */
-    private function serializeEvent(EventInterface $event) : string
+    public function serializeEvent(EventInterface $event) : string
     {
-        // FIXME: Missing tests!
         if ($event instanceof ProtobufMessage) {
             return $event->serializeToString();
         }
@@ -192,12 +199,8 @@ class StreamingConnection implements StreamingConnectionInterface
      */
     public function request(EventInterface $event, SubscriberInterface $responseHandler) : void
     {
-        // FIXME: Missing tests!
         // Set appropriate subscription options for a request/reply operation
-        $subOptions = new SubscriptionOptions();
-        $subOptions->setStartAt(StartPosition::NewOnly());
-        $subOptions->setAckWaitSecs(5);
-        $subOptions->setManualAck(true);
+        $subOptions = $this->getSubOptionsForRequest();
         
         // Register response handler
         $sub = $this->subscribe(
@@ -221,6 +224,27 @@ class StreamingConnection implements StreamingConnectionInterface
         // package, we explicitly provide the number of message to wait for.
         /** @noinspection ArgumentEqualsDefaultValueInspection */
         $sub->wait(1);
+    }
+    
+    /**
+     * @return SubscriptionOptions
+     */
+    final protected function getSubOptionsForRequest() : SubscriptionOptions
+    {
+        return self::$requestSubOptions ?? self::$requestSubOptions = $this->resolveSubOptionsForRequest();
+    }
+    
+    /**
+     * @return SubscriptionOptions
+     */
+    final protected function resolveSubOptionsForRequest() : SubscriptionOptions
+    {
+        $subOptions = new SubscriptionOptions();
+        $subOptions->setStartAt(StartPosition::NewOnly());
+        $subOptions->setAckWaitSecs(5);
+        $subOptions->setManualAck(true);
+        
+        return $subOptions;
     }
     
     /**
@@ -266,22 +290,16 @@ class StreamingConnection implements StreamingConnectionInterface
      * @param Msg                 $message
      * @param SubscriberInterface $subscriber
      *
-     * @return object
+     * @return ProtobufMessage
      *
      * @throws InvalidTypeException Occurs if the given type is not Protobuf-compatible.
+     * @throws \Exception Occurs if the data of the given `$message` is not valid for the expected type.
      */
-    public function deserializeMessage(Msg $message, SubscriberInterface $subscriber)
+    public function deserializeMessage(Msg $message, SubscriberInterface $subscriber) : ProtobufMessage
     {
-        // FIXME: Missing tests!
-        $type = $subscriber->expects();
-    
-        $this->validateMessageType($type);
-    
-        $messageData = $message->getData()->getContents();
-        
         $this->initializeUses($subscriber);
     
-        return $this->deserializeProtobufMessage($messageData, $type);
+        return $this->deserializer->deserialize($message->getData()->getContents(), $subscriber->expects());
     }
     
     /**
@@ -289,51 +307,10 @@ class StreamingConnection implements StreamingConnectionInterface
      */
     public function initializeUses(SubscriberInterface $subscriber) : void
     {
-        // FIXME: Missing tests!
         $uses = $subscriber instanceof UsesProtobufAnyInterface
             ? $subscriber->uses()
             : [];
-        
-        $this->initializer->initialize($uses);
-    }
     
-    /**
-     * @param string $type
-     *
-     * @throws InvalidTypeException Occurs if the given type is not Protobuf-compatible.
-     */
-    public function validateMessageType(string $type) : void
-    {
-        // FIXME: Missing tests!
-        if (!$this->typeIsProtobufCompatible($type)) {
-            throw new InvalidTypeException($type, self::INVALID_MSG_TYPE_MSG);
-        }
-    }
-    
-    /**
-     * @param string $type
-     *
-     * @return bool
-     */
-    public function typeIsProtobufCompatible(string $type) : bool
-    {
-        // FIXME: Missing tests!
-        return \is_a($type, ProtobufMessage::class, true);
-    }
-    
-    /**
-     * @param string $messageData
-     * @param string $type
-     *
-     * @return object
-     */
-    public function deserializeProtobufMessage(string $messageData, string $type)
-    {
-        /** @var ProtobufMessage $msg */
-        $msg = new $type();
-    
-        $msg->mergeFromString($messageData);
-        
-        return $msg;
+        $this->initializer->initialize(...$uses);
     }
 }

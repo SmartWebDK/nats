@@ -17,5 +17,5 @@ interface MessageInitializerInterface
     /**
      * @param string[] $types
      */
-    public function initialize(array $types) : void;
+    public function initialize(string ...$types) : void;
 }
