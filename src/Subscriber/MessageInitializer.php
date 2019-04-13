@@ -20,13 +20,22 @@ class MessageInitializer implements MessageInitializerInterface
     /**
      * @param string[] $types
      */
-    public function initialize(array $types) : void
+    public function initialize(string ...$types) : void
     {
+        // FIXME: Missing tests!
         $uninitialized = \array_diff($types, self::$initialized);
         
         foreach ($uninitialized as $type) {
-            new $type();
-            self::$initialized[$type] = $type;
+            $this->initializeType($type);
         }
+    }
+    
+    /**
+     * @param string $type
+     */
+    protected function initializeType(string $type) : void
+    {
+        new $type();
+        self::$initialized[$type] = $type;
     }
 }

@@ -13,22 +13,19 @@ use NatsStreaming\SubscriptionOptions;
 use NatsStreaming\TrackedNatsRequest;
 use NatsStreamingProtos\StartPosition;
 use SmartWeb\Events\EventInterface;
-use SmartWeb\Nats\Event\Factory\ResponseInfoResolver;
+use SmartWeb\Nats\Error\InvalidEventException;
+use SmartWeb\Nats\Error\InvalidTypeException;
+use SmartWeb\Nats\Error\RequestFailedException;
 use SmartWeb\Nats\Event\Factory\ResponseInfoResolverInterface;
-use SmartWeb\Nats\Event\Serialization\EventDecoder;
 use SmartWeb\Nats\Message\Acknowledge;
-use SmartWeb\Nats\Message\Message;
-use SmartWeb\Nats\Message\MessageInterface;
-use SmartWeb\Nats\Subscriber\MessageInitializer;
+use SmartWeb\Nats\Message\DeserializerInterface;
 use SmartWeb\Nats\Subscriber\MessageInitializerInterface;
 use SmartWeb\Nats\Subscriber\SubscriberInterface;
 use SmartWeb\Nats\Subscriber\UsesProtobufAnyInterface;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * Adapter for {@link NatsStreaming\Connection}, which makes interaction with NATS
- * using CloudEvents or ProtoBuf event specifications easier.
+ * using Protobuf-compatible events easier.
  *
  * @author Nicolai Agersbæk <na@smartweb.dk>
  *
@@ -38,14 +35,29 @@ class StreamingConnection implements StreamingConnectionInterface
 {
     
     /**
+     * Format used to create error message when receiving invalid event class.
+     */
+    private const INVALID_EVENT_CLS_MSG = 'Expected instance of %s; was %s';
+    
+    /**
+     * Format used to create error message when publishing and event fails.
+     */
+    private const PUBLISH_FAILED_MSG = 'Failed to publish event: %s (%s)';
+    
+    /**
+     * @var SubscriptionOptions
+     */
+    private static $requestSubOptions;
+    
+    /**
      * @var Connection
      */
     private $connection;
     
     /**
-     * @var SerializerInterface
+     * @var DeserializerInterface
      */
-    private $payloadSerializer;
+    private $deserializer;
     
     /**
      * @var MessageInitializerInterface
@@ -58,50 +70,72 @@ class StreamingConnection implements StreamingConnectionInterface
     private $responseInfoResolver;
     
     /**
-     * StreamingConnectionAdapter constructor.
-     *
-     * @param Connection                         $connection
-     * @param SerializerInterface                $payloadSerializer
-     * @param MessageInitializerInterface|null   $initializer
-     * @param ResponseInfoResolverInterface|null $responseInfoResolver
+     * @param Connection                    $connection
+     * @param DeserializerInterface         $deserializer
+     * @param MessageInitializerInterface   $initializer
+     * @param ResponseInfoResolverInterface $responseInfoResolver
      */
     public function __construct(
         Connection $connection,
-        SerializerInterface $payloadSerializer,
-        ?MessageInitializerInterface $initializer = null,
-        ?ResponseInfoResolverInterface $responseInfoResolver = null
+        DeserializerInterface $deserializer,
+        MessageInitializerInterface $initializer,
+        ResponseInfoResolverInterface $responseInfoResolver
     ) {
         $this->connection = $connection;
-        $this->payloadSerializer = $payloadSerializer;
-        $this->initializer = $initializer ?? new MessageInitializer();
-        $this->responseInfoResolver = $responseInfoResolver ?? ResponseInfoResolver::default();
+        $this->deserializer = $deserializer;
+        $this->initializer = $initializer;
+        $this->responseInfoResolver = $responseInfoResolver;
     }
     
     /**
-     * Publish a payload on the given channel.
+     * Publish an event to NATS.
+     * The channel on which to publish the payload is inferred by the type of
+     * the given event.
      *
-     * @param string $channel Channel to publish the payload on.
-     * @param object $event   Concrete event to use as payload for the message.
+     * @param EventInterface $event Concrete event to publish.
      *
      * @return TrackedNatsRequest
+     *
+     * @throws InvalidEventException Occurs when the given event is not a valid Protobuf message.
      */
-    public function publish(string $channel, $event) : TrackedNatsRequest
+    public function publish(EventInterface $event) : TrackedNatsRequest
     {
-        $payload = $this->serializeEvent($event);
-        
-        return $this->connection->publish($channel, $payload);
+        return $this->connection->publish(
+            $event->getEventType(),
+            $this->serializeEvent($event)
+        );
     }
     
     /**
-     * @param object $event
+     * @param EventInterface $event
      *
      * @return string
+     *
+     * @throws InvalidEventException
      */
-    private function serializeEvent($event) : string
+    public function serializeEvent(EventInterface $event) : string
     {
-        return $event instanceof ProtobufMessage
-            ? $event->serializeToString()
-            : $this->payloadSerializer->serialize($event, JsonEncoder::FORMAT);
+        if ($event instanceof ProtobufMessage) {
+            return $event->serializeToString();
+        }
+    
+        throw $this->invalidEventException($event);
+    }
+    
+    /**
+     * @param EventInterface $event
+     *
+     * @return InvalidEventException
+     */
+    private function invalidEventException(EventInterface $event) : InvalidEventException
+    {
+        $msg = \sprintf(
+            self::INVALID_EVENT_CLS_MSG,
+            ProtobufMessage::class,
+            \get_class($event)
+        );
+        
+        return new InvalidEventException($event, $msg);
     }
     
     /**
@@ -112,6 +146,9 @@ class StreamingConnection implements StreamingConnectionInterface
      * @param SubscriptionOptions $subscriptionOptions
      *
      * @return Subscription
+     *
+     * @throws InvalidTypeException Occurs if the expected type of the given
+     *                              subscriber is not Protobuf-compatible.
      */
     public function subscribe(
         string $channel,
@@ -134,6 +171,9 @@ class StreamingConnection implements StreamingConnectionInterface
      * @param SubscriptionOptions $subscriptionOptions
      *
      * @return Subscription
+     *
+     * @throws InvalidTypeException Occurs if the expected type of the given
+     *                              subscriber is not Protobuf-compatible.
      */
     public function groupSubscribe(
         string $channel,
@@ -155,15 +195,12 @@ class StreamingConnection implements StreamingConnectionInterface
      * @param EventInterface      $event
      * @param SubscriberInterface $responseHandler
      *
-     * @throws \RuntimeException Occurs if the request could not be published to NATS
+     * @throws RequestFailedException Occurs if the request could not be published to NATS.
      */
     public function request(EventInterface $event, SubscriberInterface $responseHandler) : void
     {
         // Set appropriate subscription options for a request/reply operation
-        $subOptions = new SubscriptionOptions();
-        $subOptions->setStartAt(StartPosition::NewOnly());
-        $subOptions->setAckWaitSecs(5);
-        $subOptions->setManualAck(true);
+        $subOptions = $this->getSubOptionsForRequest();
         
         // Register response handler
         $sub = $this->subscribe(
@@ -173,15 +210,14 @@ class StreamingConnection implements StreamingConnectionInterface
         );
         
         // Perform request
-        $trR = $this->publish($event->getEventType(), $event);
+        $request = $this->publish($event);
         
         // If publishing the request fails, we unregister the response handler
         // and throw to ensure client code is made aware of the issue.
-        if (!$trR->wait()) {
+        if (!$request->wait()) {
             $sub->unsubscribe();
-            
-            $errMsg = \sprintf('Failed to publish event: %s (%s)', $event->getEventType(), $event->getEventId());
-            throw new \RuntimeException($errMsg);
+    
+            throw $this->publishFailedException($event);
         }
         
         // To guard against possible future updates to the underlying NATS
@@ -191,20 +227,57 @@ class StreamingConnection implements StreamingConnectionInterface
     }
     
     /**
+     * @return SubscriptionOptions
+     */
+    final protected function getSubOptionsForRequest() : SubscriptionOptions
+    {
+        return self::$requestSubOptions ?? self::$requestSubOptions = $this->resolveSubOptionsForRequest();
+    }
+    
+    /**
+     * @return SubscriptionOptions
+     */
+    final protected function resolveSubOptionsForRequest() : SubscriptionOptions
+    {
+        $subOptions = new SubscriptionOptions();
+        $subOptions->setStartAt(StartPosition::NewOnly());
+        $subOptions->setAckWaitSecs(5);
+        $subOptions->setManualAck(true);
+        
+        return $subOptions;
+    }
+    
+    /**
+     * @param EventInterface $event
+     *
+     * @return RequestFailedException
+     */
+    private function publishFailedException(EventInterface $event) : RequestFailedException
+    {
+        $msg = \sprintf(
+            self::PUBLISH_FAILED_MSG,
+            $event->getEventType(),
+            $event->getEventId()
+        );
+        
+        return new RequestFailedException($event, $msg);
+    }
+    
+    /**
      * @param SubscriberInterface $subscriber
      *
      * @return \Closure
+     *
+     * @throws InvalidTypeException Occurs if the given type is not Protobuf-compatible.
      */
     public function createSubscriberCallback(SubscriberInterface $subscriber) : \Closure
     {
         return function (Msg $msg) use ($subscriber): void {
-            $message = new Message($msg);
-            
             if ($subscriber->acknowledge() === Acknowledge::before()) {
                 $msg->ack();
             }
-            
-            $event = $this->deserializeMessage($message, $subscriber);
+    
+            $event = $this->deserializeMessage($msg, $subscriber);
             $subscriber->handle($event);
             
             if ($subscriber->acknowledge() === Acknowledge::after()) {
@@ -214,64 +287,30 @@ class StreamingConnection implements StreamingConnectionInterface
     }
     
     /**
-     * @param MessageInterface    $message
+     * @param Msg                 $message
      * @param SubscriberInterface $subscriber
      *
-     * @return object
+     * @return ProtobufMessage
+     *
+     * @throws InvalidTypeException Occurs if the given type is not Protobuf-compatible.
+     * @throws \Exception Occurs if the data of the given `$message` is not valid for the expected type.
      */
-    public function deserializeMessage(MessageInterface $message, SubscriberInterface $subscriber)
+    public function deserializeMessage(Msg $message, SubscriberInterface $subscriber) : ProtobufMessage
     {
-        $messageData = $message->getData();
-        $type = $subscriber->expects();
-        
-        if ($this->shouldDeserializeAsProtobuf($type)) {
-            $this->initializeUses($subscriber);
-            
-            return $this->deserializeProtobufMessage($messageData, $type);
-        }
-        
-        return $this->payloadSerializer->deserialize(
-            $messageData,
-            $type,
-            EventDecoder::FORMAT
-        );
+        $this->initializeUses($subscriber);
+    
+        return $this->deserializer->deserialize($message->getData()->getContents(), $subscriber->expects());
     }
     
     /**
      * @param SubscriberInterface $subscriber
      */
-    private function initializeUses(SubscriberInterface $subscriber) : void
+    public function initializeUses(SubscriberInterface $subscriber) : void
     {
         $uses = $subscriber instanceof UsesProtobufAnyInterface
             ? $subscriber->uses()
             : [];
-        
-        $this->initializer->initialize($uses);
-    }
     
-    /**
-     * @param string $type
-     *
-     * @return bool
-     */
-    public function shouldDeserializeAsProtobuf(string $type) : bool
-    {
-        return \is_a($type, ProtobufMessage::class, true);
-    }
-    
-    /**
-     * @param string $messageData
-     * @param string $type
-     *
-     * @return object
-     */
-    public function deserializeProtobufMessage(string $messageData, string $type)
-    {
-        /** @var ProtobufMessage $msg */
-        $msg = new $type();
-    
-        $msg->mergeFromString($messageData);
-        
-        return $msg;
+        $this->initializer->initialize(...$uses);
     }
 }

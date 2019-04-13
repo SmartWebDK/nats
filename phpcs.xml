@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<ruleset name="SmartWeb">
+    <description>The coding standard for SmartWeb packages</description>
+
+    <exclude-pattern>_*/*.php</exclude-pattern>
+    <exclude-pattern>/*.blade.php</exclude-pattern>
+    <exclude-pattern>Migrations/*.php</exclude-pattern>
+    <exclude-pattern>migrations/*.php</exclude-pattern>
+
+    <rule ref="PSR2"/>
+    <rule ref="PSR2.Methods.MethodDeclaration">
+        <!-- Exclude Codeception event hooks -->
+        <exclude-pattern>*Test.php</exclude-pattern>
+        <exclude-pattern>*Cest.php</exclude-pattern>
+        <exclude-pattern>*Cept.php</exclude-pattern>
+    </rule>
+    <rule ref="Generic.Files.LineLength.TooLong">
+        <!-- Exclude Codeception test classes -->
+        <exclude-pattern>*Test.php</exclude-pattern>
+        <exclude-pattern>*Cest.php</exclude-pattern>
+        <exclude-pattern>*Cept.php</exclude-pattern>
+    </rule>
+
+    <rule ref="Heimdall.PHP.DisallowHashComments"/>
+    <rule ref="Heimdall.Illuminate.NoArrayHelpers"/>
+    <rule ref="Heimdall.Functions.InternalFunctions"/>
+</ruleset>

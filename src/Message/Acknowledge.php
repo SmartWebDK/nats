@@ -30,19 +30,6 @@ final class Acknowledge
     private static $instances = [];
     
     /**
-     * @var string
-     */
-    private $behavior;
-    
-    /**
-     * @param string $behavior
-     */
-    private function __construct(string $behavior)
-    {
-        $this->behavior = $behavior;
-    }
-    
-    /**
      * @return self
      */
     public static function before() : self
@@ -65,6 +52,6 @@ final class Acknowledge
      */
     private static function getInstance(string $key) : self
     {
-        return self::$instances[$key] ?? self::$instances[$key] = new self($key);
+        return self::$instances[$key] ?? self::$instances[$key] = new self();
     }
 }
