@@ -36,7 +36,7 @@ class Deserializer implements DeserializerInterface
      */
     public function deserialize(string $messageData, string $messageType) : Message
     {
-        // FIXME: Missing tests!
+        // TODO: Missing tests!
         $this->validateMessageType($messageType);
         
         /** @var Message $msg */

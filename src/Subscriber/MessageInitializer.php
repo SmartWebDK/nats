@@ -33,7 +33,7 @@ class MessageInitializer implements MessageInitializerInterface
     /**
      * @param string $type
      */
-    private function initializeType(string $type) : void
+    protected function initializeType(string $type) : void
     {
         new $type();
         self::$initialized[$type] = $type;

@@ -34,7 +34,6 @@ class DeserializerTest extends TestCase
      */
     public function testDeserialize() : void
     {
-        $this->markTestSkipped();
         $this->markTestIncomplete('Missing tests!');
     }
     
