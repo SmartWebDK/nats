@@ -87,11 +87,11 @@ class StreamingConnectionTest extends TestCase
         $this->resolver = $this->resolver ?? new ResponseInfoResolver($this->idGen, $this->timeGen);
         
         $this->connection = $this->connection ?? new StreamingConnection(
-                $this->conn,
-                $this->deserializer,
-                $this->initializer,
-                $this->resolver
-            );
+            $this->conn,
+            $this->deserializer,
+            $this->initializer,
+            $this->resolver
+        );
     }
     
     /**
