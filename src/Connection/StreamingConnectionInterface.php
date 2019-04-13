@@ -30,7 +30,9 @@ interface StreamingConnectionInterface
     public const CLUSTER_ID_KEY = 'NATS_CLUSTER_ID';
     
     /**
-     * Publish a payload on the given channel.
+     * Publish an event to NATS.
+     * The channel on which to publish the payload is inferred by the type of
+     * the given event.
      *
      * @param EventInterface $event Concrete event to publish.
      *
