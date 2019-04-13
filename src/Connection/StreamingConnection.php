@@ -16,11 +16,9 @@ use SmartWeb\Events\EventInterface;
 use SmartWeb\Nats\Error\InvalidEventException;
 use SmartWeb\Nats\Error\InvalidTypeException;
 use SmartWeb\Nats\Error\RequestFailedException;
-use SmartWeb\Nats\Event\Factory\ResponseInfoResolver;
 use SmartWeb\Nats\Event\Factory\ResponseInfoResolverInterface;
 use SmartWeb\Nats\Message\Acknowledge;
 use SmartWeb\Nats\Message\DeserializerInterface;
-use SmartWeb\Nats\Subscriber\MessageInitializer;
 use SmartWeb\Nats\Subscriber\MessageInitializerInterface;
 use SmartWeb\Nats\Subscriber\SubscriberInterface;
 use SmartWeb\Nats\Subscriber\UsesProtobufAnyInterface;
@@ -72,21 +70,21 @@ class StreamingConnection implements StreamingConnectionInterface
     private $responseInfoResolver;
     
     /**
-     * @param Connection                         $connection
-     * @param DeserializerInterface              $deserializer
-     * @param MessageInitializerInterface|null   $initializer
-     * @param ResponseInfoResolverInterface|null $responseInfoResolver
+     * @param Connection                    $connection
+     * @param DeserializerInterface         $deserializer
+     * @param MessageInitializerInterface   $initializer
+     * @param ResponseInfoResolverInterface $responseInfoResolver
      */
     public function __construct(
         Connection $connection,
         DeserializerInterface $deserializer,
-        ?MessageInitializerInterface $initializer = null,
-        ?ResponseInfoResolverInterface $responseInfoResolver = null
+        MessageInitializerInterface $initializer,
+        ResponseInfoResolverInterface $responseInfoResolver
     ) {
         $this->connection = $connection;
         $this->deserializer = $deserializer;
-        $this->initializer = $initializer ?? new MessageInitializer();
-        $this->responseInfoResolver = $responseInfoResolver ?? ResponseInfoResolver::default();
+        $this->initializer = $initializer;
+        $this->responseInfoResolver = $responseInfoResolver;
     }
     
     /**
