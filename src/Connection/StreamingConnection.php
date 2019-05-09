@@ -13,6 +13,8 @@ use NatsStreaming\SubscriptionOptions;
 use NatsStreaming\TrackedNatsRequest;
 use NatsStreamingProtos\StartPosition;
 use SmartWeb\Events\EventInterface;
+use SmartWeb\Nats\Error\Handler\ExceptionHandlerInterface;
+use SmartWeb\Nats\Error\Handler\RethrowingHandler;
 use SmartWeb\Nats\Error\InvalidEventException;
 use SmartWeb\Nats\Error\InvalidTypeException;
 use SmartWeb\Nats\Error\RequestFailedException;
@@ -48,6 +50,11 @@ class StreamingConnection implements StreamingConnectionInterface
      * @var SubscriptionOptions
      */
     private static $requestSubOptions;
+    
+    /**
+     * @var ExceptionHandlerInterface
+     */
+    private static $defaultErrorHandler;
     
     /**
      * @var Connection
@@ -118,7 +125,7 @@ class StreamingConnection implements StreamingConnectionInterface
         if ($event instanceof ProtobufMessage) {
             return $event->serializeToString();
         }
-    
+        
         throw $this->invalidEventException($event);
     }
     
@@ -216,7 +223,7 @@ class StreamingConnection implements StreamingConnectionInterface
         // and throw to ensure client code is made aware of the issue.
         if (!$request->wait()) {
             $sub->unsubscribe();
-    
+            
             throw $this->publishFailedException($event);
         }
         
@@ -276,14 +283,42 @@ class StreamingConnection implements StreamingConnectionInterface
             if ($subscriber->acknowledge() === Acknowledge::before()) {
                 $msg->ack();
             }
-    
-            $event = $this->deserializeMessage($msg, $subscriber);
+            
+            try {
+                $event = $this->deserializeMessage($msg, $subscriber);
+            } catch (\Throwable $exception) {
+                // If an exception occurs, delegate handling to the subscriber.
+                $this->getSubscriberErrorHandler($subscriber)->handle($exception);
+                
+                return;
+            }
+            
             $subscriber->handle($event);
             
             if ($subscriber->acknowledge() === Acknowledge::after()) {
                 $msg->ack();
             }
         };
+    }
+    
+    /**
+     * @param SubscriberInterface $subscriber
+     *
+     * @return ExceptionHandlerInterface
+     */
+    private function getSubscriberErrorHandler(SubscriberInterface $subscriber) : ExceptionHandlerInterface
+    {
+        return $subscriber instanceof ExceptionHandlerInterface
+            ? $subscriber
+            : $this->getDefaultErrorHandler();
+    }
+    
+    /**
+     * @return ExceptionHandlerInterface
+     */
+    private function getDefaultErrorHandler() : ExceptionHandlerInterface
+    {
+        return self::$defaultErrorHandler ?? self::$defaultErrorHandler = new RethrowingHandler();
     }
     
     /**
@@ -298,7 +333,7 @@ class StreamingConnection implements StreamingConnectionInterface
     public function deserializeMessage(Msg $message, SubscriberInterface $subscriber) : ProtobufMessage
     {
         $this->initializeUses($subscriber);
-    
+        
         return $this->deserializer->deserialize($message->getData()->getContents(), $subscriber->expects());
     }
     
@@ -310,7 +345,7 @@ class StreamingConnection implements StreamingConnectionInterface
         $uses = $subscriber instanceof UsesProtobufAnyInterface
             ? $subscriber->uses()
             : [];
-    
+        
         $this->initializer->initialize(...$uses);
     }
 }
