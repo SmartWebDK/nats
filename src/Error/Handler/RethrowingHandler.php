@@ -21,7 +21,7 @@ class RethrowingHandler implements ExceptionHandlerInterface
      *
      * @throws \Throwable
      */
-    public function handle(\Throwable $exception) : void
+    public function handleException(\Throwable $exception) : void
     {
         throw $exception;
     }

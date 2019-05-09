@@ -19,5 +19,5 @@ interface ExceptionHandlerInterface
      *
      * @param \Throwable $exception
      */
-    public function handle(\Throwable $exception) : void;
+    public function handleException(\Throwable $exception) : void;
 }

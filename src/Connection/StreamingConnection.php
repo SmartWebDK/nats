@@ -288,7 +288,7 @@ class StreamingConnection implements StreamingConnectionInterface
                 $event = $this->deserializeMessage($msg, $subscriber);
             } catch (\Throwable $exception) {
                 // If an exception occurs, delegate handling to the subscriber.
-                $this->getSubscriberErrorHandler($subscriber)->handle($exception);
+                $this->getSubscriberErrorHandler($subscriber)->handleException($exception);
                 
                 return;
             }
