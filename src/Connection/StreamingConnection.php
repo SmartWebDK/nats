@@ -287,6 +287,7 @@ class StreamingConnection implements StreamingConnectionInterface
             try {
                 $event = $this->deserializeMessage($msg, $subscriber);
             } catch (\Throwable $exception) {
+                // FIXME: Missing tests!
                 // If an exception occurs, delegate handling to the subscriber.
                 $this->getSubscriberErrorHandler($subscriber)->handleException($exception);
                 
