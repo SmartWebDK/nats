@@ -34,13 +34,15 @@ interface StreamingConnectionInterface
      * The channel on which to publish the payload is inferred by the type of
      * the given event.
      *
-     * @param EventInterface $event Concrete event to publish.
+     * @param EventInterface $event   Concrete event to publish.
+     * @param string|null    $channel [Optional] channel to publish on. Default
+     *                                will be determined from the type of the given event.
      *
      * @return TrackedNatsRequest
      *
      * @throws InvalidEventException Occurs when the given event is not a valid Protobuf message.
      */
-    public function publish(EventInterface $event) : TrackedNatsRequest;
+    public function publish(EventInterface $event, ?string $channel = null) : TrackedNatsRequest;
     
     /**
      * Register an event subscriber on the given channel.
